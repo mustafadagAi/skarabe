@@ -149,6 +149,53 @@
   #roomList .room { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; }
   #roomList .room span { color: var(--muted); text-align: left; }
   @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+
+  /* ---- Lobi: logo + üç panel (oyuncu / oyna / bugün); telefonda tek sütun, "oyna" en üstte ---- */
+  #menu { justify-content: flex-start; padding: 22px 16px 48px; gap: 0; }
+  .lobby { width: 100%; max-width: 1000px; margin: auto; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .lobbyHead { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .lobby .logo { font-size: clamp(44px, 8.5vw, 92px); }
+  .lobbyGrid { display: grid; grid-template-columns: 268px minmax(300px, 392px) 268px; gap: 16px; align-items: start; justify-content: center; width: 100%; }
+  .panel { box-sizing: border-box; background: var(--paper); border: 2px solid var(--ink); border-radius: 16px; padding: 16px 18px;
+           box-shadow: 5px 6px 0 rgba(42, 31, 20, 0.18); display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 0; }
+  .panel.center { padding: 22px 22px 18px; gap: 12px; }
+  .panelTitle { align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .center .field { width: 100%; }
+  .center .btn.big { width: 100%; padding: 15px 20px; font-size: 20px; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 12px; }
+  .center .btn.big.ghost { font-size: 15px; padding: 11px 20px; text-transform: none; letter-spacing: 0; }
+  .live { color: var(--teal); font-weight: 600; }
+  .live:empty, #onlineCount:empty, #helpText:empty { display: none; }
+  .linkBtn { background: none; border: 0; padding: 2px 6px; color: var(--muted); font: 600 13px 'Rubik', system-ui, sans-serif; text-decoration: underline; cursor: pointer; }
+  .linkBtn[hidden] { display: none; }
+  .pill { margin: 0; font-size: 12.5px; font-weight: 500; color: var(--ink); background: rgba(242, 161, 4, 0.16); border: 1.5px solid rgba(242, 161, 4, 0.7);
+          border-radius: 999px; padding: 5px 12px; text-align: center; max-width: 100%; box-sizing: border-box; }
+  .pill:empty { display: none; }
+  .help { font-size: 12px; max-width: 100%; }
+  .profile .meter { width: 100%; }
+  .profile #skinPick { gap: 6px; }
+  .profile #skinPick canvas { width: 150px; height: 44px; }
+  .profile .arrow { width: 34px; height: 34px; }
+  .daily { align-items: stretch; }
+  .daily #mission { max-width: none; background: rgba(242, 161, 4, 0.12); border: 1.5px solid rgba(242, 161, 4, 0.7); border-style: solid; }
+  .daily .small { text-align: left; max-width: none; }
+  .daily #moreBox { max-width: none; text-align: left; }
+  .daily #moreBox > summary { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .daily .moreInner { align-items: stretch; }
+  .rowBtn { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .rowBtn .small { flex: 1; }
+  .daily #streamBox { max-width: none; text-align: left; }
+  @media (max-width: 920px) {
+    .lobbyGrid { grid-template-columns: minmax(0, 420px); }
+    .panel.center { order: -1; }
+    .lobby { gap: 14px; }
+  }
+  @media (max-width: 600px) {
+    /* Dar ekranda sabit düğmeler logoyu ve metni örtmesin: alt köşeler, menüye alt boşluk */
+    #langBtn { top: auto; bottom: 12px; left: 12px; right: auto; }
+    #muteBtn { bottom: 12px; }
+    #menu { padding-bottom: 72px; }
+    #netBanner { bottom: 56px; }
+  }
 </style>
 </head>
 <body>
@@ -160,59 +207,77 @@
 <div id="netBanner" hidden><span id="netText"></span><button id="copyRoomBtn" class="btn ghost mini" data-t="copyLink" hidden>Bağlantıyı kopyala</button><button id="beginBtn" class="btn mini" data-t="begin" hidden>Başlat</button></div>
 
 <div id="menu" class="overlay">
-  <h1 class="logo">SKARABE</h1>
-  <p class="tagline" data-t="tagline">İt, fırtınaya düşür, ayakta kalan son böcek ol.</p>
-  <input id="nameInput" class="field" data-t-ph="namePh" placeholder="Takma ad" maxlength="12" autocomplete="off">
-  <div id="skinPick">
-    <button id="skinPrev" class="arrow" data-t-aria="prevSkin" aria-label="Önceki görünüm">◀</button>
-    <div>
-      <canvas id="skinPreview" width="220" height="64"></canvas>
-      <div id="skinName"></div>
-      <div id="skinLock"></div>
-    </div>
-    <button id="skinNext" class="arrow" data-t-aria="nextSkin" aria-label="Sonraki görünüm">▶</button>
-  </div>
-  <button id="unlockBtn" class="btn ghost mini" data-t="unlockNow" hidden>Beklemeden aç</button>
-  <button id="playBtn" class="btn" data-t="play">Oyna</button>
-  <button id="onlineBtn" class="btn ghost" data-t="online" hidden>Çevrimiçi oyna</button>
-  <p id="onlineLine" class="small"></p>
-  <button id="roomsBtn" class="btn ghost mini" data-t="rooms" hidden>Odalar</button>
-  <div id="roomBox" hidden>
-    <div id="roomList"></div>
-    <div class="share">
-      <button id="createRoomBtn" class="btn ghost mini" data-t="createRoom">Özel oda kur</button>
-      <input id="roomCodeInput" class="field mini" data-t-ph="codePh" placeholder="Oda kodu" maxlength="4" autocomplete="off" autocapitalize="characters">
-      <button id="joinCodeBtn" class="btn ghost mini" data-t="join">Katıl</button>
-    </div>
-  </div>
-  <p id="mutationLine" class="small"></p>
-  <!-- Kademeli öğretme: ilk turlarda yalnız yön + atılma; derinlik seviye 3 / 5. turdan sonra "Daha fazla" altında -->
-  <details id="moreBox" hidden>
-    <summary data-t="more">Daha fazla</summary>
-    <div class="moreInner">
-      <div class="share"><span id="seasonLine" class="small"></span><button id="seasonBtn" class="btn ghost mini" data-t="season">Sezon</button></div>
-      <div class="share"><span id="defterLine" class="small"></span><button id="defterBtn" class="btn ghost mini" data-t="book">Defter</button></div>
-      <details id="streamBox">
-        <summary data-t="streamTools">Yayıncı araçları</summary>
-        <div class="share">
-          <input id="twitchChannel" class="field mini" data-t-ph="channelPh" placeholder="Twitch kanalı" maxlength="25" autocomplete="off">
-          <button id="twitchBtn" class="btn ghost mini" data-t="connect">Bağlan</button>
-          <label class="small"><input type="checkbox" id="streamerMode"> <span data-t="streamerMode">Yayıncı kipi</span></label>
+ <div class="lobby">
+  <header class="lobbyHead">
+    <h1 class="logo">SKARABE</h1>
+    <p class="tagline" data-t="tagline">İt, fırtınaya düşür, ayakta kalan son böcek ol.</p>
+  </header>
+  <div class="lobbyGrid">
+    <!-- Sol: oyuncu (görünüm, seviye, seri) -->
+    <aside class="panel profile">
+      <div class="panelTitle" data-t="panelPlayer">Oyuncu</div>
+      <div id="skinPick">
+        <button id="skinPrev" class="arrow" data-t-aria="prevSkin" aria-label="Önceki görünüm">◀</button>
+        <div>
+          <canvas id="skinPreview" width="220" height="64"></canvas>
+          <div id="skinName"></div>
+          <div id="skinLock"></div>
         </div>
-        <p id="twitchStatus" class="small" data-t="twitchIntro">Sohbete "!katıl" yazan izleyiciler botların adını alır; sen onları fırtınaya itersin. Salt okunur, giriş gerekmez.</p>
+        <button id="skinNext" class="arrow" data-t-aria="nextSkin" aria-label="Sonraki görünüm">▶</button>
+      </div>
+      <button id="unlockBtn" class="btn ghost mini" data-t="unlockNow" hidden>Beklemeden aç</button>
+      <div class="meter">
+        <div class="row"><b id="levelText">Seviye 1</b><span id="levelNext"></span></div>
+        <div class="bar"><i id="levelBar"></i></div>
+      </div>
+      <p id="statsLine" class="small"></p>
+      <p id="streakLine" class="small"></p>
+    </aside>
+    <!-- Orta: ad, OYNA, odalar -->
+    <section class="panel center">
+      <input id="nameInput" class="field" data-t-ph="namePh" placeholder="Takma ad" maxlength="12" autocomplete="off">
+      <button id="onlineBtn" class="btn big" data-t="online" hidden>Çevrimiçi oyna</button>
+      <button id="playBtn" class="btn big" data-t="play">Oyna</button>
+      <p id="onlineCount" class="small live"></p>
+      <p id="onlineLine" class="small"></p>
+      <button id="roomsBtn" class="linkBtn" data-t="rooms" hidden>Odalar</button>
+      <div id="roomBox" hidden>
+        <div id="roomList"></div>
+        <div class="share">
+          <button id="createRoomBtn" class="btn ghost mini" data-t="createRoom">Özel oda kur</button>
+          <input id="roomCodeInput" class="field mini" data-t-ph="codePh" placeholder="Oda kodu" maxlength="4" autocomplete="off" autocapitalize="characters">
+          <button id="joinCodeBtn" class="btn ghost mini" data-t="join">Katıl</button>
+        </div>
+      </div>
+      <p id="mutationLine" class="pill"></p>
+      <p id="challengeLine" class="pill"></p>
+      <p id="helpText" class="small help"></p>
+    </section>
+    <!-- Sağ: bugün (görev, rakip, sezon, defter) -->
+    <aside class="panel daily">
+      <div class="panelTitle" data-t="panelToday">Bugün</div>
+      <div id="mission"><span id="missionLine"></span></div>
+      <p id="nemesisLine" class="small"></p>
+      <!-- Kademeli öğretme: derinlik seviye 3 / 5. turdan sonra "Daha fazla" altında -->
+      <details id="moreBox" open hidden>
+        <summary data-t="more">Daha fazla</summary>
+        <div class="moreInner">
+          <div class="rowBtn"><span id="seasonLine" class="small"></span><button id="seasonBtn" class="btn ghost mini" data-t="season">Sezon</button></div>
+          <div class="rowBtn"><span id="defterLine" class="small"></span><button id="defterBtn" class="btn ghost mini" data-t="book">Defter</button></div>
+          <details id="streamBox">
+            <summary data-t="streamTools">Yayıncı araçları</summary>
+            <div class="share">
+              <input id="twitchChannel" class="field mini" data-t-ph="channelPh" placeholder="Twitch kanalı" maxlength="25" autocomplete="off">
+              <button id="twitchBtn" class="btn ghost mini" data-t="connect">Bağlan</button>
+              <label class="small"><input type="checkbox" id="streamerMode"> <span data-t="streamerMode">Yayıncı kipi</span></label>
+            </div>
+            <p id="twitchStatus" class="small" data-t="twitchIntro">Sohbete "!katıl" yazan izleyiciler botların adını alır; sen onları fırtınaya itersin. Salt okunur, giriş gerekmez.</p>
+          </details>
+        </div>
       </details>
-    </div>
-  </details>
-  <div class="meter">
-    <div class="row"><b id="levelText">Seviye 1</b><span id="levelNext"></span></div>
-    <div class="bar"><i id="levelBar"></i></div>
+    </aside>
   </div>
-  <div id="mission"><span id="missionLine"></span></div>
-  <p id="statsLine" class="small"></p>
-  <p id="nemesisLine" class="small"></p>
-  <p id="streakLine" class="small"></p>
-  <p id="challengeLine" class="small"></p>
-  <p id="helpText" class="small"></p>
+ </div>
 </div>
 
 <div id="result" class="overlay" hidden>
@@ -557,6 +622,7 @@ tr: {
   // --- menü ---
   tagline: 'İt, fırtınaya düşür, ayakta kalan son böcek ol.',
   namePh: 'Takma ad', prevSkin: 'Önceki görünüm', nextSkin: 'Sonraki görünüm', unlockNow: 'Beklemeden aç', play: 'Oyna',
+  practice: 'Botlarla pratik', panelPlayer: 'Oyuncu', panelToday: 'Bugün', onlineNow: n => `● ${n} oyuncu çevrimiçi`,
   more: 'Daha fazla', season: 'Sezon', book: 'Defter', streamTools: 'Yayıncı araçları', channelPh: 'Twitch kanalı',
   connect: 'Bağlan', disconnect: 'Kes', streamerMode: 'Yayıncı kipi',
   twitchIntro: 'Sohbete "!katıl" yazan izleyiciler botların adını alır; sen onları fırtınaya itersin. Salt okunur, giriş gerekmez.',
@@ -662,6 +728,7 @@ tr: {
 en: {
   tagline: 'Push, drop them into the storm, be the last beetle standing.',
   namePh: 'Nickname', prevSkin: 'Previous skin', nextSkin: 'Next skin', unlockNow: 'Unlock now', play: 'Play',
+  practice: 'Practice vs bots', panelPlayer: 'Player', panelToday: 'Today', onlineNow: n => `● ${n} player${n === 1 ? '' : 's'} online`,
   more: 'More', season: 'Season', book: 'Beetle Book', streamTools: 'Streamer tools', channelPh: 'Twitch channel',
   connect: 'Connect', disconnect: 'Disconnect', streamerMode: 'Streamer mode',
   twitchIntro: 'Viewers who type "!join" in chat become the bots; you push them into the storm. Read-only, no login.',
@@ -3837,8 +3904,21 @@ async function initOnline() {
   if (!url) { try { const r = await fetch('/__net', { cache: 'no-store' }); if (r.ok) url = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host; } catch {} }
   if (!url) return;
   onlineUrl = url; setHidden('onlineBtn', false); setHidden('roomsBtn', false);
+  // Sunucu varsa büyük düğme çevrimiçi "Oyna", yerel tur "Botlarla pratik" olur (agar.io düzeni: Play = herkesle)
+  const ob = $('onlineBtn'), pb = $('playBtn');
+  if (ob && pb) { ob.dataset.t = 'play'; pb.dataset.t = 'practice'; pb.classList.add('ghost'); Lang.applyDom(); }
   if (urlRoom) { setText('onlineBtn', T('joinRoomBtn', urlRoom)); lastJoin = { code: urlRoom }; }
   wakeServer();
+  pollOnlineCount();
+}
+// Menüde "● N oyuncu çevrimiçi" (sağlık ucu; 0 ise satır boş)
+async function pollOnlineCount() {
+  if (!onlineUrl || GAME.online.url === '' && !location.host) return;
+  try {
+    const r = await fetch(onlineUrl.replace(/^ws/, 'http') + '/__net', { cache: 'no-store' });
+    const j = await r.json(); setText('onlineCount', j.humans > 0 ? T('onlineNow', j.humans) : '');
+  } catch { setText('onlineCount', ''); }
+  if (state === 'menu') setTimeout(pollOnlineCount, 10000); else setTimeout(pollOnlineCount, 30000);
 }
 // Durum metni: menüde onlineLine, oyun içinde (ya da özel oda denetimleri gerekince) üstteki şerit
 function netStatus(text, ctl = null) {
@@ -4173,7 +4253,7 @@ function loop(now) {
   renderer.zoomBoost += ((slow ? SLOWMO.zoom : 1) - renderer.zoomBoost) * Math.min(1, real * 6);
   renderer.updateCamera(target, real);
   renderer.stick = touch.enabled && state === 'playing' ? stickView() : null;
-  renderer.draw(round.world, state === 'menu' ? null : player, round, state === 'dead' ? target : null);
+  renderer.draw(round.world, state === 'menu' ? null : player, state === 'menu' ? null : round, state === 'dead' ? target : null);   // menüde HUD çizilmez (lobi temiz)
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);

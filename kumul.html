@@ -1145,6 +1145,7 @@ tr: {
   // --- menü ---
   tagline: 'İt, fırtınaya düşür, ayakta kalan son böcek ol.',
   namePh: 'Takma ad', prevSkin: 'Önceki görünüm', nextSkin: 'Sonraki görünüm', unlockNow: 'Beklemeden aç', play: 'Oyna',
+  practice: 'Botlarla pratik', panelPlayer: 'Oyuncu', panelToday: 'Bugün', onlineNow: n => `● ${n} oyuncu çevrimiçi`,
   more: 'Daha fazla', season: 'Sezon', book: 'Defter', streamTools: 'Yayıncı araçları', channelPh: 'Twitch kanalı',
   connect: 'Bağlan', disconnect: 'Kes', streamerMode: 'Yayıncı kipi',
   twitchIntro: 'Sohbete "!katıl" yazan izleyiciler botların adını alır; sen onları fırtınaya itersin. Salt okunur, giriş gerekmez.',
@@ -1250,6 +1251,7 @@ tr: {
 en: {
   tagline: 'Push, drop them into the storm, be the last beetle standing.',
   namePh: 'Nickname', prevSkin: 'Previous skin', nextSkin: 'Next skin', unlockNow: 'Unlock now', play: 'Play',
+  practice: 'Practice vs bots', panelPlayer: 'Player', panelToday: 'Today', onlineNow: n => `● ${n} player${n === 1 ? '' : 's'} online`,
   more: 'More', season: 'Season', book: 'Beetle Book', streamTools: 'Streamer tools', channelPh: 'Twitch channel',
   connect: 'Connect', disconnect: 'Disconnect', streamerMode: 'Streamer mode',
   twitchIntro: 'Viewers who type "!join" in chat become the bots; you push them into the storm. Read-only, no login.',
@@ -2755,8 +2757,21 @@ async function initOnline() {
   if (!url) { try { const r = await fetch('/__net', { cache: 'no-store' }); if (r.ok) url = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host; } catch {} }
   if (!url) return;
   onlineUrl = url; setHidden('onlineBtn', false); setHidden('roomsBtn', false);
+  // Sunucu varsa büyük düğme çevrimiçi "Oyna", yerel tur "Botlarla pratik" olur (agar.io düzeni: Play = herkesle)
+  const ob = $('onlineBtn'), pb = $('playBtn');
+  if (ob && pb) { ob.dataset.t = 'play'; pb.dataset.t = 'practice'; pb.classList.add('ghost'); Lang.applyDom(); }
   if (urlRoom) { setText('onlineBtn', T('joinRoomBtn', urlRoom)); lastJoin = { code: urlRoom }; }
   wakeServer();
+  pollOnlineCount();
+}
+// Menüde "● N oyuncu çevrimiçi" (sağlık ucu; 0 ise satır boş)
+async function pollOnlineCount() {
+  if (!onlineUrl || GAME.online.url === '' && !location.host) return;
+  try {
+    const r = await fetch(onlineUrl.replace(/^ws/, 'http') + '/__net', { cache: 'no-store' });
+    const j = await r.json(); setText('onlineCount', j.humans > 0 ? T('onlineNow', j.humans) : '');
+  } catch { setText('onlineCount', ''); }
+  if (state === 'menu') setTimeout(pollOnlineCount, 10000); else setTimeout(pollOnlineCount, 30000);
 }
 // Durum metni: menüde onlineLine, oyun içinde (ya da özel oda denetimleri gerekince) üstteki şerit
 function netStatus(text, ctl = null) {
@@ -3091,7 +3106,7 @@ function loop(now) {
   renderer.zoomBoost += ((slow ? SLOWMO.zoom : 1) - renderer.zoomBoost) * Math.min(1, real * 6);
   renderer.updateCamera(target, real);
   renderer.stick = touch.enabled && state === 'playing' ? stickView() : null;
-  renderer.draw(round.world, state === 'menu' ? null : player, round, state === 'dead' ? target : null);
+  renderer.draw(round.world, state === 'menu' ? null : player, state === 'menu' ? null : round, state === 'dead' ? target : null);   // menüde HUD çizilmez (lobi temiz)
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
