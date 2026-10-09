@@ -140,7 +140,7 @@
   #xpNote { color: var(--muted); text-align: right; }
   #muteBtn { position: fixed; z-index: 5; right: 12px; bottom: 116px; padding: 6px 12px; font: 500 12px 'Rubik', system-ui, sans-serif;
              border: 1.5px solid var(--ink); border-radius: 10px; background: rgba(253, 249, 238, 0.85); color: var(--ink); cursor: pointer; }
-  #langBtn { position: fixed; z-index: 5; left: 12px; top: 12px; }
+  #langBtn { position: fixed; z-index: 5; right: 12px; top: 12px; }   /* yalnız menüde görünür; oyunda HUD'un üstüne binmesin */
   #langBtn[hidden] { display: none; }
   @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
 </style>
@@ -2326,6 +2326,43 @@ class ArenaRenderer extends RenderBase {
   }
 
   // Güç simgesi (dünya veya ekran koordinatında; k = ölçek)
+  // HUD rozet simgeleri: tek renk, ince çizgi, 16 px kutu. Dünyadaki güç parıltıları (powerGlyph) ayrı kalır.
+  chipIcon(type, x, y, color) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 1.75; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    switch (type) {
+      case 'shield':   // kalkan: sivri uçlu dış hat
+        ctx.moveTo(x, y - 7); ctx.lineTo(x + 6, y - 4.5); ctx.lineTo(x + 5.5, y + 1); ctx.quadraticCurveTo(x + 4, y + 5.5, x, y + 7.5);
+        ctx.quadraticCurveTo(x - 4, y + 5.5, x - 5.5, y + 1); ctx.lineTo(x - 6, y - 4.5); ctx.closePath(); ctx.stroke(); break;
+      case 'dash':     // çift ok: hız
+        ctx.moveTo(x - 6, y - 5); ctx.lineTo(x - 1, y); ctx.lineTo(x - 6, y + 5);
+        ctx.moveTo(x + 1, y - 5); ctx.lineTo(x + 6, y); ctx.lineTo(x + 1, y + 5); ctx.stroke(); break;
+      case 'launch':   // fırlatma: daire içinden çıkan ok
+        ctx.arc(x - 1.5, y + 1.5, 5, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x - 1.5, y + 1.5); ctx.lineTo(x + 6.5, y - 6.5); ctx.moveTo(x + 1.5, y - 6.5); ctx.lineTo(x + 6.5, y - 6.5); ctx.lineTo(x + 6.5, y - 1.5); ctx.stroke(); break;
+      case 'dig':      // kazı: zemin çizgisi ve aşağı ok
+        ctx.moveTo(x - 7, y + 6.5); ctx.lineTo(x + 7, y + 6.5); ctx.moveTo(x, y - 7); ctx.lineTo(x, y + 3);
+        ctx.moveTo(x - 4, y - 1); ctx.lineTo(x, y + 3); ctx.lineTo(x + 4, y - 1); ctx.stroke(); break;
+      case 'ball':     // topsuz: üstü çizili daire
+        ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x - 4.5, y + 4.5); ctx.lineTo(x + 4.5, y - 4.5); ctx.stroke(); break;
+      case 'magnet':   // mıknatıs: U gövde ve iki kutup
+        ctx.moveTo(x - 5, y - 6.5); ctx.lineTo(x - 5, y + 1); ctx.arc(x, y + 1, 5, Math.PI, 0, true); ctx.lineTo(x + 5, y - 6.5); ctx.stroke();
+        ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x - 5, y - 6); ctx.lineTo(x - 5, y - 3.5); ctx.moveTo(x + 5, y - 6); ctx.lineTo(x + 5, y - 3.5); ctx.stroke(); break;
+      case 'turbo':    // turbo: şimşek dış hat
+        ctx.moveTo(x + 1.5, y - 7.5); ctx.lineTo(x - 4.5, y + 1); ctx.lineTo(x - 0.5, y + 1); ctx.lineTo(x - 1.5, y + 7.5); ctx.lineTo(x + 4.5, y - 1); ctx.lineTo(x + 0.5, y - 1); ctx.closePath(); ctx.stroke(); break;
+      case 'anchor':   // ağırlık: halkalı blok
+        ctx.moveTo(x - 4, y - 2); ctx.lineTo(x + 4, y - 2); ctx.lineTo(x + 6.5, y + 7); ctx.lineTo(x - 6.5, y + 7); ctx.closePath(); ctx.stroke();
+        ctx.beginPath(); ctx.arc(x, y - 4.5, 2.5, 0, Math.PI * 2); ctx.stroke(); break;
+      case 'trait':    // huy: dört uçlu yıldız
+        ctx.moveTo(x, y - 7); ctx.quadraticCurveTo(x + 1.5, y - 1.5, x + 7, y); ctx.quadraticCurveTo(x + 1.5, y + 1.5, x, y + 7);
+        ctx.quadraticCurveTo(x - 1.5, y + 1.5, x - 7, y); ctx.quadraticCurveTo(x - 1.5, y - 1.5, x, y - 7); ctx.closePath(); ctx.stroke(); break;
+      default: ctx.restore(); return this.powerGlyph(type, x, y, 0.8);
+    }
+    ctx.restore();
+  }
+
   powerGlyph(type, x, y, k) {
     const ctx = this.ctx, c = POWER_LOOK[type].color;
     ctx.fillStyle = c; ctx.strokeStyle = c; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -2394,7 +2431,7 @@ class ArenaRenderer extends RenderBase {
         ctx.font = `500 12px ${KUMUL.font}`;
         const w = ctx.measureText(text).width + 40;
         this.panel(10, cy, w, 26, 13);
-        this.powerGlyph(type, 25, cy + 13, 0.8);
+        this.chipIcon(type, 25, cy + 13, color);
         ctx.fillStyle = color; ctx.textAlign = 'left'; ctx.fillText(text, 38, cy + 17);
         cy += 32;
       }
@@ -2513,12 +2550,12 @@ class BeetleRenderer extends ArenaRenderer {
   playerChips(p) {
     const chips = [];
     if (p.protection > 0) chips.push(['shield', T('chipShield', Math.ceil(p.protection)), KUMUL.ink]);
-    if (!p.hasBall) chips.push(['anchor', T('chipNaked'), KUMUL.crimson]);
-    if (p.dig > 0) chips.push(['shield', T('chipDug'), KUMUL.amber]);
-    else if (p.digEligible) chips.push(['shield', p.digCooldown > 0 ? T('chipDigCd', Math.ceil(p.digCooldown)) : T(this.touchLayout ? 'chipDigReadyTouch' : 'chipDigReady'), p.digCooldown > 0 ? KUMUL.muted : KUMUL.amber]);
-    else if (p.charging) chips.push(['turbo', T('chipCharge', Math.round(this.chargeFrac(p) * 100)), KUMUL.amber]);
-    chips.push(['turbo', p.dashTimer > 0 ? T('chipDashCd', Math.ceil(p.dashTimer)) : T('chipDashReady'), p.dashTimer > 0 ? KUMUL.muted : KUMUL.teal]);
-    if (p.huyKey && p.huyKey !== 'dengeli') chips.push(['magnet', T('chipHuy', T('huy:' + p.huyKey)), KUMUL.muted]);
+    if (!p.hasBall) chips.push(['ball', T('chipNaked'), KUMUL.crimson]);
+    if (p.dig > 0) chips.push(['dig', T('chipDug'), KUMUL.amber]);
+    else if (p.digEligible) chips.push(['dig', p.digCooldown > 0 ? T('chipDigCd', Math.ceil(p.digCooldown)) : T(this.touchLayout ? 'chipDigReadyTouch' : 'chipDigReady'), p.digCooldown > 0 ? KUMUL.muted : KUMUL.amber]);
+    else if (p.charging) chips.push(['launch', T('chipCharge', Math.round(this.chargeFrac(p) * 100)), KUMUL.amber]);
+    chips.push(['dash', p.dashTimer > 0 ? T('chipDashCd', Math.ceil(p.dashTimer)) : T('chipDashReady'), p.dashTimer > 0 ? KUMUL.muted : KUMUL.teal]);
+    if (p.huyKey && p.huyKey !== 'dengeli') chips.push(['trait', T('chipHuy', T('huy:' + p.huyKey)), KUMUL.muted]);
     if (p.anchor > 0) chips.push(['anchor', T('chipAnchor', Math.ceil(p.anchor)), POWER_LOOK.anchor.color]);
     if (p.magnet > 0) chips.push(['magnet', T('chipMagnet', Math.ceil(p.magnet)), KUMUL.crimson]);
     if (p.turbo > 0) chips.push(['turbo', T('chipTurbo', Math.ceil(p.turbo)), KUMUL.amber]);
@@ -3561,6 +3598,7 @@ function syncTouchUi() {
   boostBtn.hidden = !playing;
   if (digBtn) digBtn.hidden = !(playing && player && player.digEligible);   // KAZI düğmesi yalnızca hak varken (her karede tazelenir)
   setHidden('muteBtn', playing);
+  setHidden('langBtn', state !== 'menu');                                   // dil düğmesi yalnız menüde
 }
 function setTouchMode(on) { touch.enabled = on; syncTouchUi(); }
 function syncBoost() { input.boost = touch.boostIds.size > 0 || touch.btnDown; }

@@ -1979,6 +1979,43 @@ class ArenaRenderer extends RenderBase {
   }
 
   // Güç simgesi (dünya veya ekran koordinatında; k = ölçek)
+  // HUD rozet simgeleri: tek renk, ince çizgi, 16 px kutu. Dünyadaki güç parıltıları (powerGlyph) ayrı kalır.
+  chipIcon(type, x, y, color) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 1.75; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    switch (type) {
+      case 'shield':   // kalkan: sivri uçlu dış hat
+        ctx.moveTo(x, y - 7); ctx.lineTo(x + 6, y - 4.5); ctx.lineTo(x + 5.5, y + 1); ctx.quadraticCurveTo(x + 4, y + 5.5, x, y + 7.5);
+        ctx.quadraticCurveTo(x - 4, y + 5.5, x - 5.5, y + 1); ctx.lineTo(x - 6, y - 4.5); ctx.closePath(); ctx.stroke(); break;
+      case 'dash':     // çift ok: hız
+        ctx.moveTo(x - 6, y - 5); ctx.lineTo(x - 1, y); ctx.lineTo(x - 6, y + 5);
+        ctx.moveTo(x + 1, y - 5); ctx.lineTo(x + 6, y); ctx.lineTo(x + 1, y + 5); ctx.stroke(); break;
+      case 'launch':   // fırlatma: daire içinden çıkan ok
+        ctx.arc(x - 1.5, y + 1.5, 5, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x - 1.5, y + 1.5); ctx.lineTo(x + 6.5, y - 6.5); ctx.moveTo(x + 1.5, y - 6.5); ctx.lineTo(x + 6.5, y - 6.5); ctx.lineTo(x + 6.5, y - 1.5); ctx.stroke(); break;
+      case 'dig':      // kazı: zemin çizgisi ve aşağı ok
+        ctx.moveTo(x - 7, y + 6.5); ctx.lineTo(x + 7, y + 6.5); ctx.moveTo(x, y - 7); ctx.lineTo(x, y + 3);
+        ctx.moveTo(x - 4, y - 1); ctx.lineTo(x, y + 3); ctx.lineTo(x + 4, y - 1); ctx.stroke(); break;
+      case 'ball':     // topsuz: üstü çizili daire
+        ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x - 4.5, y + 4.5); ctx.lineTo(x + 4.5, y - 4.5); ctx.stroke(); break;
+      case 'magnet':   // mıknatıs: U gövde ve iki kutup
+        ctx.moveTo(x - 5, y - 6.5); ctx.lineTo(x - 5, y + 1); ctx.arc(x, y + 1, 5, Math.PI, 0, true); ctx.lineTo(x + 5, y - 6.5); ctx.stroke();
+        ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x - 5, y - 6); ctx.lineTo(x - 5, y - 3.5); ctx.moveTo(x + 5, y - 6); ctx.lineTo(x + 5, y - 3.5); ctx.stroke(); break;
+      case 'turbo':    // turbo: şimşek dış hat
+        ctx.moveTo(x + 1.5, y - 7.5); ctx.lineTo(x - 4.5, y + 1); ctx.lineTo(x - 0.5, y + 1); ctx.lineTo(x - 1.5, y + 7.5); ctx.lineTo(x + 4.5, y - 1); ctx.lineTo(x + 0.5, y - 1); ctx.closePath(); ctx.stroke(); break;
+      case 'anchor':   // ağırlık: halkalı blok
+        ctx.moveTo(x - 4, y - 2); ctx.lineTo(x + 4, y - 2); ctx.lineTo(x + 6.5, y + 7); ctx.lineTo(x - 6.5, y + 7); ctx.closePath(); ctx.stroke();
+        ctx.beginPath(); ctx.arc(x, y - 4.5, 2.5, 0, Math.PI * 2); ctx.stroke(); break;
+      case 'trait':    // huy: dört uçlu yıldız
+        ctx.moveTo(x, y - 7); ctx.quadraticCurveTo(x + 1.5, y - 1.5, x + 7, y); ctx.quadraticCurveTo(x + 1.5, y + 1.5, x, y + 7);
+        ctx.quadraticCurveTo(x - 1.5, y + 1.5, x - 7, y); ctx.quadraticCurveTo(x - 1.5, y - 1.5, x, y - 7); ctx.closePath(); ctx.stroke(); break;
+      default: ctx.restore(); return this.powerGlyph(type, x, y, 0.8);
+    }
+    ctx.restore();
+  }
+
   powerGlyph(type, x, y, k) {
     const ctx = this.ctx, c = POWER_LOOK[type].color;
     ctx.fillStyle = c; ctx.strokeStyle = c; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -2047,7 +2084,7 @@ class ArenaRenderer extends RenderBase {
         ctx.font = `500 12px ${KUMUL.font}`;
         const w = ctx.measureText(text).width + 40;
         this.panel(10, cy, w, 26, 13);
-        this.powerGlyph(type, 25, cy + 13, 0.8);
+        this.chipIcon(type, 25, cy + 13, color);
         ctx.fillStyle = color; ctx.textAlign = 'left'; ctx.fillText(text, 38, cy + 17);
         cy += 32;
       }
@@ -2488,6 +2525,7 @@ function syncTouchUi() {
   boostBtn.hidden = !playing;
   if (digBtn) digBtn.hidden = !(playing && player && player.digEligible);   // KAZI düğmesi yalnızca hak varken (her karede tazelenir)
   setHidden('muteBtn', playing);
+  setHidden('langBtn', state !== 'menu');                                   // dil düğmesi yalnız menüde
 }
 function setTouchMode(on) { touch.enabled = on; syncTouchUi(); }
 function syncBoost() { input.boost = touch.boostIds.size > 0 || touch.btnDown; }
