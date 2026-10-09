@@ -1235,6 +1235,9 @@ tr: {
   'reward:yildiz': 'Yıldız izi', 'reward:alev': 'Kor izi', 'reward:yaprak': 'Yaprak izi', 'reward:yuvarlayici': 'Yuvarlayıcı', 'reward:firtina': 'Fırtına Ustası', 'reward:hirsiz': 'Top Hırsızı', 'reward:xp': n => `+${n} puan`,
   // duraklatma
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
+  // çevrimiçi
+  online: 'Çevrimiçi oyna', connecting: 'Sunucuya bağlanılıyor…', matching: (w, h) => `Eşleşiyor: ${w} sn · ${h} oyuncu (kalan yerler bot)`,
+  onlineLost: 'Bağlantı koptu', onlineFail: 'Sunucuya bağlanılamadı',
   // twitch durumları
   'tw:need': 'kanal adı gerekli', 'tw:fail': 'bağlanamadı', 'tw:connecting': 'bağlanıyor…', 'tw:on': c => `bağlı: #${c} — sohbete "!katıl" yazan oyuna girer`,
   'tw:error': 'bağlantı hatası (portalda dış bağlantı kapalı olabilir)', 'tw:closed': 'bağlantı kapandı',
@@ -1317,6 +1320,8 @@ en: {
   'tier:Larva': 'Larva', 'tier:Böcek': 'Beetle', 'tier:Yuvarlayıcı': 'Roller', 'tier:Şampiyon': 'Champion', 'tier:Kutsal Skarabe': 'Sacred Scarab',
   'reward:yildiz': 'Star trail', 'reward:alev': 'Ember trail', 'reward:yaprak': 'Leaf trail', 'reward:yuvarlayici': 'Roller', 'reward:firtina': 'Storm Master', 'reward:hirsiz': 'Ball Thief', 'reward:xp': n => `+${n} points`,
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
+  online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
+  onlineLost: 'Connection lost', onlineFail: 'Could not reach the server',
   'tw:need': 'channel name required', 'tw:fail': 'could not connect', 'tw:connecting': 'connecting…', 'tw:on': c => `connected: #${c} — type "!join" in chat to play`,
   'tw:error': 'connection error (the portal may block external connections)', 'tw:closed': 'connection closed',
   // görünüm adları
@@ -2659,25 +2664,34 @@ async function share() {
 }
 if ($('shareBtn')) $('shareBtn').addEventListener('click', share);
 
-function startRound() {
-  Sfx.init();
+function playerName() {
   const name = ($('nameInput').value.trim() || T('you')).slice(0, 12);
   store.set(GAME.key + '-name', $('nameInput').value.trim());
+  return name;
+}
+function startRound() {
+  Sfx.init();
+  const name = playerName();
   // Rakip hafızası meydan okuma turuna karışmaz (aynı tohum herkeste aynı botları vermeli)
   const nemesis = useProgress && urlSeed === null ? Nemesis.get() : null;
   const mutation = urlSeed !== null ? urlMutation : (weekMutation ? weekMutation.key : null);
   const names = useStream && typeof ARENA !== 'undefined' ? Twitch.take(ARENA.players - 1) : null;   // sohbetten gelen izleyiciler
+  onlineMode = false;
   round = new Round({ withPlayer: true, playerName: name, playerSkin: savedSkin, seed: urlSeed, nemesis, mutation, names });
+  challengeRound = urlSeed !== null;
+  if (challengeRound) { stats.challengesPlayed = (stats.challengesPlayed || 0) + 1; store.set(GAME.key + '-stats', stats); }
+  urlSeed = null; setText('challengeLine', '');
+  enterRound();
+}
+// Tur başlangıcının ortak kısmı: yerel (startRound) ve çevrimiçi (beginOnlineRound) tur aynı yoldan girer
+function enterRound() {
   renderer.feed = []; streamScore();
   roundHighlights = new Set();
   if (useProgress) {
     const st = Streak.touch();
     if (st.extended) setTimeout(() => renderer.showToast(st.broken ? T('streakBroken', st.best) : st.days >= Streak.TRAIL_DAYS ? T('streakTrailOn', st.days) : T('streakDay', st.days)), 600);
   }
-  challengeRound = urlSeed !== null;
-  if (challengeRound) { stats.challengesPlayed = (stats.challengesPlayed || 0) + 1; store.set(GAME.key + '-stats', stats); }
-  track('round_start', { n: stats.rounds + 1, challenge: challengeRound, stage: Tutor.stage() });
-  urlSeed = null; setText('challengeLine', '');
+  track('round_start', { n: stats.rounds + 1, challenge: challengeRound, online: onlineMode, stage: Tutor.stage() });
   if ($('shareBox')) $('shareBox').hidden = true;
   if (GAME.highlights) GAME.highlights.reset();
   if (useClips) Clip.reset();
@@ -2688,7 +2702,7 @@ function startRound() {
   player.mastery = useProgress ? Progress.masteryOf(savedSkin) : 0;
   if (huyKey && player.setHuy) player.setHuy(huyKey);
   player.crowned = useDefter && GAME.collection.crowned();
-  player.revenge = false; player.ballKills = 0;
+  player.revenge = false; if (!onlineMode) player.ballKills = 0;
   revived = false; awarded = null; overShown = false;
   state = 'playing'; paused = false; setHidden('pauseModal', true);
   renderer.camX = player.x; renderer.camY = player.y; renderer.zoom = 1;
@@ -2696,6 +2710,41 @@ function startRound() {
   touch.used = false; syncTouchUi();
   Ads.gameplayStart();
 }
+
+// ---------------------------------------------------------------------
+// Çevrimiçi (skarabe-ag.js): sunucu bulunursa "Çevrimiçi oyna" görünür. Aynı kökte sunucu varsa (/__net)
+// ona, yoksa GAME.online.url'ye bağlanır. Lobi -> tur -> sonuç; "Yeni tur" yeniden eşleştirir.
+// ---------------------------------------------------------------------
+let onlineUrl = '', net = null, onlineMode = false;
+async function initOnline() {
+  if (!GAME.online || typeof NetClient === 'undefined') return;
+  let url = GAME.online.url || '';
+  if (!url) { try { const r = await fetch('/__net', { cache: 'no-store' }); if (r.ok) url = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host; } catch {} }
+  if (!url) return;
+  onlineUrl = url; setHidden('onlineBtn', false);
+}
+initOnline();
+async function startOnline() {
+  Sfx.init();
+  const name = playerName(), btn = $('onlineBtn');
+  if (!net || !net.connected) {
+    net = new NetClient(onlineUrl);
+    net.onLobby = m => setText('onlineLine', T('matching', m.wait, m.humans));
+    net.onStart = r => beginOnlineRound(r);
+    net.onClose = () => { if (onlineMode && (state === 'playing' || state === 'dead')) renderer.showToast(T('onlineLost')); onlineMode = false; setText('onlineLine', ''); if (btn) btn.disabled = false; };
+    setText('onlineLine', T('connecting'));
+    try { await net.connect(); } catch { setText('onlineLine', T('onlineFail')); net = null; return; }
+  }
+  if (btn) btn.disabled = true;
+  track('online_join');
+  net.join({ name, skin: savedSkin, huy: huyKey, stage: Tutor.stage(), chat: useStream && Twitch.queue.length ? Twitch.take(15) : null });
+}
+function beginOnlineRound(r) {
+  onlineMode = true; round = r; challengeRound = false; urlSeed = null;
+  setText('onlineLine', ''); if ($('onlineBtn')) $('onlineBtn').disabled = false;
+  enterRound();
+}
+if ($('onlineBtn')) $('onlineBtn').addEventListener('click', startOnline);
 
 // Sonucu istatistiğe ve ilerlemeye yaz. Aynı turda ikinci kez çağrılırsa (dirilişten sonra) yalnızca fark eklenir.
 function recordResult() {
@@ -2805,7 +2854,8 @@ $('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key
 $('againBtn').addEventListener('click', async () => {
   stats.again = (stats.again || 0) + 1; store.set(GAME.key + '-stats', stats); track('again');
   await Ads.interstitial();            // tur arası reklam yeri
-  startRound();
+  if (onlineMode && net && net.connected) { $('result').hidden = true; $('menu').hidden = false; state = 'menu'; round = new Round(); startOnline(); }
+  else startRound();
 });
 $('reviveBtn').addEventListener('click', async () => {
   $('reviveBtn').hidden = true;
@@ -2878,7 +2928,7 @@ function detectHighlight() {
 function tick(dt) {
   if (state === 'playing') {
     applyInput();
-    round.step(dt);
+    if (onlineMode) net.tick(); else round.step(dt);
     if (useClips) Clip.tick(round.world);
     Tutor.tick();
     detectHighlight();
@@ -2886,7 +2936,7 @@ function tick(dt) {
     if (!player.alive) onDeath();
     else if (round.over) onWin();
   } else if (state === 'dead') {
-    round.step(dt);
+    if (onlineMode) net.tick(); else round.step(dt);
     if (GAME.highlights) GAME.highlights.step(round, null);     // final üçlüsü kaydı tutulsun
     handleEvents();
     if (round.over && !overShown) onRoundOverWhileDead();

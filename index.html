@@ -44,7 +44,7 @@
   .entry i { font-style: normal; color: var(--muted); font-size: 12px; }
   .entry p { margin: 3px 0 0; font-size: 12.5px; line-height: 1.4; }
   #newLine { color: var(--amber); font-weight: 700; }
-  #mutationLine:empty, #defterLine:empty, #newLine:empty, #seasonLine:empty, #huyText:empty { display: none; }
+  #mutationLine:empty, #defterLine:empty, #newLine:empty, #seasonLine:empty, #huyText:empty, #onlineLine:empty { display: none; }
   .huy { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
   .huy button { font-family: inherit; font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px; border: 2px solid var(--ink);
                 background: var(--paper); color: var(--ink); cursor: pointer; }
@@ -167,6 +167,8 @@
   </div>
   <button id="unlockBtn" class="btn ghost mini" data-t="unlockNow" hidden>Beklemeden aç</button>
   <button id="playBtn" class="btn" data-t="play">Oyna</button>
+  <button id="onlineBtn" class="btn ghost" data-t="online" hidden>Çevrimiçi oyna</button>
+  <p id="onlineLine" class="small"></p>
   <p id="mutationLine" class="small"></p>
   <!-- Kademeli öğretme: ilk turlarda yalnız yön + atılma; derinlik seviye 3 / 5. turdan sonra "Daha fazla" altında -->
   <details id="moreBox" hidden>
@@ -631,6 +633,9 @@ tr: {
   'reward:yildiz': 'Yıldız izi', 'reward:alev': 'Kor izi', 'reward:yaprak': 'Yaprak izi', 'reward:yuvarlayici': 'Yuvarlayıcı', 'reward:firtina': 'Fırtına Ustası', 'reward:hirsiz': 'Top Hırsızı', 'reward:xp': n => `+${n} puan`,
   // duraklatma
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
+  // çevrimiçi
+  online: 'Çevrimiçi oyna', connecting: 'Sunucuya bağlanılıyor…', matching: (w, h) => `Eşleşiyor: ${w} sn · ${h} oyuncu (kalan yerler bot)`,
+  onlineLost: 'Bağlantı koptu', onlineFail: 'Sunucuya bağlanılamadı',
   // twitch durumları
   'tw:need': 'kanal adı gerekli', 'tw:fail': 'bağlanamadı', 'tw:connecting': 'bağlanıyor…', 'tw:on': c => `bağlı: #${c} — sohbete "!katıl" yazan oyuna girer`,
   'tw:error': 'bağlantı hatası (portalda dış bağlantı kapalı olabilir)', 'tw:closed': 'bağlantı kapandı',
@@ -713,6 +718,8 @@ en: {
   'tier:Larva': 'Larva', 'tier:Böcek': 'Beetle', 'tier:Yuvarlayıcı': 'Roller', 'tier:Şampiyon': 'Champion', 'tier:Kutsal Skarabe': 'Sacred Scarab',
   'reward:yildiz': 'Star trail', 'reward:alev': 'Ember trail', 'reward:yaprak': 'Leaf trail', 'reward:yuvarlayici': 'Roller', 'reward:firtina': 'Storm Master', 'reward:hirsiz': 'Ball Thief', 'reward:xp': n => `+${n} points`,
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
+  online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
+  onlineLost: 'Connection lost', onlineFail: 'Could not reach the server',
   'tw:need': 'channel name required', 'tw:fail': 'could not connect', 'tw:connecting': 'connecting…', 'tw:on': c => `connected: #${c} — type "!join" in chat to play`,
   'tw:error': 'connection error (the portal may block external connections)', 'tw:closed': 'connection closed',
   // görünüm adları
@@ -1516,6 +1523,7 @@ class PushWorld {
     this.deathLog = [];
     this.time = 0; this.frame = 0;
     this.nextId = 1; this.nextFoodId = 1; this.powerTimer = 0;
+    this.foodEvents = { added: [], removed: [] };   // ağ: son paketten beri eklenen topaklar / silinen kimlikler
     while (this.foods.length < ARENA.pellets) this.spawnFood();
     for (let i = 0; i < ARENA.powerUps; i++) this.spawnPowerUp();
   }
@@ -1538,8 +1546,11 @@ class PushWorld {
         : side === 2 ? { x: b.x0 + t * (b.x1 - b.x0), y: b.y0 + d } : { x: b.x0 + t * (b.x1 - b.x0), y: b.y1 - d };
       value *= PHYS.edgeValue; edge = true;
     } else p = this.randomPoint(30);
-    this.foods.push({ id: this.nextFoodId++, x: p.x, y: p.y, value, edge });
+    const f = { id: this.nextFoodId++, x: p.x, y: p.y, value, edge };
+    this.foods.push(f); this.foodEvents.added.push(f);
   }
+  removeFood(i) { const f = this.foods[i]; this.foods.splice(i, 1); this.foodEvents.removed.push(f.id); }
+  clearFoods() { for (const f of this.foods) this.foodEvents.removed.push(f.id); this.foods.length = 0; }
   spawnPowerUp() { const p = this.randomPoint(140); this.powerUps.push({ id: this.nextFoodId++, x: p.x, y: p.y, type: POWER.types[Math.floor(Rng.next() * POWER.types.length)] }); }
 
   addBeetle(name, skin, brain) {
@@ -1597,7 +1608,7 @@ class PushWorld {
         const f = this.foods[i], dx = f.x - s.x, dy = f.y - s.y;
         if (Math.abs(dx) >= reach || Math.abs(dy) >= reach) continue;
         const d = Math.hypot(dx, dy);
-        if (d < r) { s.mass += f.value * s.huy.pellet; s.score = Math.max(s.score, s.mass); this.foods.splice(i, 1); if (!s.brain) this.events.push({ type: "pellet", who: s }); }
+        if (d < r) { s.mass += f.value * s.huy.pellet; s.score = Math.max(s.score, s.mass); this.removeFood(i); if (!s.brain) this.events.push({ type: "pellet", who: s }); }
         else if (d < pullR) { const k = Math.min(1, POWER.magnetPull * dt / d); f.x -= dx * k; f.y -= dy * k; }
       }
       for (let i = this.powerUps.length - 1; i >= 0; i--) {
@@ -1664,7 +1675,7 @@ class PushWorld {
     // 6) Topak ve güç dengesi: alan daraldıkça hedef küçülür, dışarıda kalan silinir
     const ratio = this.areaRatio();
     if (ratio < 1 && this.frame % 15 === 0) {
-      for (let i = this.foods.length - 1; i >= 0; i--) if (!this.inBounds(this.foods[i].x, this.foods[i].y)) this.foods.splice(i, 1);
+      for (let i = this.foods.length - 1; i >= 0; i--) if (!this.inBounds(this.foods[i].x, this.foods[i].y)) this.removeFood(i);
       for (let i = this.powerUps.length - 1; i >= 0; i--) if (!this.inBounds(this.powerUps[i].x, this.powerUps[i].y)) this.powerUps.splice(i, 1);
     }
     const foodTarget = this.noFood ? 0 : Math.max(12, Math.round(ARENA.pellets * ratio));
@@ -1797,13 +1808,14 @@ class PushWorld {
 class Round extends RoundBase {
   // nemesis: { name, trait, skin } — seni son eleyen bot; ilk bot onun adı, huyu ve görünümüyle kurulur
   // names: sohbetten gelen izleyici adları (yayıncı kipi); verilenler ilk botlar olur ve chatter işaretlenir
-  constructor({ withPlayer = false, playerName = 'Sen', playerSkin = 0, seed = null, nemesis = null, mutation = null, names = null } = {}) {
+  // humans: sunucu için insan sayısı (botlar kalan yerleri doldurur); insanları sunucu addBeetle ile sonradan ekler
+  constructor({ withPlayer = false, playerName = 'Sen', playerSkin = 0, seed = null, nemesis = null, mutation = null, names = null, humans = null } = {}) {
     Mutation.set(mutation);            // ayarlar önce; RoundBase ve dünya bunları okur
     super(seed);                       // üreteci kurar; dünya ve botlar bundan sonra tohumdan türer
     this.mutation = Mutation.current;
     this.world = new PushWorld();
     this.world.mutation = this.mutation;
-    const botCount = ARENA.players - (withPlayer ? 1 : 0), d = ARENA.botDifficulty;
+    const botCount = Math.max(0, ARENA.players - (humans !== null ? humans : (withPlayer ? 1 : 0))), d = ARENA.botDifficulty;
     const chatters = (names || []).slice(0, botCount), chatSet = new Set(chatters);
     let roster = [...chatters, ...pickBotNames(botCount).filter(n => !chatSet.has(n))].slice(0, botCount);
     if (nemesis && !chatters.length) roster = [nemesis.name, ...roster.filter(n => n !== nemesis.name)].slice(0, botCount);
@@ -1838,7 +1850,7 @@ class Round extends RoundBase {
     this.final3 = { t0: this.time, side0, players: alive.slice(), inTime: Math.max(ARENA.sumoIn, (side0 - Math.min(side0, ARENA.sumoSize)) / 250) };
     const mean = alive.reduce((a, s) => a + s.mass, 0) / alive.length, lo = mean * (1 - ARENA.final3Band), hi = mean * (1 + ARENA.final3Band);
     const changes = alive.map(s => { const before = s.mass; s.mass = Math.min(hi, Math.max(lo, s.mass)); return { who: s, before, after: s.mass }; });
-    this.world.foods.length = 0; this.world.noFood = true;
+    this.world.clearFoods(); this.world.noFood = true;
     return { type: 'final3', changes, seconds: ARENA.final3Time };
   }
   zoneSide(t = this.time) {
@@ -1851,6 +1863,194 @@ class Round extends RoundBase {
   phase() {
     const f = this.final3; if (!f) return super.phase();
     return { key: 'final3', left: Math.max(0, f.inTime + ARENA.final3Time - (this.time - f.t0)) };
+  }
+}
+
+</script>
+<script>
+// =====================================================================
+// skarabe-ag.js — Çok oyunculu: paket biçimi (sunucu ve istemci ortak) + istemci.
+// Sunucu otoriter: dünya skarabe-sunucu.js'te döner (itis.js değişmeden). Tarayıcı yalnız girdi
+// gönderir, saniyede 20 durum paketi alır ve iki paket arasında yumuşatarak çizer; fizik burada yok.
+// NetRound, kumul-main.js ve çizimin Round'dan beklediği yüzeyi taklit eder (world, phase, placementOf…),
+// olaylar sunucudan gelir ve aynı nesnelerle (RemoteBeetle) vurgu dedektörüne / sese verilir.
+// =====================================================================
+
+const AgKodek = {
+  r1: v => Math.round(v * 10) / 10,
+  F: { alive: 1, dig: 2, breath: 4, charging: 8, launching: 16, dash: 32, prot: 64, anchor: 128, magnet: 256, turbo: 512, nemesis: 1024, chatter: 2048, bot: 4096 },
+  packBeetle(s) {
+    const F = AgKodek.F, r1 = AgKodek.r1;
+    let f = 0;
+    if (s.alive) f |= F.alive; if (s.dig > 0) f |= F.dig; if (s.breath > 0) f |= F.breath; if (s.charging) f |= F.charging; if (s.launching) f |= F.launching;
+    if (s.dashFx > 0) f |= F.dash; if (s.protection > 0) f |= F.prot; if (s.anchor > 0) f |= F.anchor; if (s.magnet > 0) f |= F.magnet; if (s.turbo > 0) f |= F.turbo;
+    if (s.nemesis) f |= F.nemesis; if (s.chatter) f |= F.chatter; if (s.brain) f |= F.bot;
+    return [s.id, r1(s.x), r1(s.y), r1(s.vx), r1(s.vy), r1(s.angle), r1(s.mass), f, r1(s.roll), Math.round(s.charge * 100) / 100];
+  },
+  // Yalnız kendi böceğine giden ayrıntılar (rozetler, Son Nefes süresi, sayaçlar)
+  packOwn(s) {
+    const r1 = AgKodek.r1;
+    return { dt: r1(s.dashTimer), dc: r1(s.digCooldown), de: !!s.digEligible, br: r1(s.breath), k: s.kills || 0, sc: Math.round(s.score),
+             st: s.steals || 0, bs: s.breaths || 0, la: s.launches || 0, dg: s.digs || 0, bk: s.ballKills || 0, pr: r1(s.protection), an: r1(s.anchor), mg: r1(s.magnet), tb: r1(s.turbo) };
+  },
+  packBall(b) { const r1 = AgKodek.r1; return [b.id, r1(b.x), r1(b.y), r1(b.vx), r1(b.vy), r1(b.mass), b.owner ? b.owner.id : 0, r1(b.roll), b.kills || 0]; },
+  packFood: f => [f.id, Math.round(f.x), Math.round(f.y), AgKodek.r1(f.value), f.edge ? 1 : 0],
+  packPower: p => [p.id, Math.round(p.x), Math.round(p.y), p.type],
+  roster: s => ({ id: s.id, name: s.name, color: s.color, skin: s.skin, bot: !!s.brain, chatter: !!s.chatter, nemesis: !!s.nemesis, trait: s.trait || '' }),
+  // Olay: nesne başvuruları kimliğe çevrilir; istemci geri çözer
+  packEvent(e) {
+    const r1 = AgKodek.r1, id = o => (o ? o.id : 0);
+    const out = { type: e.type };
+    if (e.who) out.who = id(e.who); if (e.killer) out.killer = id(e.killer); if (e.a) out.a = id(e.a); if (e.c) out.c = id(e.c);
+    if (e.cause) out.cause = e.cause; if (e.power !== undefined) out.power = r1(e.power); if (e.x !== undefined) { out.x = r1(e.x); out.y = r1(e.y); }
+    if (e.ball) out.ball = { owner: id(e.ball.owner), mass: r1(e.ball.mass), kills: e.ball.kills || 0 };
+    if (e.stolen !== undefined) out.stolen = e.stolen; if (e.before !== undefined) out.before = r1(e.before); if (e.left !== undefined) out.left = r1(e.left);
+    if (e.seconds !== undefined) out.seconds = e.seconds; if (e.changes) out.changes = e.changes.map(c => ({ who: id(c.who), before: r1(c.before), after: r1(c.after) }));
+    return out;
+  },
+};
+
+// Uzak böcek: çizimin ve akışın Beetle'dan okuduğu alanlar; paketler arasında yumuşatılır
+class RemoteBeetle {
+  constructor(r) {
+    this.id = r.id; this.name = r.name; this.color = r.color; this.skin = r.skin; this.brain = r.bot ? true : null;
+    this.chatter = r.chatter; this.nemesis = r.nemesis; this.trait = r.trait;
+    this.x = 0; this.y = 0; this.vx = 0; this.vy = 0; this.angle = 0; this.mass = 0; this.roll = 0; this.charge = 0;
+    this.alive = true; this.dig = 0; this.breath = 0; this.charging = false; this.launching = false; this.dashFx = 0;
+    this.protection = 0; this.anchor = 0; this.magnet = 0; this.turbo = 0; this.dashTimer = 0; this.digCooldown = 0; this.digEligible = false;
+    this.kills = 0; this.score = 0; this.steals = 0; this.breaths = 0; this.launches = 0; this.digs = 0; this.ballKills = 0;
+    this.input = { targetAngle: 0, throttle: 1, boost: false, dig: false };
+    this.px = this.py = this.pa = null; this.tx = this.ty = this.ta = null;
+  }
+  get radius() { return this.mass > 0 ? ballRadius(this.mass) : PHYS.nakedRadius; }
+  get hasBall() { return this.mass > 0; }
+  get speed() { return Math.hypot(this.vx, this.vy); }
+  apply(p) {
+    const F = AgKodek.F;
+    this.px = this.tx ?? p[1]; this.py = this.ty ?? p[2]; this.pa = this.ta ?? p[5];
+    this.tx = p[1]; this.ty = p[2]; this.ta = p[5];
+    this.vx = p[3]; this.vy = p[4]; this.mass = p[6]; this.roll = p[8]; this.charge = p[9];
+    const f = p[7];
+    this.alive = !!(f & F.alive); this.dig = f & F.dig ? 1 : 0; this.breath = f & F.breath ? 1 : 0; this.charging = !!(f & F.charging); this.launching = !!(f & F.launching);
+    this.dashFx = f & F.dash ? 0.3 : 0; this.protection = f & F.prot ? 1 : 0; this.anchor = f & F.anchor ? 1 : 0; this.magnet = f & F.magnet ? 1 : 0; this.turbo = f & F.turbo ? 1 : 0;
+    this.nemesis = !!(f & F.nemesis); this.chatter = !!(f & F.chatter);
+    this.x = this.px; this.y = this.py; this.angle = this.pa;
+  }
+  applyOwn(o) {
+    this.dashTimer = o.dt; this.digCooldown = o.dc; this.digEligible = o.de; this.breath = o.br; this.kills = o.k; this.score = o.sc;
+    this.steals = o.st; this.breaths = o.bs; this.launches = o.la; this.digs = o.dg; this.ballKills = o.bk;
+    this.protection = o.pr; this.anchor = o.an; this.magnet = o.mg; this.turbo = o.tb;
+  }
+  lerp(k) {
+    this.x = this.px + (this.tx - this.px) * k; this.y = this.py + (this.ty - this.py) * k;
+    let d = this.ta - this.pa; d = Math.atan2(Math.sin(d), Math.cos(d)); this.angle = this.pa + d * k;
+  }
+}
+
+// Çevrimiçi tur: Round yüzeyi, veriler sunucudan
+class NetRound {
+  constructor(client, start) {
+    this.client = client;
+    this.seed = start.seed; this.code = start.code; this.mutation = start.mutation; this.total = start.total;
+    this.time = 0; this.over = false; this.winner = null; this.ph = { key: 'calm', left: ARENA.calm }; this.side = ARENA.size; this.reviveOk = false;
+    this.world = { snakes: [], balls: [], foods: [], powerUps: [], hits: [], events: [], time: 0, frame: 0, mutation: start.mutation,
+                   bounds: { x0: 0, y0: 0, x1: ARENA.size, y1: ARENA.size }, inBounds(x, y) { const b = this.bounds; return x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1; } };
+    this.map = new Map(); this.foodMap = new Map();
+    for (const r of start.roster) this.map.set(r.id, new RemoteBeetle(r));
+    this.world.snakes = [...this.map.values()];
+    for (const f of start.foods) this.addFood(f);
+    this.world.foods = [...this.foodMap.values()];
+    this.player = this.map.get(start.you) || null;
+    this.deathLog = [];
+  }
+  addFood(a) { this.foodMap.set(a[0], { id: a[0], x: a[1], y: a[2], value: a[3], edge: !!a[4] }); }
+  by(id) { return this.map.get(id) || null; }
+  phase() { return this.ph; }
+  zoneSide() { return this.side; }
+  aliveCount() { let n = 0; for (const s of this.world.snakes) if (s.alive) n++; return n; }
+  placementOf(who) { return who.place || (who.alive ? this.aliveCount() : this.total); }
+  canRevive() { return this.reviveOk; }
+  revive(who) { this.client.send({ t: 'revive' }); who.alive = true; who.place = 0; }
+  step() {}   // fizik sunucuda; yumuşatma NetClient.tick'te
+
+  // Durum paketi
+  applyState(m) {
+    const w = this.world;
+    w.time = this.time = m.time; w.frame++;
+    w.bounds = { x0: m.b[0], y0: m.b[1], x1: m.b[2], y1: m.b[3] }; this.side = m.b[2] - m.b[0];
+    this.ph = { key: m.ph[0], left: m.ph[1] };
+    const seen = new Set();
+    for (const p of m.s) { seen.add(p[0]); const s = this.map.get(p[0]); if (s) s.apply(p); }
+    if (m.own && this.player) this.player.applyOwn(m.own);
+    w.balls = m.balls.map(a => ({ id: a[0], x: a[1], y: a[2], vx: a[3], vy: a[4], mass: a[5], radius: ballRadius(a[5]), owner: this.by(a[6]), roll: a[7], kills: a[8],
+                                  skin: (this.by(a[6]) || {}).skin || ['#888'], color: (this.by(a[6]) || {}).color || '#888' }));
+    for (const id of m.fr) this.foodMap.delete(id);
+    for (const f of m.fa) this.addFood(f);
+    w.foods = [...this.foodMap.values()];
+    w.powerUps = m.pw.map(a => ({ id: a[0], x: a[1], y: a[2], type: a[3] }));
+    for (const e of m.ev) {
+      const ev = { type: e.type, who: this.by(e.who), killer: this.by(e.killer), a: this.by(e.a), c: this.by(e.c), cause: e.cause, power: e.power, x: e.x, y: e.y,
+                   stolen: e.stolen, before: e.before, left: e.left, seconds: e.seconds };
+      if (e.ball) ev.ball = { owner: this.by(e.ball.owner), mass: e.ball.mass, kills: e.ball.kills };
+      if (e.changes) ev.changes = e.changes.map(c => ({ who: this.by(c.who), before: c.before, after: c.after }));
+      if (e.type === 'hit' && e.power > 0.24) w.hits.push({ x: e.x, y: e.y, t: w.time, power: e.power });
+      if (e.type === 'out' && ev.who) this.deathLog.push({ snake: ev.who, time: w.time, cause: e.cause, killer: ev.killer });
+      w.events.push(ev);
+    }
+    if (w.hits.length > 24) w.hits.splice(0, w.hits.length - 24);
+  }
+}
+
+// Bağlantı ve akış: kumul-main.js onStart / onDead / onOver / onLobby / onClose kancalarını bağlar
+class NetClient {
+  constructor(url) {
+    this.url = url; this.ws = null; this.round = null; this.connected = false;
+    this.onLobby = null; this.onStart = null; this.onDead = null; this.onOver = null; this.onClose = null; this.onError = null;
+    this.lastStateAt = 0; this.stateInterval = 50; this.lastSent = null; this.lastSendAt = 0;
+  }
+  connect() {
+    return new Promise((ok, fail) => {
+      try { this.ws = new WebSocket(this.url); } catch (e) { return fail(e); }
+      this.ws.onopen = () => { this.connected = true; ok(); };
+      this.ws.onerror = () => { if (!this.connected) fail(new Error('bağlanamadı')); this.onError && this.onError(); };
+      this.ws.onclose = () => { this.connected = false; this.onClose && this.onClose(); };
+      this.ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch { return; } this.handle(m); };
+    });
+  }
+  close() { if (this.ws) { try { this.ws.close(); } catch {} } this.ws = null; this.connected = false; }
+  send(o) { if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify(o)); }
+  join(opts) { this.send({ t: 'join', ...opts }); }
+  handle(m) {
+    if (m.t === 'lobby') { this.onLobby && this.onLobby(m); }
+    else if (m.t === 'start') { if (typeof Mutation !== 'undefined') Mutation.set(m.mutation); this.round = new NetRound(this, m); this.lastStateAt = 0; this.onStart && this.onStart(this.round); }
+    else if (m.t === 'state' && this.round) {
+      const now = performance.now();
+      if (this.lastStateAt) this.stateInterval = this.stateInterval * 0.8 + (now - this.lastStateAt) * 0.2;
+      this.lastStateAt = now;
+      this.round.applyState(m);
+    }
+    else if (m.t === 'dead' && this.round) {
+      const p = this.round.player; if (!p) return;
+      p.alive = false; p.place = m.place; p.deathCause = m.cause; p.killer = this.round.by(m.killer); p.deathMass = p.mass;
+      this.round.reviveOk = !!m.reviveOk;
+      this.onDead && this.onDead(m);
+    }
+    else if (m.t === 'over' && this.round) {
+      this.round.over = true; this.round.winner = this.round.by(m.winner);
+      if (this.round.player) this.round.player.place = m.place || this.round.player.place;
+      this.onOver && this.onOver(m);
+    }
+  }
+  // Her karede: yumuşat ve girdiyi gönder (değişmişse, en çok 30 Hz)
+  tick() {
+    const r = this.round; if (!r) return;
+    if (this.lastStateAt) { const k = Math.min(1, (performance.now() - this.lastStateAt) / this.stateInterval); for (const s of r.world.snakes) if (s.tx !== null) s.lerp(k); }
+    const p = r.player; if (!p || !p.alive) return;
+    const now = performance.now(); if (now - this.lastSendAt < 33) return;
+    const i = p.input, msg = { t: 'input', a: Math.round(i.targetAngle * 1000) / 1000, th: Math.round((i.throttle ?? 1) * 20) / 20, b: !!i.boost, d: !!i.dig };
+    const key = `${msg.a}|${msg.th}|${msg.b}|${msg.d}`;
+    if (key === this.lastSent) return;
+    this.lastSent = key; this.lastSendAt = now; this.send(msg);
   }
 }
 
@@ -3026,6 +3226,7 @@ const GAME = {
   tutor: true,                       // kademeli öğretme: FIRLAT 3. turdan, KAZI ve menü derinliği 5. turdan
   reviveTop: 8,                      // diriliş teklifi yalnız bu sıra ve üstünde (portal kuralı: her ölümde teklif yok)
   analytics: { endpoint: '' },       // olay toplayıcı adresi (boş: ağa çıkılmaz, sayaçlar yerelde kalır) — kumul-analitik.js
+  online: { url: '' },               // çok oyunculu sunucu (wss://…); boşsa aynı kökteki sunucu aranır (/__net) — skarabe-ag.js
   huylar: HUYLAR,                    // tur öncesi huy seçimi (itis.js)
   // Metinler kumul-dil.js'ten: dil değişince de doğru olsun diye işlev olarak
   get firstLine() { return T('firstLine'); },
@@ -3536,25 +3737,34 @@ async function share() {
 }
 if ($('shareBtn')) $('shareBtn').addEventListener('click', share);
 
-function startRound() {
-  Sfx.init();
+function playerName() {
   const name = ($('nameInput').value.trim() || T('you')).slice(0, 12);
   store.set(GAME.key + '-name', $('nameInput').value.trim());
+  return name;
+}
+function startRound() {
+  Sfx.init();
+  const name = playerName();
   // Rakip hafızası meydan okuma turuna karışmaz (aynı tohum herkeste aynı botları vermeli)
   const nemesis = useProgress && urlSeed === null ? Nemesis.get() : null;
   const mutation = urlSeed !== null ? urlMutation : (weekMutation ? weekMutation.key : null);
   const names = useStream && typeof ARENA !== 'undefined' ? Twitch.take(ARENA.players - 1) : null;   // sohbetten gelen izleyiciler
+  onlineMode = false;
   round = new Round({ withPlayer: true, playerName: name, playerSkin: savedSkin, seed: urlSeed, nemesis, mutation, names });
+  challengeRound = urlSeed !== null;
+  if (challengeRound) { stats.challengesPlayed = (stats.challengesPlayed || 0) + 1; store.set(GAME.key + '-stats', stats); }
+  urlSeed = null; setText('challengeLine', '');
+  enterRound();
+}
+// Tur başlangıcının ortak kısmı: yerel (startRound) ve çevrimiçi (beginOnlineRound) tur aynı yoldan girer
+function enterRound() {
   renderer.feed = []; streamScore();
   roundHighlights = new Set();
   if (useProgress) {
     const st = Streak.touch();
     if (st.extended) setTimeout(() => renderer.showToast(st.broken ? T('streakBroken', st.best) : st.days >= Streak.TRAIL_DAYS ? T('streakTrailOn', st.days) : T('streakDay', st.days)), 600);
   }
-  challengeRound = urlSeed !== null;
-  if (challengeRound) { stats.challengesPlayed = (stats.challengesPlayed || 0) + 1; store.set(GAME.key + '-stats', stats); }
-  track('round_start', { n: stats.rounds + 1, challenge: challengeRound, stage: Tutor.stage() });
-  urlSeed = null; setText('challengeLine', '');
+  track('round_start', { n: stats.rounds + 1, challenge: challengeRound, online: onlineMode, stage: Tutor.stage() });
   if ($('shareBox')) $('shareBox').hidden = true;
   if (GAME.highlights) GAME.highlights.reset();
   if (useClips) Clip.reset();
@@ -3565,7 +3775,7 @@ function startRound() {
   player.mastery = useProgress ? Progress.masteryOf(savedSkin) : 0;
   if (huyKey && player.setHuy) player.setHuy(huyKey);
   player.crowned = useDefter && GAME.collection.crowned();
-  player.revenge = false; player.ballKills = 0;
+  player.revenge = false; if (!onlineMode) player.ballKills = 0;
   revived = false; awarded = null; overShown = false;
   state = 'playing'; paused = false; setHidden('pauseModal', true);
   renderer.camX = player.x; renderer.camY = player.y; renderer.zoom = 1;
@@ -3573,6 +3783,41 @@ function startRound() {
   touch.used = false; syncTouchUi();
   Ads.gameplayStart();
 }
+
+// ---------------------------------------------------------------------
+// Çevrimiçi (skarabe-ag.js): sunucu bulunursa "Çevrimiçi oyna" görünür. Aynı kökte sunucu varsa (/__net)
+// ona, yoksa GAME.online.url'ye bağlanır. Lobi -> tur -> sonuç; "Yeni tur" yeniden eşleştirir.
+// ---------------------------------------------------------------------
+let onlineUrl = '', net = null, onlineMode = false;
+async function initOnline() {
+  if (!GAME.online || typeof NetClient === 'undefined') return;
+  let url = GAME.online.url || '';
+  if (!url) { try { const r = await fetch('/__net', { cache: 'no-store' }); if (r.ok) url = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host; } catch {} }
+  if (!url) return;
+  onlineUrl = url; setHidden('onlineBtn', false);
+}
+initOnline();
+async function startOnline() {
+  Sfx.init();
+  const name = playerName(), btn = $('onlineBtn');
+  if (!net || !net.connected) {
+    net = new NetClient(onlineUrl);
+    net.onLobby = m => setText('onlineLine', T('matching', m.wait, m.humans));
+    net.onStart = r => beginOnlineRound(r);
+    net.onClose = () => { if (onlineMode && (state === 'playing' || state === 'dead')) renderer.showToast(T('onlineLost')); onlineMode = false; setText('onlineLine', ''); if (btn) btn.disabled = false; };
+    setText('onlineLine', T('connecting'));
+    try { await net.connect(); } catch { setText('onlineLine', T('onlineFail')); net = null; return; }
+  }
+  if (btn) btn.disabled = true;
+  track('online_join');
+  net.join({ name, skin: savedSkin, huy: huyKey, stage: Tutor.stage(), chat: useStream && Twitch.queue.length ? Twitch.take(15) : null });
+}
+function beginOnlineRound(r) {
+  onlineMode = true; round = r; challengeRound = false; urlSeed = null;
+  setText('onlineLine', ''); if ($('onlineBtn')) $('onlineBtn').disabled = false;
+  enterRound();
+}
+if ($('onlineBtn')) $('onlineBtn').addEventListener('click', startOnline);
 
 // Sonucu istatistiğe ve ilerlemeye yaz. Aynı turda ikinci kez çağrılırsa (dirilişten sonra) yalnızca fark eklenir.
 function recordResult() {
@@ -3682,7 +3927,8 @@ $('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key
 $('againBtn').addEventListener('click', async () => {
   stats.again = (stats.again || 0) + 1; store.set(GAME.key + '-stats', stats); track('again');
   await Ads.interstitial();            // tur arası reklam yeri
-  startRound();
+  if (onlineMode && net && net.connected) { $('result').hidden = true; $('menu').hidden = false; state = 'menu'; round = new Round(); startOnline(); }
+  else startRound();
 });
 $('reviveBtn').addEventListener('click', async () => {
   $('reviveBtn').hidden = true;
@@ -3755,7 +4001,7 @@ function detectHighlight() {
 function tick(dt) {
   if (state === 'playing') {
     applyInput();
-    round.step(dt);
+    if (onlineMode) net.tick(); else round.step(dt);
     if (useClips) Clip.tick(round.world);
     Tutor.tick();
     detectHighlight();
@@ -3763,7 +4009,7 @@ function tick(dt) {
     if (!player.alive) onDeath();
     else if (round.over) onWin();
   } else if (state === 'dead') {
-    round.step(dt);
+    if (onlineMode) net.tick(); else round.step(dt);
     if (GAME.highlights) GAME.highlights.step(round, null);     // final üçlüsü kaydı tutulsun
     handleEvents();
     if (round.over && !overShown) onRoundOverWhileDead();
