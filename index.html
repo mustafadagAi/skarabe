@@ -44,11 +44,7 @@
   .entry i { font-style: normal; color: var(--muted); font-size: 12px; }
   .entry p { margin: 3px 0 0; font-size: 12.5px; line-height: 1.4; }
   #newLine { color: var(--amber); font-weight: 700; }
-  #mutationLine:empty, #defterLine:empty, #newLine:empty, #seasonLine:empty, #huyText:empty, #onlineLine:empty { display: none; }
-  .huy { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
-  .huy button { font-family: inherit; font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px; border: 2px solid var(--ink);
-                background: var(--paper); color: var(--ink); cursor: pointer; }
-  .huy button.on { background: var(--ink); color: var(--paper); }
+  #mutationLine:empty, #defterLine:empty, #newLine:empty, #seasonLine:empty, #onlineLine:empty { display: none; }
   #seasonModal { background: rgba(42, 31, 20, 0.6); z-index: 6; justify-content: flex-start; padding-top: 28px; }
   .track { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
   .step { border: 1.5px solid rgba(42,31,20,0.3); border-radius: 10px; padding: 8px 4px; text-align: center; font-size: 12px; background: rgba(255,255,255,0.45); }
@@ -194,8 +190,6 @@
   <details id="moreBox" hidden>
     <summary data-t="more">Daha fazla</summary>
     <div class="moreInner">
-      <div id="huyPick" class="huy"></div>
-      <p id="huyText" class="small"></p>
       <div class="share"><span id="seasonLine" class="small"></span><button id="seasonBtn" class="btn ghost mini" data-t="season">Sezon</button></div>
       <div class="share"><span id="defterLine" class="small"></span><button id="defterBtn" class="btn ghost mini" data-t="book">Defter</button></div>
       <details id="streamBox">
@@ -577,7 +571,6 @@ tr: {
   streak: d => `Kum Saati: ${d} gün üst üste`,
   mutationLine: (n, t) => `Bu haftanın mutasyonu: ${n} — ${t}.`,
   seasonLine: (i, tier, xp, days, title, ready) => `Sezon ${i} · ${tier} · ${xp} puan · ${days} gün${title ? ' · ' + title : ''}${ready ? ` · ${ready} Kum Kutusu hazır!` : ''}`,
-  huyLine: (n, t) => `${n}: ${t}`,
   // kademeli öğretme
   helpMouse: 'Fare yön verir, tıklama ya da boşluk atılır. Topak topla, rakibi fırtınaya it.',
   helpTouch: 'Sol çubuk yön verir, sağdaki düğme atılır. Topak topla, rakibi fırtınaya it.',
@@ -630,7 +623,7 @@ tr: {
   hudMass: 'AĞIRLIK', hudKills: 'İTİŞ', chatScore: (a, b) => `Sohbet ${a} · Yayıncı ${b}`,
   chipShield: s => `Koruma ${s}`, chipNaked: 'Topsuz: topunu geri al', chipCharge: p => `FIRLAT ${p}%`, chipDug: 'Yerde',
   chipDigCd: s => `KAZI ${s}`, chipDigReady: 'KAZI hazır (X)', chipDigReadyTouch: 'KAZI hazır',
-  chipDashCd: s => `Atılma ${s}`, chipDashReady: 'Atılma hazır', chipAnchor: s => `Ağırlık ${s}`, chipMagnet: s => `Mıknatıs ${s}`, chipTurbo: s => `Turbo ${s}`, chipHuy: n => `Huy: ${n}`,
+  chipDashCd: s => `Atılma ${s}`, chipDashReady: 'Atılma hazır', chipAnchor: s => `Ağırlık ${s}`, chipMagnet: s => `Mıknatıs ${s}`, chipTurbo: s => `Turbo ${s}`,
   breath: 'SON NEFES', breathMouse: 'Tıkla ya da boşluk: topu bırak, içeri fırla', breathTouch: 'ATIL düğmesi: topu bırak, içeri fırla',
   // oyun (GAME)
   firstLine: 'İlk turun. 16 böcek, tek kazanan.', winTitle: 'Son böcek sensin', winText: n => `${n} böcek arasından birinci.`,
@@ -640,14 +633,11 @@ tr: {
   'stamp:cig': 'ÇIĞ!', 'stamp:dirilis': 'DİRİLDİ', 'stamp:pacavra': 'PAÇAVRA', 'stamp:hirsiz': 'ÇALDI', 'stamp:kilpayi': 'KIL PAYI', 'stamp:pinball': 'PİNBALL', 'stamp:kendigol': 'KENDİ TOPUN',
   'sub:cig': n => `tek fırlatışla ${n} böcek fırtınada`, 'sub:dirilis': 'son nefesten döndü, turu aldı', 'sub:pacavra': 'final üçlüsüne en küçük girdi, kazandı',
   'sub:hirsiz': (n, who) => `${who}'in topunu kaptı: +${n}`, 'sub:kilpayi': ms => `fırtınadan ${ms} ms kala çıktı`, 'sub:pinball': n => `${n} böcek arasında sekti, ayakta`, 'sub:kendigol': 'kendi topu onu fırtınaya itti',
-  // mutasyon ve huy
+  // mutasyon
   'mut:agir': 'Ağır Toplar', 'mutt:agir': 'çarpışmalar 1,5 kat sert', 'mut:kucuk': 'Küçük Arena', 'mutt:kucuk': 'arena 1500, daralma erken biter',
   'mut:gece': 'Gece', 'mutt:gece': 'görüş 300; yıldızlara bak', 'mut:kaygan': 'Kaygan Kum', 'mutt:kaygan': 'sönüm yarı yarıya; kaymayı hesapla',
   'mut:hizli': 'Hızlı Fırtına', 'mutt:hizli': 'daralma 40. saniyede biter', 'mut:dev': 'Dev Toplar', 'mutt:dev': 'herkes 60 kütleyle başlar',
   'mut:miknatis': 'Mıknatıs Günü', 'mutt:miknatis': 'mıknatıs 2 kat uzağa çeker, güçler bol', 'mut:cilgin': 'Çılgın Atılma', 'mutt:cilgin': 'atılma 0,8 saniyede bir',
-  'huy:dengeli': 'Dengeli', 'huyt:dengeli': 'değişiklik yok', 'huy:kabadayi': 'Kabadayı', 'huyt:kabadayi': '+%8 itme · −%6 hız',
-  'huy:toplayici': 'Toplayıcı', 'huyt:toplayici': '+%15 topak değeri · +%15 mıknatıs · −%6 itme', 'huy:kacak': 'Kaçak', 'huyt:kacak': '+%6 hız · −%10 itme',
-  'huy:kurnaz': 'Kurnaz', 'huyt:kurnaz': 'şarj %25 hızlı · −%5 hız',
   // sezon kademeleri ve ödüller
   'tier:Larva': 'Larva', 'tier:Böcek': 'Böcek', 'tier:Yuvarlayıcı': 'Yuvarlayıcı', 'tier:Şampiyon': 'Şampiyon', 'tier:Kutsal Skarabe': 'Kutsal Skarabe',
   'reward:yildiz': 'Yıldız izi', 'reward:alev': 'Kor izi', 'reward:yaprak': 'Yaprak izi', 'reward:yuvarlayici': 'Yuvarlayıcı', 'reward:firtina': 'Fırtına Ustası', 'reward:hirsiz': 'Top Hırsızı', 'reward:xp': n => `+${n} puan`,
@@ -686,7 +676,6 @@ en: {
   streak: d => `Hourglass: ${d} days in a row`,
   mutationLine: (n, t) => `This week's mutation: ${n} — ${t}.`,
   seasonLine: (i, tier, xp, days, title, ready) => `Season ${i} · ${tier} · ${xp} pts · ${days} days${title ? ' · ' + title : ''}${ready ? ` · ${ready} Sand Box${ready > 1 ? 'es' : ''} ready!` : ''}`,
-  huyLine: (n, t) => `${n}: ${t}`,
   helpMouse: 'Mouse steers, click or space dashes. Collect pellets, push rivals into the storm.',
   helpTouch: 'Left stick steers, right button dashes. Collect pellets, push rivals into the storm.',
   helpLaunch: ' Hold, release: launch your ball; once it slows, whoever touches it owns it.',
@@ -729,7 +718,7 @@ en: {
   hudMass: 'MASS', hudKills: 'KNOCKOUTS', chatScore: (a, b) => `Chat ${a} · Streamer ${b}`,
   chipShield: s => `Shield ${s}`, chipNaked: 'No ball: get it back', chipCharge: p => `LAUNCH ${p}%`, chipDug: 'Burrowed',
   chipDigCd: s => `DIG ${s}`, chipDigReady: 'DIG ready (X)', chipDigReadyTouch: 'DIG ready',
-  chipDashCd: s => `Dash ${s}`, chipDashReady: 'Dash ready', chipAnchor: s => `Anchor ${s}`, chipMagnet: s => `Magnet ${s}`, chipTurbo: s => `Turbo ${s}`, chipHuy: n => `Trait: ${n}`,
+  chipDashCd: s => `Dash ${s}`, chipDashReady: 'Dash ready', chipAnchor: s => `Anchor ${s}`, chipMagnet: s => `Magnet ${s}`, chipTurbo: s => `Turbo ${s}`,
   breath: 'LAST BREATH', breathMouse: 'Click or space: drop the ball, dive back in', breathTouch: 'DASH button: drop the ball, dive back in',
   firstLine: 'Your first round. 16 beetles, one winner.', winTitle: 'Last beetle standing', winText: n => `First out of ${n} beetles.`,
   deathOwnBall: 'Your own ball pushed you into the storm.', deathPushed: n => `${n} pushed you into the storm.`, deathWall: 'You rolled into the storm.', outText: n => `${n} is in the storm`,
@@ -741,9 +730,6 @@ en: {
   'mut:gece': 'Night', 'mutt:gece': 'vision 300; follow the stars', 'mut:kaygan': 'Slippery Sand', 'mutt:kaygan': 'half the drag; plan for the slide',
   'mut:hizli': 'Fast Storm', 'mutt:hizli': 'the storm finishes closing at 40 s', 'mut:dev': 'Giant Balls', 'mutt:dev': 'everyone starts at mass 60',
   'mut:miknatis': 'Magnet Day', 'mutt:miknatis': 'magnets pull twice as far, powers everywhere', 'mut:cilgin': 'Dash Frenzy', 'mutt:cilgin': 'dash every 0.8 seconds',
-  'huy:dengeli': 'Balanced', 'huyt:dengeli': 'no change', 'huy:kabadayi': 'Bully', 'huyt:kabadayi': '+8% push · −6% speed',
-  'huy:toplayici': 'Collector', 'huyt:toplayici': '+15% pellet value · +15% magnet · −6% push', 'huy:kacak': 'Runner', 'huyt:kacak': '+6% speed · −10% push',
-  'huy:kurnaz': 'Sly', 'huyt:kurnaz': '25% faster charge · −5% speed',
   'tier:Larva': 'Larva', 'tier:Böcek': 'Beetle', 'tier:Yuvarlayıcı': 'Roller', 'tier:Şampiyon': 'Champion', 'tier:Kutsal Skarabe': 'Sacred Scarab',
   'reward:yildiz': 'Star trail', 'reward:alev': 'Ember trail', 'reward:yaprak': 'Leaf trail', 'reward:yuvarlayici': 'Roller', 'reward:firtina': 'Storm Master', 'reward:hirsiz': 'Ball Thief', 'reward:xp': n => `+${n} points`,
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
@@ -1395,17 +1381,6 @@ const PHYS = {
 };
 const ballRadius = mass => 16 + Math.sqrt(mass) * 2.0;
 
-// Huy seçimi: oyuncu tur öncesi bir huy seçer. Toplam güç sabit, yalnızca şekil değişir
-// (yetenek ağacının güç enflasyonu yaratmayan hali). Botların huyu beyinlerindedir (PUSH_TRAITS).
-const HUYLAR = [
-  { key: 'dengeli',   name: 'Dengeli',   text: 'değişiklik yok',                              mods: {} },
-  { key: 'kabadayi',  name: 'Kabadayı',  text: '+%8 itme · −%6 hız',                          mods: { push: 1.08, thrust: 0.94 } },
-  { key: 'toplayici', name: 'Toplayıcı', text: '+%15 topak değeri · +%15 mıknatıs · −%6 itme', mods: { pellet: 1.15, magnet: 1.15, push: 0.94 } },
-  { key: 'kacak',     name: 'Kaçak',     text: '+%6 hız · −%10 itme',                         mods: { thrust: 1.06, push: 0.9 } },
-  { key: 'kurnaz',    name: 'Kurnaz',    text: 'şarj %25 hızlı · −%5 hız',                    mods: { charge: 1.25, thrust: 0.95 } },
-];
-const huyOf = key => HUYLAR.find(h => h.key === key) || HUYLAR[0];
-
 // ---------------------------------------------------------------------
 // Haftalık mutasyon: her hafta tek bir kural değişir. Ayarlar ARENA/PHYS/WORLD üzerine yazılır,
 // tur kurulmadan önce Mutation.set(key) çağrılır; set(null) temel ayarlara döner.
@@ -1454,10 +1429,8 @@ class Beetle {
     this.decisionInterval = 3;
     this.thrustFactor = 1;
     this.kills = 0;
-    this.huy = { thrust: 1, push: 1, pellet: 1, magnet: 1, charge: 1 };   // huy çarpanları (insan seçer)
     this.reset(x, y);
   }
-  setHuy(key) { const h = huyOf(key); this.huyKey = h.key; this.huy = { thrust: 1, push: 1, pellet: 1, magnet: 1, charge: 1, ...h.mods }; }
   reset(x, y) {
     this.x = x; this.y = y; this.vx = 0; this.vy = 0;
     this.angle = Rng.next() * Math.PI * 2;
@@ -1483,7 +1456,7 @@ class Beetle {
   get digReady() { return this.dig <= 0 && this.digCooldown <= 0 && this.digEligible && this.breath <= 0; }
   get hasBall()  { return this.mass > 0; }
   get radius()   { return this.mass > 0 ? ballRadius(this.mass) : PHYS.nakedRadius; }
-  get pushMass() { return (this.mass > 0 ? this.mass * (this.anchor > 0 ? POWER.anchorFactor : 1) : PHYS.nakedMass) * this.huy.push; }
+  get pushMass() { return (this.mass > 0 ? this.mass * (this.anchor > 0 ? POWER.anchorFactor : 1) : PHYS.nakedMass); }
   get dashReady() { return this.dashTimer <= 0; }
   get speed()    { return Math.hypot(this.vx, this.vy); }
   get charging() { return this.charge >= PHYS.chargeTime || this.launching; }
@@ -1515,7 +1488,7 @@ class Beetle {
         this.dashes = (this.dashes || 0) + 1;
       }
       // canLaunch === false: kademeli öğretme, ilk turlarda basılı tutmak şarj yapmaz
-      if (pressed && this.mass > 0 && !this.brain && this.canLaunch !== false) this.charge += dt * this.huy.charge;
+      if (pressed && this.mass > 0 && !this.brain && this.canLaunch !== false) this.charge += dt;
       else {
         if (this.charge >= PHYS.chargeTime) { this.launchPower = Math.min(1, (this.charge - PHYS.chargeTime) / (PHYS.chargeFull - PHYS.chargeTime)); this.wantLaunch = true; }
         this.charge = 0;
@@ -1531,7 +1504,7 @@ class Beetle {
     // Fırtınada (Son Nefes) itki yok: tek çıkış topu bırakmak.
     if (this.breath <= 0 && this.dig <= 0) {
       const heft = this.mass > 0 ? Math.pow(PHYS.startMass / this.mass, PHYS.massSlow) : PHYS.nakedSpeed;
-      const a = PHYS.thrust * this.thrustFactor * this.huy.thrust * heft * (this.input.throttle ?? 1) * (this.charging ? PHYS.chargeSlow : 1);
+      const a = PHYS.thrust * this.thrustFactor * heft * (this.input.throttle ?? 1) * (this.charging ? PHYS.chargeSlow : 1);
       this.vx += Math.cos(this.angle) * a * dt;
       this.vy += Math.sin(this.angle) * a * dt;
     }
@@ -1640,12 +1613,12 @@ class PushWorld {
     // 3) Topak ve güç toplama
     for (const s of list) {
       if (!s.alive) continue;
-      const r = s.radius + 5, pullR = s.magnet > 0 ? POWER.magnetRadius * s.huy.magnet : 0, reach = Math.max(r, pullR);
+      const r = s.radius + 5, pullR = s.magnet > 0 ? POWER.magnetRadius : 0, reach = Math.max(r, pullR);
       for (let i = this.foods.length - 1; i >= 0; i--) {
         const f = this.foods[i], dx = f.x - s.x, dy = f.y - s.y;
         if (Math.abs(dx) >= reach || Math.abs(dy) >= reach) continue;
         const d = Math.hypot(dx, dy);
-        if (d < r) { s.mass += f.value * s.huy.pellet; s.score = Math.max(s.score, s.mass); this.removeFood(i); if (!s.brain) this.events.push({ type: "pellet", who: s }); }
+        if (d < r) { s.mass += f.value; s.score = Math.max(s.score, s.mass); this.removeFood(i); if (!s.brain) this.events.push({ type: "pellet", who: s }); }
         else if (d < pullR) { const k = Math.min(1, POWER.magnetPull * dt / d); f.x -= dx * k; f.y -= dy * k; }
       }
       for (let i = this.powerUps.length - 1; i >= 0; i--) {
@@ -2402,9 +2375,6 @@ class ArenaRenderer extends RenderBase {
       case 'anchor':   // ağırlık: halkalı blok
         ctx.moveTo(x - 4, y - 2); ctx.lineTo(x + 4, y - 2); ctx.lineTo(x + 6.5, y + 7); ctx.lineTo(x - 6.5, y + 7); ctx.closePath(); ctx.stroke();
         ctx.beginPath(); ctx.arc(x, y - 4.5, 2.5, 0, Math.PI * 2); ctx.stroke(); break;
-      case 'trait':    // huy: dört uçlu yıldız
-        ctx.moveTo(x, y - 7); ctx.quadraticCurveTo(x + 1.5, y - 1.5, x + 7, y); ctx.quadraticCurveTo(x + 1.5, y + 1.5, x, y + 7);
-        ctx.quadraticCurveTo(x - 1.5, y + 1.5, x - 7, y); ctx.quadraticCurveTo(x - 1.5, y - 1.5, x, y - 7); ctx.closePath(); ctx.stroke(); break;
       default: ctx.restore(); return this.powerGlyph(type, x, y, 0.8);
     }
     ctx.restore();
@@ -2602,7 +2572,6 @@ class BeetleRenderer extends ArenaRenderer {
     else if (p.digEligible) chips.push(['dig', p.digCooldown > 0 ? T('chipDigCd', Math.ceil(p.digCooldown)) : T(this.touchLayout ? 'chipDigReadyTouch' : 'chipDigReady'), p.digCooldown > 0 ? KUMUL.muted : KUMUL.amber]);
     else if (p.charging) chips.push(['launch', T('chipCharge', Math.round(this.chargeFrac(p) * 100)), KUMUL.amber]);
     chips.push(['dash', p.dashTimer > 0 ? T('chipDashCd', Math.ceil(p.dashTimer)) : T('chipDashReady'), p.dashTimer > 0 ? KUMUL.muted : KUMUL.teal]);
-    if (p.huyKey && p.huyKey !== 'dengeli') chips.push(['trait', T('chipHuy', T('huy:' + p.huyKey)), KUMUL.muted]);
     if (p.anchor > 0) chips.push(['anchor', T('chipAnchor', Math.ceil(p.anchor)), POWER_LOOK.anchor.color]);
     if (p.magnet > 0) chips.push(['magnet', T('chipMagnet', Math.ceil(p.magnet)), KUMUL.crimson]);
     if (p.turbo > 0) chips.push(['turbo', T('chipTurbo', Math.ceil(p.turbo)), KUMUL.amber]);
@@ -3311,7 +3280,6 @@ const GAME = {
   reviveTop: 8,                      // diriliş teklifi yalnız bu sıra ve üstünde (portal kuralı: her ölümde teklif yok)
   analytics: { endpoint: '' },       // olay toplayıcı adresi (boş: ağa çıkılmaz, sayaçlar yerelde kalır) — kumul-analitik.js
   online: { url: 'wss://skarabe-sunucu.onrender.com' }, // çok oyunculu sunucu (Render); boşsa aynı kökteki sunucu aranır (/__net) — skarabe-ag.js
-  huylar: HUYLAR,                    // tur öncesi huy seçimi (itis.js)
   // Metinler kumul-dil.js'ten: dil değişince de doğru olsun diye işlev olarak
   get firstLine() { return T('firstLine'); },
   get winTitle() { return T('winTitle'); },
@@ -3370,24 +3338,13 @@ if (useDefter) GAME.collection.init(GAME.key, KUMUL_SKINS);
 const useSeason = useProgress && !!GAME.season;              // sezon ödül hattı (kumul-ilerleme.js Season)
 if (useSeason) Season.init(GAME.key);
 
-// Huy seçimi: tur öncesi, kalıcı. Toplam güç sabit; HUD'da rozet olarak görünür.
-const huylar = GAME.huylar || [];
-let huyKey = huylar.length ? store.get(GAME.key + '-huy', huylar[0].key) : null;
-function renderHuy() {
-  const box = $('huyPick'); if (!box || !huylar.length) return;
-  box.innerHTML = huylar.map(h => `<button type="button" data-huy="${h.key}" class="${h.key === huyKey ? 'on' : ''}">${T('huy:' + h.key)}</button>`).join('');
-  const h = huylar.find(x => x.key === huyKey) || huylar[0];
-  setText('huyText', T('huyLine', T('huy:' + h.key), T('huyt:' + h.key)));
-  for (const b of box.querySelectorAll('button')) b.addEventListener('click', () => { huyKey = b.dataset.huy; store.set(GAME.key + '-huy', huyKey); renderHuy(); });
-}
-renderHuy();
 const weekMutation = GAME.mutations ? GAME.mutations.thisWeek() : null;   // haftalık mutasyon (itis.js)
 
 // ---------------------------------------------------------------------
 // Kademeli öğretme: ilk 10 saniye hyper-casual kalsın, derinlik turlar ilerledikçe açılsın.
 //   0. evre (ilk 2 tur): yalnız yön + atılma; basılı tutmak şarj yapmaz, KAZI yok, menüde tek satır.
 //   1. evre (3.–4. tur): FIRLAT açılır; kütle 40'ı geçince turda tek ipucu.
-//   2. evre (5. turdan ya da seviye 3'ten sonra): KAZI açılır; Huy, Sezon, Defter, Yayıncı "Daha fazla" altında.
+//   2. evre (5. turdan ya da seviye 3'ten sonra): KAZI açılır; Sezon, Defter, Yayıncı "Daha fazla" altında.
 // İpuçları en çok 3 kez gösterilir; oyuncu hamleyi bir kez yapınca biter.
 // ---------------------------------------------------------------------
 const Tutor = {
@@ -3464,7 +3421,7 @@ function streamScore() {
   renderer.scoreLine = T('chatScore', stats.chatWins || 0, stats.streamerWins || 0);
 }
 // Dil düğmesi: metinleri yeniden yaz, menüyü tazele
-if ($('langBtn')) $('langBtn').addEventListener('click', () => { Lang.toggle(); renderHuy(); showMute(); refreshMenu(); drawSkinPreview(); streamScore(); if (useStream && Twitch.onChange) Twitch.onChange(); });
+if ($('langBtn')) $('langBtn').addEventListener('click', () => { Lang.toggle(); showMute(); refreshMenu(); drawSkinPreview(); streamScore(); if (useStream && Twitch.onChange) Twitch.onChange(); });
 const skinLocked = i => useProgress && Progress.skinLocked(i);
 
 let savedSkin = Math.min(KUMUL_SKINS.length - 1, Math.max(0, store.get(GAME.key + '-skin', 0) | 0));   // son seçilen AÇIK görünüm
@@ -3858,7 +3815,6 @@ function enterRound() {
   player.canLaunch = Tutor.canLaunch(); player.canDig = Tutor.canDig(); Tutor.reset();
   player.trail = useSeason && Season.data.trail ? Season.data.trail : (useProgress && Streak.hasTrail() ? 'kum' : false);
   player.mastery = useProgress ? Progress.masteryOf(savedSkin) : 0;
-  if (huyKey && player.setHuy) player.setHuy(huyKey);
   player.crowned = useDefter && GAME.collection.crowned();
   player.revenge = false; if (!onlineMode) player.ballKills = 0;
   revived = false; awarded = null; overShown = false;
@@ -3935,7 +3891,7 @@ async function startOnline(opts = {}) {
   if (btn) btn.disabled = true;
   lastJoin = opts.create ? {} : opts;      // kurulan odanın kodu lobby mesajıyla gelir; "Yeni tur" aynı odada kalır
   track('online_join', { how: opts.code ? 'code' : opts.create ? 'create' : opts.room ? 'room' : 'quick' });
-  net.join({ name, skin: savedSkin, huy: huyKey, stage: Tutor.stage(), chat: useStream && Twitch.queue.length ? Twitch.take(15) : null, ...opts });
+  net.join({ name, skin: savedSkin, stage: Tutor.stage(), chat: useStream && Twitch.queue.length ? Twitch.take(15) : null, ...opts });
 }
 function beginOnlineRound(r) {
   onlineMode = true; round = r; challengeRound = false; urlSeed = null;

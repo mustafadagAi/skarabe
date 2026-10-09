@@ -1159,7 +1159,6 @@ tr: {
   streak: d => `Kum Saati: ${d} gün üst üste`,
   mutationLine: (n, t) => `Bu haftanın mutasyonu: ${n} — ${t}.`,
   seasonLine: (i, tier, xp, days, title, ready) => `Sezon ${i} · ${tier} · ${xp} puan · ${days} gün${title ? ' · ' + title : ''}${ready ? ` · ${ready} Kum Kutusu hazır!` : ''}`,
-  huyLine: (n, t) => `${n}: ${t}`,
   // kademeli öğretme
   helpMouse: 'Fare yön verir, tıklama ya da boşluk atılır. Topak topla, rakibi fırtınaya it.',
   helpTouch: 'Sol çubuk yön verir, sağdaki düğme atılır. Topak topla, rakibi fırtınaya it.',
@@ -1212,7 +1211,7 @@ tr: {
   hudMass: 'AĞIRLIK', hudKills: 'İTİŞ', chatScore: (a, b) => `Sohbet ${a} · Yayıncı ${b}`,
   chipShield: s => `Koruma ${s}`, chipNaked: 'Topsuz: topunu geri al', chipCharge: p => `FIRLAT ${p}%`, chipDug: 'Yerde',
   chipDigCd: s => `KAZI ${s}`, chipDigReady: 'KAZI hazır (X)', chipDigReadyTouch: 'KAZI hazır',
-  chipDashCd: s => `Atılma ${s}`, chipDashReady: 'Atılma hazır', chipAnchor: s => `Ağırlık ${s}`, chipMagnet: s => `Mıknatıs ${s}`, chipTurbo: s => `Turbo ${s}`, chipHuy: n => `Huy: ${n}`,
+  chipDashCd: s => `Atılma ${s}`, chipDashReady: 'Atılma hazır', chipAnchor: s => `Ağırlık ${s}`, chipMagnet: s => `Mıknatıs ${s}`, chipTurbo: s => `Turbo ${s}`,
   breath: 'SON NEFES', breathMouse: 'Tıkla ya da boşluk: topu bırak, içeri fırla', breathTouch: 'ATIL düğmesi: topu bırak, içeri fırla',
   // oyun (GAME)
   firstLine: 'İlk turun. 16 böcek, tek kazanan.', winTitle: 'Son böcek sensin', winText: n => `${n} böcek arasından birinci.`,
@@ -1222,14 +1221,11 @@ tr: {
   'stamp:cig': 'ÇIĞ!', 'stamp:dirilis': 'DİRİLDİ', 'stamp:pacavra': 'PAÇAVRA', 'stamp:hirsiz': 'ÇALDI', 'stamp:kilpayi': 'KIL PAYI', 'stamp:pinball': 'PİNBALL', 'stamp:kendigol': 'KENDİ TOPUN',
   'sub:cig': n => `tek fırlatışla ${n} böcek fırtınada`, 'sub:dirilis': 'son nefesten döndü, turu aldı', 'sub:pacavra': 'final üçlüsüne en küçük girdi, kazandı',
   'sub:hirsiz': (n, who) => `${who}'in topunu kaptı: +${n}`, 'sub:kilpayi': ms => `fırtınadan ${ms} ms kala çıktı`, 'sub:pinball': n => `${n} böcek arasında sekti, ayakta`, 'sub:kendigol': 'kendi topu onu fırtınaya itti',
-  // mutasyon ve huy
+  // mutasyon
   'mut:agir': 'Ağır Toplar', 'mutt:agir': 'çarpışmalar 1,5 kat sert', 'mut:kucuk': 'Küçük Arena', 'mutt:kucuk': 'arena 1500, daralma erken biter',
   'mut:gece': 'Gece', 'mutt:gece': 'görüş 300; yıldızlara bak', 'mut:kaygan': 'Kaygan Kum', 'mutt:kaygan': 'sönüm yarı yarıya; kaymayı hesapla',
   'mut:hizli': 'Hızlı Fırtına', 'mutt:hizli': 'daralma 40. saniyede biter', 'mut:dev': 'Dev Toplar', 'mutt:dev': 'herkes 60 kütleyle başlar',
   'mut:miknatis': 'Mıknatıs Günü', 'mutt:miknatis': 'mıknatıs 2 kat uzağa çeker, güçler bol', 'mut:cilgin': 'Çılgın Atılma', 'mutt:cilgin': 'atılma 0,8 saniyede bir',
-  'huy:dengeli': 'Dengeli', 'huyt:dengeli': 'değişiklik yok', 'huy:kabadayi': 'Kabadayı', 'huyt:kabadayi': '+%8 itme · −%6 hız',
-  'huy:toplayici': 'Toplayıcı', 'huyt:toplayici': '+%15 topak değeri · +%15 mıknatıs · −%6 itme', 'huy:kacak': 'Kaçak', 'huyt:kacak': '+%6 hız · −%10 itme',
-  'huy:kurnaz': 'Kurnaz', 'huyt:kurnaz': 'şarj %25 hızlı · −%5 hız',
   // sezon kademeleri ve ödüller
   'tier:Larva': 'Larva', 'tier:Böcek': 'Böcek', 'tier:Yuvarlayıcı': 'Yuvarlayıcı', 'tier:Şampiyon': 'Şampiyon', 'tier:Kutsal Skarabe': 'Kutsal Skarabe',
   'reward:yildiz': 'Yıldız izi', 'reward:alev': 'Kor izi', 'reward:yaprak': 'Yaprak izi', 'reward:yuvarlayici': 'Yuvarlayıcı', 'reward:firtina': 'Fırtına Ustası', 'reward:hirsiz': 'Top Hırsızı', 'reward:xp': n => `+${n} puan`,
@@ -1268,7 +1264,6 @@ en: {
   streak: d => `Hourglass: ${d} days in a row`,
   mutationLine: (n, t) => `This week's mutation: ${n} — ${t}.`,
   seasonLine: (i, tier, xp, days, title, ready) => `Season ${i} · ${tier} · ${xp} pts · ${days} days${title ? ' · ' + title : ''}${ready ? ` · ${ready} Sand Box${ready > 1 ? 'es' : ''} ready!` : ''}`,
-  huyLine: (n, t) => `${n}: ${t}`,
   helpMouse: 'Mouse steers, click or space dashes. Collect pellets, push rivals into the storm.',
   helpTouch: 'Left stick steers, right button dashes. Collect pellets, push rivals into the storm.',
   helpLaunch: ' Hold, release: launch your ball; once it slows, whoever touches it owns it.',
@@ -1311,7 +1306,7 @@ en: {
   hudMass: 'MASS', hudKills: 'KNOCKOUTS', chatScore: (a, b) => `Chat ${a} · Streamer ${b}`,
   chipShield: s => `Shield ${s}`, chipNaked: 'No ball: get it back', chipCharge: p => `LAUNCH ${p}%`, chipDug: 'Burrowed',
   chipDigCd: s => `DIG ${s}`, chipDigReady: 'DIG ready (X)', chipDigReadyTouch: 'DIG ready',
-  chipDashCd: s => `Dash ${s}`, chipDashReady: 'Dash ready', chipAnchor: s => `Anchor ${s}`, chipMagnet: s => `Magnet ${s}`, chipTurbo: s => `Turbo ${s}`, chipHuy: n => `Trait: ${n}`,
+  chipDashCd: s => `Dash ${s}`, chipDashReady: 'Dash ready', chipAnchor: s => `Anchor ${s}`, chipMagnet: s => `Magnet ${s}`, chipTurbo: s => `Turbo ${s}`,
   breath: 'LAST BREATH', breathMouse: 'Click or space: drop the ball, dive back in', breathTouch: 'DASH button: drop the ball, dive back in',
   firstLine: 'Your first round. 16 beetles, one winner.', winTitle: 'Last beetle standing', winText: n => `First out of ${n} beetles.`,
   deathOwnBall: 'Your own ball pushed you into the storm.', deathPushed: n => `${n} pushed you into the storm.`, deathWall: 'You rolled into the storm.', outText: n => `${n} is in the storm`,
@@ -1323,9 +1318,6 @@ en: {
   'mut:gece': 'Night', 'mutt:gece': 'vision 300; follow the stars', 'mut:kaygan': 'Slippery Sand', 'mutt:kaygan': 'half the drag; plan for the slide',
   'mut:hizli': 'Fast Storm', 'mutt:hizli': 'the storm finishes closing at 40 s', 'mut:dev': 'Giant Balls', 'mutt:dev': 'everyone starts at mass 60',
   'mut:miknatis': 'Magnet Day', 'mutt:miknatis': 'magnets pull twice as far, powers everywhere', 'mut:cilgin': 'Dash Frenzy', 'mutt:cilgin': 'dash every 0.8 seconds',
-  'huy:dengeli': 'Balanced', 'huyt:dengeli': 'no change', 'huy:kabadayi': 'Bully', 'huyt:kabadayi': '+8% push · −6% speed',
-  'huy:toplayici': 'Collector', 'huyt:toplayici': '+15% pellet value · +15% magnet · −6% push', 'huy:kacak': 'Runner', 'huyt:kacak': '+6% speed · −10% push',
-  'huy:kurnaz': 'Sly', 'huyt:kurnaz': '25% faster charge · −5% speed',
   'tier:Larva': 'Larva', 'tier:Böcek': 'Beetle', 'tier:Yuvarlayıcı': 'Roller', 'tier:Şampiyon': 'Champion', 'tier:Kutsal Skarabe': 'Sacred Scarab',
   'reward:yildiz': 'Star trail', 'reward:alev': 'Ember trail', 'reward:yaprak': 'Leaf trail', 'reward:yuvarlayici': 'Roller', 'reward:firtina': 'Storm Master', 'reward:hirsiz': 'Ball Thief', 'reward:xp': n => `+${n} points`,
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
@@ -2025,9 +2017,6 @@ class ArenaRenderer extends RenderBase {
       case 'anchor':   // ağırlık: halkalı blok
         ctx.moveTo(x - 4, y - 2); ctx.lineTo(x + 4, y - 2); ctx.lineTo(x + 6.5, y + 7); ctx.lineTo(x - 6.5, y + 7); ctx.closePath(); ctx.stroke();
         ctx.beginPath(); ctx.arc(x, y - 4.5, 2.5, 0, Math.PI * 2); ctx.stroke(); break;
-      case 'trait':    // huy: dört uçlu yıldız
-        ctx.moveTo(x, y - 7); ctx.quadraticCurveTo(x + 1.5, y - 1.5, x + 7, y); ctx.quadraticCurveTo(x + 1.5, y + 1.5, x, y + 7);
-        ctx.quadraticCurveTo(x - 1.5, y + 1.5, x - 7, y); ctx.quadraticCurveTo(x - 1.5, y - 1.5, x, y - 7); ctx.closePath(); ctx.stroke(); break;
       default: ctx.restore(); return this.powerGlyph(type, x, y, 0.8);
     }
     ctx.restore();
@@ -2267,24 +2256,13 @@ if (useDefter) GAME.collection.init(GAME.key, KUMUL_SKINS);
 const useSeason = useProgress && !!GAME.season;              // sezon ödül hattı (kumul-ilerleme.js Season)
 if (useSeason) Season.init(GAME.key);
 
-// Huy seçimi: tur öncesi, kalıcı. Toplam güç sabit; HUD'da rozet olarak görünür.
-const huylar = GAME.huylar || [];
-let huyKey = huylar.length ? store.get(GAME.key + '-huy', huylar[0].key) : null;
-function renderHuy() {
-  const box = $('huyPick'); if (!box || !huylar.length) return;
-  box.innerHTML = huylar.map(h => `<button type="button" data-huy="${h.key}" class="${h.key === huyKey ? 'on' : ''}">${T('huy:' + h.key)}</button>`).join('');
-  const h = huylar.find(x => x.key === huyKey) || huylar[0];
-  setText('huyText', T('huyLine', T('huy:' + h.key), T('huyt:' + h.key)));
-  for (const b of box.querySelectorAll('button')) b.addEventListener('click', () => { huyKey = b.dataset.huy; store.set(GAME.key + '-huy', huyKey); renderHuy(); });
-}
-renderHuy();
 const weekMutation = GAME.mutations ? GAME.mutations.thisWeek() : null;   // haftalık mutasyon (itis.js)
 
 // ---------------------------------------------------------------------
 // Kademeli öğretme: ilk 10 saniye hyper-casual kalsın, derinlik turlar ilerledikçe açılsın.
 //   0. evre (ilk 2 tur): yalnız yön + atılma; basılı tutmak şarj yapmaz, KAZI yok, menüde tek satır.
 //   1. evre (3.–4. tur): FIRLAT açılır; kütle 40'ı geçince turda tek ipucu.
-//   2. evre (5. turdan ya da seviye 3'ten sonra): KAZI açılır; Huy, Sezon, Defter, Yayıncı "Daha fazla" altında.
+//   2. evre (5. turdan ya da seviye 3'ten sonra): KAZI açılır; Sezon, Defter, Yayıncı "Daha fazla" altında.
 // İpuçları en çok 3 kez gösterilir; oyuncu hamleyi bir kez yapınca biter.
 // ---------------------------------------------------------------------
 const Tutor = {
@@ -2361,7 +2339,7 @@ function streamScore() {
   renderer.scoreLine = T('chatScore', stats.chatWins || 0, stats.streamerWins || 0);
 }
 // Dil düğmesi: metinleri yeniden yaz, menüyü tazele
-if ($('langBtn')) $('langBtn').addEventListener('click', () => { Lang.toggle(); renderHuy(); showMute(); refreshMenu(); drawSkinPreview(); streamScore(); if (useStream && Twitch.onChange) Twitch.onChange(); });
+if ($('langBtn')) $('langBtn').addEventListener('click', () => { Lang.toggle(); showMute(); refreshMenu(); drawSkinPreview(); streamScore(); if (useStream && Twitch.onChange) Twitch.onChange(); });
 const skinLocked = i => useProgress && Progress.skinLocked(i);
 
 let savedSkin = Math.min(KUMUL_SKINS.length - 1, Math.max(0, store.get(GAME.key + '-skin', 0) | 0));   // son seçilen AÇIK görünüm
@@ -2755,7 +2733,6 @@ function enterRound() {
   player.canLaunch = Tutor.canLaunch(); player.canDig = Tutor.canDig(); Tutor.reset();
   player.trail = useSeason && Season.data.trail ? Season.data.trail : (useProgress && Streak.hasTrail() ? 'kum' : false);
   player.mastery = useProgress ? Progress.masteryOf(savedSkin) : 0;
-  if (huyKey && player.setHuy) player.setHuy(huyKey);
   player.crowned = useDefter && GAME.collection.crowned();
   player.revenge = false; if (!onlineMode) player.ballKills = 0;
   revived = false; awarded = null; overShown = false;
@@ -2832,7 +2809,7 @@ async function startOnline(opts = {}) {
   if (btn) btn.disabled = true;
   lastJoin = opts.create ? {} : opts;      // kurulan odanın kodu lobby mesajıyla gelir; "Yeni tur" aynı odada kalır
   track('online_join', { how: opts.code ? 'code' : opts.create ? 'create' : opts.room ? 'room' : 'quick' });
-  net.join({ name, skin: savedSkin, huy: huyKey, stage: Tutor.stage(), chat: useStream && Twitch.queue.length ? Twitch.take(15) : null, ...opts });
+  net.join({ name, skin: savedSkin, stage: Tutor.stage(), chat: useStream && Twitch.queue.length ? Twitch.take(15) : null, ...opts });
 }
 function beginOnlineRound(r) {
   onlineMode = true; round = r; challengeRound = false; urlSeed = null;
