@@ -1225,6 +1225,8 @@ tr: {
   // mutasyon ve huy
   'mut:agir': 'Ağır Toplar', 'mutt:agir': 'çarpışmalar 1,5 kat sert', 'mut:kucuk': 'Küçük Arena', 'mutt:kucuk': 'arena 1500, daralma erken biter',
   'mut:gece': 'Gece', 'mutt:gece': 'görüş 300; yıldızlara bak', 'mut:kaygan': 'Kaygan Kum', 'mutt:kaygan': 'sönüm yarı yarıya; kaymayı hesapla',
+  'mut:hizli': 'Hızlı Fırtına', 'mutt:hizli': 'daralma 40. saniyede biter', 'mut:dev': 'Dev Toplar', 'mutt:dev': 'herkes 60 kütleyle başlar',
+  'mut:miknatis': 'Mıknatıs Günü', 'mutt:miknatis': 'mıknatıs 2 kat uzağa çeker, güçler bol', 'mut:cilgin': 'Çılgın Atılma', 'mutt:cilgin': 'atılma 0,8 saniyede bir',
   'huy:dengeli': 'Dengeli', 'huyt:dengeli': 'değişiklik yok', 'huy:kabadayi': 'Kabadayı', 'huyt:kabadayi': '+%8 itme · −%6 hız',
   'huy:toplayici': 'Toplayıcı', 'huyt:toplayici': '+%15 topak değeri · +%15 mıknatıs · −%6 itme', 'huy:kacak': 'Kaçak', 'huyt:kacak': '+%6 hız · −%10 itme',
   'huy:kurnaz': 'Kurnaz', 'huyt:kurnaz': 'şarj %25 hızlı · −%5 hız',
@@ -1307,6 +1309,8 @@ en: {
   'sub:hirsiz': (n, who) => `grabbed ${who}'s ball: +${n}`, 'sub:kilpayi': ms => `escaped the storm with ${ms} ms left`, 'sub:pinball': n => `bounced between ${n} beetles, still standing`, 'sub:kendigol': 'their own ball pushed them into the storm',
   'mut:agir': 'Heavy Balls', 'mutt:agir': 'collisions hit 1.5× harder', 'mut:kucuk': 'Small Arena', 'mutt:kucuk': 'arena 1500, the storm closes early',
   'mut:gece': 'Night', 'mutt:gece': 'vision 300; follow the stars', 'mut:kaygan': 'Slippery Sand', 'mutt:kaygan': 'half the drag; plan for the slide',
+  'mut:hizli': 'Fast Storm', 'mutt:hizli': 'the storm finishes closing at 40 s', 'mut:dev': 'Giant Balls', 'mutt:dev': 'everyone starts at mass 60',
+  'mut:miknatis': 'Magnet Day', 'mutt:miknatis': 'magnets pull twice as far, powers everywhere', 'mut:cilgin': 'Dash Frenzy', 'mutt:cilgin': 'dash every 0.8 seconds',
   'huy:dengeli': 'Balanced', 'huyt:dengeli': 'no change', 'huy:kabadayi': 'Bully', 'huyt:kabadayi': '+8% push · −6% speed',
   'huy:toplayici': 'Collector', 'huyt:toplayici': '+15% pellet value · +15% magnet · −6% push', 'huy:kacak': 'Runner', 'huyt:kacak': '+6% speed · −10% push',
   'huy:kurnaz': 'Sly', 'huyt:kurnaz': '25% faster charge · −5% speed',
@@ -1332,6 +1336,18 @@ en: {
   'sp:valgum': 'Hunter beetle', 'sph:valgum': 'live the UNDERDOG moment', 'spf:valgum': 'Eats no dung: it hunts millipedes, decapitates them and eats the inside. One of the only known carnivorous dung beetles.',
   'sp:gazella': 'Gazelle beetle', 'sph:gazella': 'play 20 rounds', 'spf:gazella': 'Brought to Australia in the 1960s to clear cattle dung; it noticeably cut the fly population.',
   'sp:molossus': 'Horned giant', 'sph:molossus': 'knock out 5 beetles in one round', 'spf:molossus': 'The big species of Southeast Asia; males fight at tunnel entrances with the single horn on their heads.',
+  'sp:zambesianus': 'Moonlight beetle', 'sph:zambesianus': 'play 3 rounds in the Night mutation', 'spf:zambesianus': 'In 2003 it became the first animal shown to steer by the polarization of moonlight: on nights near full moon it rolls dead straight.',
+  'sp:lamarcki': 'Dancing beetle', 'sph:lamarcki': 'live the CLOSE CALL moment', 'spf:lamarcki': 'When the sand burns its feet it climbs onto the ball and "dances": it cools its legs on the cooler ball, then carries on.',
+  'sp:pachysoma': 'The dragger', 'sph:pachysoma': 'launch 10 times', 'spf:pachysoma': 'Lives in the Namib desert, cannot fly and does not roll: it drags dry dung pellets forward with its front legs.',
+  'sp:copris': 'Spanish copris', 'sph:copris': 'play 50 rounds', 'spf:copris': 'The species Fabre watched: the mother stays with her pear-shaped brood balls for months, cleaning off mould until the young emerge.',
+  'sp:geotrupes': 'The tunneller', 'sph:geotrupes': 'burrow 10 times', 'spf:geotrupes': 'Digs vertical tunnels under dung and carries it down; tiny mites ride on its back from pat to pat.',
+  'sp:lancifer': 'Amazon giant', 'sph:lancifer': 'win 3 rounds', 'spf:lancifer': 'The largest dung beetle of the Amazon; metallic blue-violet, both sexes horned. It buries carrion, not dung.',
+  'sp:typhaeus': 'Minotaur beetle', 'sph:typhaeus': 'get payback 3 times', 'spf:typhaeus': 'Males carry three horns; it digs tunnels up to 1.5 m deep for rabbit and sheep dung.',
+  'sp:cyanellus': 'Blue roller', 'sph:cyanellus': 'finish in the top 3 fifteen times', 'spf:cyanellus': 'A metallic green-blue species from Mexico; it rolls balls of carrion and both parents stay in the nest to tend the brood balls.',
+  'sp:acuminatus': 'Sneaky male', 'sph:acuminatus': 'steal 25 balls', 'spf:acuminatus': 'Some males are born with horns, some without: horned males guard the tunnel entrance, hornless ones sneak in through side tunnels.',
+  'sp:stercorosus': 'Forest beetle', 'sph:stercorosus': 'play 100 rounds', 'spf:stercorosus': 'The most common dung beetle of European forests; its glossy blue-black shell is a familiar sight on forest paths.',
+  'sp:fimetarius': 'Red wing', 'sph:fimetarius': 'return from the last breath 15 times', 'spf:fimetarius': 'Makes no ball and digs no tunnel: it lives inside the dung. This small red-winged species is found almost everywhere on Earth.',
+  'sp:sagittarius': 'Horned female', 'sph:sagittarius': 'reach mass 500', 'spf:sagittarius': 'A rare exception: females have horns too, bigger than the males\', and they fight each other over tunnels.',
   'ach:hirsiz': 'Thief', 'achh:hirsiz': 'steal 3 balls in one round', 'ach:nefes': 'Last Breath Master', 'achh:nefes': 'return from the last breath 5 times',
   'ach:cifte': 'Double', 'achh:cifte': 'knock out 2 beetles with one launch', 'ach:pacavra': 'Underdog', 'achh:pacavra': 'enter the final three smallest and win',
   'ach:pasifist': 'Pacifist', 'achh:pasifist': 'win a round without a knockout', 'ach:samanyolu': 'Milky Way', 'achh:samanyolu': 'win in the Night mutation',
@@ -2699,7 +2715,8 @@ function recordResult() {
   // Defter ve başarımlar turun ilk sonucuyla işlenir (diriliş sonrası ikinci kez sayılmaz)
   if (res && useDefter && !awarded) {
     const info = { place: now.place, total: now.total, kills: now.kills, score: Math.round(player.score), steals: player.steals || 0, escapes: player.breaths || 0,
-                   ballKills: player.ballKills || 0, revenge: now.revenge, mutation: round.mutation, highlights: roundHighlights, level: res.after.level };
+                   ballKills: player.ballKills || 0, launches: player.launches || 0, digs: player.digs || 0,
+                   revenge: now.revenge, mutation: round.mutation, highlights: roundHighlights, level: res.after.level };
     const got = GAME.collection.onRound(info);
     res.newEntries = [...(res.newEntries || []), ...got.species.map(s => T('bookNew', GAME.collection.speciesName(s))), ...got.achievements.map(a => T('achNew', GAME.collection.achName(a), a.skin ? GAME.collection.skinLabel(a.skin) : ''))];
   }

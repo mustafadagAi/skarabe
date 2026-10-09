@@ -621,6 +621,8 @@ tr: {
   // mutasyon ve huy
   'mut:agir': 'Ağır Toplar', 'mutt:agir': 'çarpışmalar 1,5 kat sert', 'mut:kucuk': 'Küçük Arena', 'mutt:kucuk': 'arena 1500, daralma erken biter',
   'mut:gece': 'Gece', 'mutt:gece': 'görüş 300; yıldızlara bak', 'mut:kaygan': 'Kaygan Kum', 'mutt:kaygan': 'sönüm yarı yarıya; kaymayı hesapla',
+  'mut:hizli': 'Hızlı Fırtına', 'mutt:hizli': 'daralma 40. saniyede biter', 'mut:dev': 'Dev Toplar', 'mutt:dev': 'herkes 60 kütleyle başlar',
+  'mut:miknatis': 'Mıknatıs Günü', 'mutt:miknatis': 'mıknatıs 2 kat uzağa çeker, güçler bol', 'mut:cilgin': 'Çılgın Atılma', 'mutt:cilgin': 'atılma 0,8 saniyede bir',
   'huy:dengeli': 'Dengeli', 'huyt:dengeli': 'değişiklik yok', 'huy:kabadayi': 'Kabadayı', 'huyt:kabadayi': '+%8 itme · −%6 hız',
   'huy:toplayici': 'Toplayıcı', 'huyt:toplayici': '+%15 topak değeri · +%15 mıknatıs · −%6 itme', 'huy:kacak': 'Kaçak', 'huyt:kacak': '+%6 hız · −%10 itme',
   'huy:kurnaz': 'Kurnaz', 'huyt:kurnaz': 'şarj %25 hızlı · −%5 hız',
@@ -703,6 +705,8 @@ en: {
   'sub:hirsiz': (n, who) => `grabbed ${who}'s ball: +${n}`, 'sub:kilpayi': ms => `escaped the storm with ${ms} ms left`, 'sub:pinball': n => `bounced between ${n} beetles, still standing`, 'sub:kendigol': 'their own ball pushed them into the storm',
   'mut:agir': 'Heavy Balls', 'mutt:agir': 'collisions hit 1.5× harder', 'mut:kucuk': 'Small Arena', 'mutt:kucuk': 'arena 1500, the storm closes early',
   'mut:gece': 'Night', 'mutt:gece': 'vision 300; follow the stars', 'mut:kaygan': 'Slippery Sand', 'mutt:kaygan': 'half the drag; plan for the slide',
+  'mut:hizli': 'Fast Storm', 'mutt:hizli': 'the storm finishes closing at 40 s', 'mut:dev': 'Giant Balls', 'mutt:dev': 'everyone starts at mass 60',
+  'mut:miknatis': 'Magnet Day', 'mutt:miknatis': 'magnets pull twice as far, powers everywhere', 'mut:cilgin': 'Dash Frenzy', 'mutt:cilgin': 'dash every 0.8 seconds',
   'huy:dengeli': 'Balanced', 'huyt:dengeli': 'no change', 'huy:kabadayi': 'Bully', 'huyt:kabadayi': '+8% push · −6% speed',
   'huy:toplayici': 'Collector', 'huyt:toplayici': '+15% pellet value · +15% magnet · −6% push', 'huy:kacak': 'Runner', 'huyt:kacak': '+6% speed · −10% push',
   'huy:kurnaz': 'Sly', 'huyt:kurnaz': '25% faster charge · −5% speed',
@@ -728,6 +732,18 @@ en: {
   'sp:valgum': 'Hunter beetle', 'sph:valgum': 'live the UNDERDOG moment', 'spf:valgum': 'Eats no dung: it hunts millipedes, decapitates them and eats the inside. One of the only known carnivorous dung beetles.',
   'sp:gazella': 'Gazelle beetle', 'sph:gazella': 'play 20 rounds', 'spf:gazella': 'Brought to Australia in the 1960s to clear cattle dung; it noticeably cut the fly population.',
   'sp:molossus': 'Horned giant', 'sph:molossus': 'knock out 5 beetles in one round', 'spf:molossus': 'The big species of Southeast Asia; males fight at tunnel entrances with the single horn on their heads.',
+  'sp:zambesianus': 'Moonlight beetle', 'sph:zambesianus': 'play 3 rounds in the Night mutation', 'spf:zambesianus': 'In 2003 it became the first animal shown to steer by the polarization of moonlight: on nights near full moon it rolls dead straight.',
+  'sp:lamarcki': 'Dancing beetle', 'sph:lamarcki': 'live the CLOSE CALL moment', 'spf:lamarcki': 'When the sand burns its feet it climbs onto the ball and "dances": it cools its legs on the cooler ball, then carries on.',
+  'sp:pachysoma': 'The dragger', 'sph:pachysoma': 'launch 10 times', 'spf:pachysoma': 'Lives in the Namib desert, cannot fly and does not roll: it drags dry dung pellets forward with its front legs.',
+  'sp:copris': 'Spanish copris', 'sph:copris': 'play 50 rounds', 'spf:copris': 'The species Fabre watched: the mother stays with her pear-shaped brood balls for months, cleaning off mould until the young emerge.',
+  'sp:geotrupes': 'The tunneller', 'sph:geotrupes': 'burrow 10 times', 'spf:geotrupes': 'Digs vertical tunnels under dung and carries it down; tiny mites ride on its back from pat to pat.',
+  'sp:lancifer': 'Amazon giant', 'sph:lancifer': 'win 3 rounds', 'spf:lancifer': 'The largest dung beetle of the Amazon; metallic blue-violet, both sexes horned. It buries carrion, not dung.',
+  'sp:typhaeus': 'Minotaur beetle', 'sph:typhaeus': 'get payback 3 times', 'spf:typhaeus': 'Males carry three horns; it digs tunnels up to 1.5 m deep for rabbit and sheep dung.',
+  'sp:cyanellus': 'Blue roller', 'sph:cyanellus': 'finish in the top 3 fifteen times', 'spf:cyanellus': 'A metallic green-blue species from Mexico; it rolls balls of carrion and both parents stay in the nest to tend the brood balls.',
+  'sp:acuminatus': 'Sneaky male', 'sph:acuminatus': 'steal 25 balls', 'spf:acuminatus': 'Some males are born with horns, some without: horned males guard the tunnel entrance, hornless ones sneak in through side tunnels.',
+  'sp:stercorosus': 'Forest beetle', 'sph:stercorosus': 'play 100 rounds', 'spf:stercorosus': 'The most common dung beetle of European forests; its glossy blue-black shell is a familiar sight on forest paths.',
+  'sp:fimetarius': 'Red wing', 'sph:fimetarius': 'return from the last breath 15 times', 'spf:fimetarius': 'Makes no ball and digs no tunnel: it lives inside the dung. This small red-winged species is found almost everywhere on Earth.',
+  'sp:sagittarius': 'Horned female', 'sph:sagittarius': 'reach mass 500', 'spf:sagittarius': 'A rare exception: females have horns too, bigger than the males\', and they fight each other over tunnels.',
   'ach:hirsiz': 'Thief', 'achh:hirsiz': 'steal 3 balls in one round', 'ach:nefes': 'Last Breath Master', 'achh:nefes': 'return from the last breath 5 times',
   'ach:cifte': 'Double', 'achh:cifte': 'knock out 2 beetles with one launch', 'ach:pacavra': 'Underdog', 'achh:pacavra': 'enter the final three smallest and win',
   'ach:pasifist': 'Pacifist', 'achh:pasifist': 'win a round without a knockout', 'ach:samanyolu': 'Milky Way', 'achh:samanyolu': 'win in the Night mutation',
@@ -1356,6 +1372,10 @@ const MUTATIONS = [
   { key: 'kucuk',  name: 'Küçük Arena',  text: 'arena 1500, daralma erken biter',    patch: { ARENA: { size: 1500, midSize: 450, pellets: 150 } } },
   { key: 'gece',   name: 'Gece',         text: 'görüş 300; yıldızlara bak',          patch: { WORLD: { visionRadius: 300 } } },
   { key: 'kaygan', name: 'Kaygan Kum',   text: 'sönüm yarı yarıya; kaymayı hesapla', patch: { PHYS: { drag: 1.1, ballDrag: 0.7 } } },
+  { key: 'hizli',  name: 'Hızlı Fırtına', text: 'daralma 40. saniyede biter',         patch: { ARENA: { shrinkEnd: 40, finalEnd: 58 } } },
+  { key: 'dev',    name: 'Dev Toplar',   text: 'herkes 60 kütleyle başlar',           patch: { PHYS: { startMass: 60 } } },
+  { key: 'miknatis', name: 'Mıknatıs Günü', text: 'mıknatıs 2 kat uzağa çeker, güçler bol', patch: { POWER: { magnetRadius: 380, magnetPull: 500 }, ARENA: { powerUps: 12 } } },
+  { key: 'cilgin', name: 'Çılgın Atılma', text: 'atılma 0,8 sn\'de bir',              patch: { PHYS: { dashCooldown: 0.8, dashImpulse: 480 } } },
 ];
 const Mutation = {
   base: null, current: null,
@@ -1363,10 +1383,10 @@ const Mutation = {
   // Hafta numarasına göre (pazartesi başlar): her hafta sıradaki mutasyon
   thisWeek() { const days = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000); return MUTATIONS[Math.floor((days - 4) / 7) % MUTATIONS.length]; },
   set(key) {
-    if (!this.base) this.base = { ARENA: { ...ARENA }, PHYS: { ...PHYS }, WORLD: { ...WORLD } };
-    Object.assign(ARENA, this.base.ARENA); Object.assign(PHYS, this.base.PHYS); Object.assign(WORLD, this.base.WORLD);
+    if (!this.base) this.base = { ARENA: { ...ARENA }, PHYS: { ...PHYS }, WORLD: { ...WORLD }, POWER: { ...POWER } };
+    Object.assign(ARENA, this.base.ARENA); Object.assign(PHYS, this.base.PHYS); Object.assign(WORLD, this.base.WORLD); Object.assign(POWER, this.base.POWER);
     const m = this.byKey(key); this.current = m ? m.key : null;
-    if (m) for (const [obj, p] of Object.entries(m.patch)) Object.assign({ ARENA, PHYS, WORLD }[obj], p);
+    if (m) for (const [obj, p] of Object.entries(m.patch)) Object.assign({ ARENA, PHYS, WORLD, POWER }[obj], p);
     WORLD.width = WORLD.height = ARENA.size;
   },
 };
@@ -1628,7 +1648,8 @@ class PushWorld {
       if (!s.alive) continue;
       if (s.x < b.x0 || s.y < b.y0 || s.x > b.x1 || s.y > b.y1) {
         if (s.breath > 0) { s.breath -= dt; if (s.breath > 0) continue; }
-        else if (s.mass >= PHYS.breathMin) { s.breath = PHYS.breathTime; s.breathTry = Rng.next() < PHYS.breathBotChance; this.events.push({ type: "breath", who: s }); continue; }
+        // Son Nefes: top yeterse ve arena hâlâ bir halkaysa (son kapanışta kaçış yok; yoksa tur bitmez)
+        else if (s.mass >= PHYS.breathMin && b.x1 - b.x0 > 120) { s.breath = PHYS.breathTime; s.breathTry = Rng.next() < PHYS.breathBotChance; this.events.push({ type: "breath", who: s }); continue; }
         const recent = this.time - s.lastHitTime < PHYS.creditTime;
         const pushed = recent && s.lastHitBy && s.lastHitBy.alive;
         if (recent && s.lastHitBall && s.lastHitBall.owner === s) this.kill(s, 'ownball', null);
@@ -1670,11 +1691,12 @@ class PushWorld {
   breathe(s) {
     const b = this.bounds, mx = (b.x0 + b.x1) / 2, my = (b.y0 + b.y1) / 2;
     const ang = Math.atan2(my - s.y, mx - s.x), cx = Math.cos(ang), cy = Math.sin(ang);
-    const drop = s.mass - PHYS.startMass, r = ballRadius(drop);
+    // Kalan kütle Son Nefes eşiğinin altında olmalı; yoksa (Dev Toplar: başlangıç 60) sonsuza dek kaçılır
+    const keep = Math.min(PHYS.startMass, PHYS.breathMin - 10), drop = s.mass - keep, r = ballRadius(drop);
     const bx = Math.min(b.x1 - r - 4, Math.max(b.x0 + r + 4, s.x)), by = Math.min(b.y1 - r - 4, Math.max(b.y0 + r + 4, s.y));
     this.balls.push({ id: this.nextId++, x: bx, y: by, vx: cx * PHYS.breathBallPush, vy: cy * PHYS.breathBallPush, mass: drop, radius: r, skin: s.skin, color: s.color, owner: s, age: PHYS.ballGrace, roll: s.roll, dropped: true });
     const left = s.breath;                                       // pencereden kalan: "kıl payı" ölçüsü
-    s.mass = PHYS.startMass; s.breath = 0; s.charge = 0;
+    s.mass = keep; s.breath = 0; s.charge = 0;
     const gap = r + s.radius + 6;
     s.x = bx + cx * gap; s.y = by + cy * gap;
     s.vx = cx * PHYS.breathImpulse; s.vy = cy * PHYS.breathImpulse;
@@ -2706,6 +2728,31 @@ const SPECIES = [
     fact: 'Avustralya\'ya 1960\'larda sığır gübresini temizlesin diye getirildi; sinek sayısını belirgin düşürdü.' },
   { id: 'molossus',   latin: 'Catharsius molossus',     tr: 'Boynuzlu dev',         need: c => c.maxKills >= 5,    hint: 'bir turda 5 böcek düşür',
     fact: 'Güneydoğu Asya\'nın iri türü; erkekler başlarındaki tek boynuzla tünel ağzında dövüşür.' },
+  // --- ikinci yarı: oyunun ileri mekaniklerine bağlı türler ---
+  { id: 'zambesianus', latin: 'Scarabaeus zambesianus',  tr: 'Ay ışığı böceği',      need: c => c.nightRounds >= 3, hint: 'Gece mutasyonunda 3 tur oyna',
+    fact: '2003\'te ay ışığının polarizasyonuyla yön bulduğu gösterilen ilk hayvan: dolunaya yakın gecelerde dümdüz yuvarlar.' },
+  { id: 'lamarcki',   latin: 'Kheper lamarcki',          tr: 'Dans eden böcek',      need: c => c.kilpayi >= 1,     hint: 'KIL PAYI anını yaşa',
+    fact: 'Kızgın kumda ayakları yanınca topun üstüne çıkıp "dans eder": serin topta ayaklarını soğutur, sonra devam eder.' },
+  { id: 'pachysoma',  latin: 'Pachysoma gariepinum',     tr: 'Sürükleyici',          need: c => c.launches >= 10,   hint: '10 kez FIRLAT',
+    fact: 'Namib çölünde yaşar, uçamaz ve top yuvarlamaz: kuru gübre parçalarını ön bacaklarıyla ileri doğru sürükler.' },
+  { id: 'copris',     latin: 'Copris hispanus',          tr: 'İspanyol kopris',      need: c => c.rounds >= 50,     hint: '50 tur oyna',
+    fact: 'Fabre\'ın gözlemlediği tür: anne, armut biçimli yavru toplarının başında aylarca kalır, küfü temizler, yavrular çıkana dek bekler.' },
+  { id: 'geotrupes',  latin: 'Geotrupes stercorarius',   tr: 'Tünelci',              need: c => c.digs >= 10,       hint: '10 kez KAZI yap',
+    fact: 'Gübrenin altına dikey tüneller kazar ve gübreyi aşağı taşır; sırtında dolaşan küçük akarlar ona tutunarak yolculuk eder.' },
+  { id: 'lancifer',   latin: 'Coprophanaeus lancifer',   tr: 'Amazon devi',          need: c => c.wins >= 3,        hint: '3 tur kazan',
+    fact: 'Amazon\'un en büyük bok böceği; metalik mavi-mor, hem erkek hem dişi boynuzlu. Gübre değil leş gömer.' },
+  { id: 'typhaeus',   latin: 'Typhaeus typhoeus',        tr: 'Minotor böceği',       need: c => c.revenges >= 3,    hint: '3 kez ödeş',
+    fact: 'Erkeklerin üç boynuzu vardır; tavşan ve koyun gübresi için 1,5 metreye inen tüneller kazar.' },
+  { id: 'cyanellus',  latin: 'Canthon cyanellus',        tr: 'Mavi yuvarlayıcı',     need: c => c.top3 >= 15,       hint: '15 kez ilk 3\'e gir',
+    fact: 'Meksika\'nın metalik yeşil-mavi türü; leşten top yapar ve anne-baba yuvada birlikte kalıp yavru toplarına bakar.' },
+  { id: 'acuminatus', latin: 'Onthophagus acuminatus',   tr: 'Sinsi erkek',          need: c => c.steals >= 25,     hint: '25 top çal',
+    fact: 'Erkeklerin kimi boynuzlu kimi boynuzsuz doğar: boynuzlular tünel ağzını korur, boynuzsuzlar yan tünelden gizlice girer.' },
+  { id: 'stercorosus', latin: 'Anoplotrupes stercorosus', tr: 'Orman böceği',        need: c => c.rounds >= 100,    hint: '100 tur oyna',
+    fact: 'Avrupa ormanlarının en yaygın gübre böceği; mavi-siyah parlak kabuğuyla orman yollarında sık görülür.' },
+  { id: 'fimetarius', latin: 'Aphodius fimetarius',      tr: 'Kızıl kanat',          need: c => c.escapes >= 15,    hint: 'Son Nefes\'ten 15 kez dön',
+    fact: 'Top yapmaz, tünel kazmaz: gübrenin içinde yaşar. Kızıl kanatlı bu küçük tür dünyanın hemen her yerine yayılmıştır.' },
+  { id: 'sagittarius', latin: 'Onthophagus sagittarius', tr: 'Boynuzlu dişi',        need: c => c.maxScore >= 500,  hint: 'kütlen 500\'e ulaşsın',
+    fact: 'Nadir bir istisna: dişilerin de boynuzu vardır ve erkeklerinkinden büyüktür; dişiler tünel için birbiriyle dövüşür.' },
 ];
 
 const ACHIEVEMENTS = [
@@ -2724,7 +2771,8 @@ const Collection = {
     this.key = key + '-defter'; this.skins = skins;
     this.data = store.get(this.key, { c: {}, species: [], ach: [] });
     const c = this.data.c;
-    for (const k of ['rounds', 'wins', 'maxKills', 'maxScore', 'steals', 'escapes', 'ballKills', 'top3', 'pacavra', 'winsNight', 'revenges', 'level']) c[k] = c[k] || 0;
+    for (const k of ['rounds', 'wins', 'maxKills', 'maxScore', 'steals', 'escapes', 'ballKills', 'top3', 'pacavra', 'winsNight', 'revenges', 'level',
+                     'nightRounds', 'kilpayi', 'launches', 'digs']) c[k] = c[k] || 0;
   },
   save() { store.set(this.key, this.data); },
   hasSpecies(id) { return this.data.species.includes(id); },
@@ -2747,6 +2795,9 @@ const Collection = {
     if (info.place <= 3) c.top3++;
     if (info.highlights.has('pacavra')) c.pacavra++;
     if (info.place === 1 && info.mutation === 'gece') c.winsNight++;
+    if (info.mutation === 'gece') c.nightRounds++;
+    if (info.highlights.has('kilpayi')) c.kilpayi++;
+    c.launches += info.launches || 0; c.digs += info.digs || 0;
     if (info.revenge) c.revenges++;
     c.level = Math.max(c.level, info.level || 1);
     const out = { species: [], achievements: [], skins: [] };
@@ -3541,7 +3592,8 @@ function recordResult() {
   // Defter ve başarımlar turun ilk sonucuyla işlenir (diriliş sonrası ikinci kez sayılmaz)
   if (res && useDefter && !awarded) {
     const info = { place: now.place, total: now.total, kills: now.kills, score: Math.round(player.score), steals: player.steals || 0, escapes: player.breaths || 0,
-                   ballKills: player.ballKills || 0, revenge: now.revenge, mutation: round.mutation, highlights: roundHighlights, level: res.after.level };
+                   ballKills: player.ballKills || 0, launches: player.launches || 0, digs: player.digs || 0,
+                   revenge: now.revenge, mutation: round.mutation, highlights: roundHighlights, level: res.after.level };
     const got = GAME.collection.onRound(info);
     res.newEntries = [...(res.newEntries || []), ...got.species.map(s => T('bookNew', GAME.collection.speciesName(s))), ...got.achievements.map(a => T('achNew', GAME.collection.achName(a), a.skin ? GAME.collection.skinLabel(a.skin) : ''))];
   }
