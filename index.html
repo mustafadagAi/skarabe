@@ -142,6 +142,16 @@
              border: 1.5px solid var(--ink); border-radius: 10px; background: rgba(253, 249, 238, 0.85); color: var(--ink); cursor: pointer; }
   #langBtn { position: fixed; z-index: 5; right: 12px; top: 12px; }   /* yalnız menüde görünür; oyunda HUD'un üstüne binmesin */
   #langBtn[hidden] { display: none; }
+  /* Çevrimiçi durum şeridi: oyun içinde ve özel odada üstte (lobi, bekleme, oda kodu) */
+  #netBanner { position: fixed; z-index: 5; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center;
+    max-width: min(92vw, 560px); padding: 8px 14px; border-radius: 12px; border: 2px solid var(--ink); background: rgba(253, 252, 247, 0.94); color: var(--ink);
+    font: 500 13px 'Rubik', system-ui, sans-serif; box-shadow: 0 3px 0 rgba(42, 31, 20, 0.25); }
+  #netBanner[hidden] { display: none; }
+  #roomBox { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  #roomBox[hidden] { display: none; }
+  #roomList { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 320px; }
+  #roomList .room { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; }
+  #roomList .room span { color: var(--muted); text-align: left; }
   @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
 </style>
 </head>
@@ -151,6 +161,7 @@
 <button id="digBtn" data-t="dig" hidden>KAZ</button>
 <button id="muteBtn">Ses açık</button>
 <button id="langBtn" class="btn ghost mini" data-t="lang" title="Türkçe / English">EN</button>
+<div id="netBanner" hidden><span id="netText"></span><button id="copyRoomBtn" class="btn ghost mini" data-t="copyLink" hidden>Bağlantıyı kopyala</button><button id="beginBtn" class="btn mini" data-t="begin" hidden>Başlat</button></div>
 
 <div id="menu" class="overlay">
   <h1 class="logo">SKARABE</h1>
@@ -169,6 +180,15 @@
   <button id="playBtn" class="btn" data-t="play">Oyna</button>
   <button id="onlineBtn" class="btn ghost" data-t="online" hidden>Çevrimiçi oyna</button>
   <p id="onlineLine" class="small"></p>
+  <button id="roomsBtn" class="btn ghost mini" data-t="rooms" hidden>Odalar</button>
+  <div id="roomBox" hidden>
+    <div id="roomList"></div>
+    <div class="share">
+      <button id="createRoomBtn" class="btn ghost mini" data-t="createRoom">Özel oda kur</button>
+      <input id="roomCodeInput" class="field mini" data-t-ph="codePh" placeholder="Oda kodu" maxlength="4" autocomplete="off" autocapitalize="characters">
+      <button id="joinCodeBtn" class="btn ghost mini" data-t="join">Katıl</button>
+    </div>
+  </div>
   <p id="mutationLine" class="small"></p>
   <!-- Kademeli öğretme: ilk turlarda yalnız yön + atılma; derinlik seviye 3 / 5. turdan sonra "Daha fazla" altında -->
   <details id="moreBox" hidden>
@@ -636,6 +656,15 @@ tr: {
   // çevrimiçi
   online: 'Çevrimiçi oyna', connecting: 'Sunucuya bağlanılıyor…', matching: (w, h) => `Eşleşiyor: ${w} sn · ${h} oyuncu (kalan yerler bot)`,
   onlineLost: 'Bağlantı koptu', onlineFail: 'Sunucuya bağlanılamadı',
+  // odalar
+  rooms: 'Odalar', join: 'Katıl', createRoom: 'Özel oda kur', codePh: 'Oda kodu', copyLink: 'Bağlantıyı kopyala', begin: 'Başlat',
+  roomRow: (n, h) => `${n} · ${h} oyuncu`, roomLobby: w => (w === null ? 'bekliyor' : `${w} sn sonra başlar`),
+  roomPlaying: (left, dropin) => (dropin ? 'tur sürüyor · hemen girersin' : `tur sürüyor · ~${left} sn`), roomOver: 'tur bitti',
+  noRooms: 'Açık oda yok — "Çevrimiçi oyna" yeni oda açar', roomsLoading: 'odalar alınıyor…',
+  roomIdle: h => `Odada ${h} kişi · "Yeni tur"a basan oynar`, waitRound: (l, h) => `Tur sürüyor · ~${l} sn sonra yeni tur (${h} kişi odada)`,
+  roomCode: (c, r, h) => `Özel oda ${c} · ${h} kişi, ${r} hazır`, hostHint: 'bağlantıyı paylaş, hazır olunca Başlat', waitHost: 'ev sahibi başlatınca tur açılır',
+  startingIn: w => `tur ${w} sn sonra başlıyor`, joinRoomBtn: c => `${c} odasına katıl`, joinedMid: 'Tura ortasından girdin: bir botun yerini aldın',
+  spectating: 'İzliyorsun', 'err:noRoom': 'Böyle bir oda yok', 'err:full': 'Oda dolu', 'err:crash': 'Oda çöktü, tekrar dene',
   // twitch durumları
   'tw:need': 'kanal adı gerekli', 'tw:fail': 'bağlanamadı', 'tw:connecting': 'bağlanıyor…', 'tw:on': c => `bağlı: #${c} — sohbete "!katıl" yazan oyuna girer`,
   'tw:error': 'bağlantı hatası (portalda dış bağlantı kapalı olabilir)', 'tw:closed': 'bağlantı kapandı',
@@ -720,6 +749,14 @@ en: {
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
   online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
   onlineLost: 'Connection lost', onlineFail: 'Could not reach the server',
+  rooms: 'Rooms', join: 'Join', createRoom: 'Create private room', codePh: 'Room code', copyLink: 'Copy link', begin: 'Start',
+  roomRow: (n, h) => `${n.replace('Oda', 'Room')} · ${h} player${h === 1 ? '' : 's'}`, roomLobby: w => (w === null ? 'waiting' : `starts in ${w} s`),
+  roomPlaying: (left, dropin) => (dropin ? 'round running · join now' : `round running · ~${left} s`), roomOver: 'round over',
+  noRooms: 'No open rooms — "Play online" opens a new one', roomsLoading: 'loading rooms…',
+  roomIdle: h => `${h} in the room · whoever presses "New round" plays`, waitRound: (l, h) => `Round running · next round in ~${l} s (${h} in the room)`,
+  roomCode: (c, r, h) => `Private room ${c} · ${h} here, ${r} ready`, hostHint: 'share the link, press Start when ready', waitHost: 'the host starts the round',
+  startingIn: w => `round starts in ${w} s`, joinRoomBtn: c => `Join room ${c}`, joinedMid: 'You joined mid-round, taking over a bot',
+  spectating: 'Spectating', 'err:noRoom': 'No such room', 'err:full': 'Room is full', 'err:crash': 'Room crashed, try again',
   'tw:need': 'channel name required', 'tw:fail': 'could not connect', 'tw:connecting': 'connecting…', 'tw:on': c => `connected: #${c} — type "!join" in chat to play`,
   'tw:error': 'connection error (the portal may block external connections)', 'tw:closed': 'connection closed',
   // görünüm adları
@@ -1961,8 +1998,13 @@ class NetRound {
     for (const f of start.foods) this.addFood(f);
     this.world.foods = [...this.foodMap.values()];
     this.player = this.map.get(start.you) || null;
+    this.roomName = start.room || ''; this.roomCode = start.roomCode || null; this.mid = !!start.mid;
+    if (this.player && start.pos) { this.player.x = this.player.tx = this.player.px = start.pos[0]; this.player.y = this.player.ty = this.player.py = start.pos[1]; }
+    if (start.time) this.time = this.world.time = start.time;
     this.deathLog = [];
   }
+  // Tur ortasında bir bot insan oldu: ad, renk ve görünüm değişir
+  applyWho(m) { const s = this.by(m.id); if (!s) return; s.name = m.name; s.color = m.color; s.skin = m.skin; s.brain = null; s.nemesis = false; s.chatter = false; s.trait = ''; }
   addFood(a) { this.foodMap.set(a[0], { id: a[0], x: a[1], y: a[2], value: a[3], edge: !!a[4] }); }
   by(id) { return this.map.get(id) || null; }
   phase() { return this.ph; }
@@ -2006,6 +2048,7 @@ class NetClient {
   constructor(url) {
     this.url = url; this.ws = null; this.round = null; this.connected = false;
     this.onLobby = null; this.onStart = null; this.onDead = null; this.onOver = null; this.onClose = null; this.onError = null;
+    this.onWait = null; this.onRooms = null; this.onServerError = null;
     this.lastStateAt = 0; this.stateInterval = 50; this.lastSent = null; this.lastSendAt = 0;
   }
   connect() {
@@ -2022,7 +2065,11 @@ class NetClient {
   join(opts) { this.send({ t: 'join', ...opts }); }
   handle(m) {
     if (m.t === 'lobby') { this.onLobby && this.onLobby(m); }
-    else if (m.t === 'start') { if (typeof Mutation !== 'undefined') Mutation.set(m.mutation); this.round = new NetRound(this, m); this.lastStateAt = 0; this.onStart && this.onStart(this.round); }
+    else if (m.t === 'start') { if (typeof Mutation !== 'undefined') Mutation.set(m.mutation); this.round = new NetRound(this, m); this.lastStateAt = 0; this.lastSent = null; this.onStart && this.onStart(this.round); }
+    else if (m.t === 'who' && this.round) { this.round.applyWho(m); }
+    else if (m.t === 'wait') { this.onWait && this.onWait(m); }
+    else if (m.t === 'rooms') { this.onRooms && this.onRooms(m.list || []); }
+    else if (m.t === 'error') { this.onServerError && this.onServerError(m); }
     else if (m.t === 'state' && this.round) {
       const now = performance.now();
       if (this.lastStateAt) this.stateInterval = this.stateInterval * 0.8 + (now - this.lastStateAt) * 0.2;
@@ -3826,14 +3873,53 @@ function enterRound() {
 // Çevrimiçi (skarabe-ag.js): sunucu bulunursa "Çevrimiçi oyna" görünür. Aynı kökte sunucu varsa (/__net)
 // ona, yoksa GAME.online.url'ye bağlanır. Lobi -> tur -> sonuç; "Yeni tur" yeniden eşleştirir.
 // ---------------------------------------------------------------------
-let onlineUrl = '', net = null, onlineMode = false;
+let onlineUrl = '', net = null, onlineMode = false, lastJoin = {}, roomsTimer = null;
+const urlRoom = (params.get('oda') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4) || null;   // ?oda=KOD: arkadaşın özel odası
 async function initOnline() {
   if (!GAME.online || typeof NetClient === 'undefined') return;
-  let url = GAME.online.url || '';
+  let url = params.get('ag') || GAME.online.url || '';   // ?ag=ws://localhost:8080 ile yerel sunucuya bağlanılır (geliştirme)
   if (!url) { try { const r = await fetch('/__net', { cache: 'no-store' }); if (r.ok) url = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host; } catch {} }
   if (!url) return;
-  onlineUrl = url; setHidden('onlineBtn', false);
+  onlineUrl = url; setHidden('onlineBtn', false); setHidden('roomsBtn', false);
+  if (urlRoom) { setText('onlineBtn', T('joinRoomBtn', urlRoom)); lastJoin = { code: urlRoom }; }
   wakeServer();
+}
+// Durum metni: menüde onlineLine, oyun içinde (ya da özel oda denetimleri gerekince) üstteki şerit
+function netStatus(text, ctl = null) {
+  const menuOpen = !$('menu').hidden;
+  setText('onlineLine', ctl && menuOpen ? '' : (text || ''));   // özel oda denetimleri şeritte; menüde metni iki kez yazma
+  setText('netText', text || '');
+  setHidden('netBanner', !text || (menuOpen && !ctl));
+  setHidden('copyRoomBtn', !(ctl && ctl.code));
+  setHidden('beginBtn', !(ctl && ctl.canBegin));
+  if (ctl && ctl.code) $('copyRoomBtn').dataset.code = ctl.code;
+}
+function wireNet(n) {
+  const btn = $('onlineBtn');
+  n.onLobby = m => {
+    if (m.code) {
+      const hint = m.wait !== null ? T('startingIn', m.wait) : m.host ? T('hostHint') : T('waitHost');
+      netStatus(`${T('roomCode', m.code, m.ready, m.humans)} · ${hint}`, { code: m.code, canBegin: m.host && m.wait === null && m.ready > 0 });
+    } else netStatus(m.wait === null ? T('roomIdle', m.humans) : T('matching', m.wait, m.humans));
+  };
+  n.onWait = m => netStatus(T('waitRound', m.left, m.humans));
+  n.onStart = r => { if (r.player) beginOnlineRound(r); else beginSpectate(r); };
+  n.onRooms = list => renderRooms(list);
+  n.onServerError = m => { netStatus(T('err:' + m.msg)); if (btn) btn.disabled = false; };
+  n.onClose = () => { if (net !== n) return; if (onlineMode && (state === 'playing' || state === 'dead')) renderer.showToast(T('onlineLost')); onlineMode = false; netStatus(''); if (btn) btn.disabled = false; };
+}
+// Bağlantı yoksa kur; sunucu uyuyorsa birkaç kez dene (toplam ~45 sn)
+async function ensureNet() {
+  if (net && net.connected) return true;
+  const btn = $('onlineBtn'); if (btn) btn.disabled = true;
+  netStatus(T('connecting'));
+  for (let deneme = 0; deneme < 4; deneme++) {
+    const n = new NetClient(onlineUrl); wireNet(n);
+    try { await n.connect(); net = n; return true; }
+    catch { if (deneme < 3) { wakeServer(); netStatus(T('connecting')); await new Promise(r => setTimeout(r, 10000)); } }
+  }
+  netStatus(T('onlineFail')); if (btn) btn.disabled = false;
+  return false;
 }
 // Ücretsiz barındırma boşta uyur (ilk istek 30–60 sn): menü açılır açılmaz sağlık ucuna dokunup uyandırırız.
 function wakeServer() {
@@ -3841,33 +3927,70 @@ function wakeServer() {
   try { fetch(onlineUrl.replace(/^ws/, 'http') + '/__net', { mode: 'no-cors', cache: 'no-store' }).catch(() => {}); } catch {}
 }
 initOnline();
-async function startOnline() {
+// opts: {} hızlı eşleşme (odadaysan orada kal) · {code} özel oda · {create:true} özel oda kur · {room:id} belirli açık oda
+async function startOnline(opts = {}) {
   Sfx.init();
   const name = playerName(), btn = $('onlineBtn');
-  if (!net || !net.connected) {
-    if (btn) btn.disabled = true;
-    setText('onlineLine', T('connecting'));
-    let ok = false;
-    for (let deneme = 0; deneme < 4 && !ok; deneme++) {   // sunucu uyanıyorsa birkaç kez dene (toplam ~45 sn)
-      net = new NetClient(onlineUrl);
-      net.onLobby = m => setText('onlineLine', T('matching', m.wait, m.humans));
-      net.onStart = r => beginOnlineRound(r);
-      net.onClose = () => { if (!net) return; if (onlineMode && (state === 'playing' || state === 'dead')) renderer.showToast(T('onlineLost')); onlineMode = false; setText('onlineLine', ''); if (btn) btn.disabled = false; };
-      try { await net.connect(); ok = true; }
-      catch { net = null; if (deneme < 3) { wakeServer(); setText('onlineLine', T('connecting')); await new Promise(r => setTimeout(r, 10000)); } }
-    }
-    if (!ok) { setText('onlineLine', T('onlineFail')); if (btn) btn.disabled = false; return; }
-  }
+  if (!(await ensureNet())) return;
   if (btn) btn.disabled = true;
-  track('online_join');
-  net.join({ name, skin: savedSkin, huy: huyKey, stage: Tutor.stage(), chat: useStream && Twitch.queue.length ? Twitch.take(15) : null });
+  lastJoin = opts.create ? {} : opts;      // kurulan odanın kodu lobby mesajıyla gelir; "Yeni tur" aynı odada kalır
+  track('online_join', { how: opts.code ? 'code' : opts.create ? 'create' : opts.room ? 'room' : 'quick' });
+  net.join({ name, skin: savedSkin, huy: huyKey, stage: Tutor.stage(), chat: useStream && Twitch.queue.length ? Twitch.take(15) : null, ...opts });
 }
 function beginOnlineRound(r) {
   onlineMode = true; round = r; challengeRound = false; urlSeed = null;
-  setText('onlineLine', ''); if ($('onlineBtn')) $('onlineBtn').disabled = false;
+  netStatus(''); if ($('onlineBtn')) $('onlineBtn').disabled = false;
+  stopRoomsPoll();
   enterRound();
+  if (r.mid) renderer.showToast(T('joinedMid'));
 }
-if ($('onlineBtn')) $('onlineBtn').addEventListener('click', startOnline);
+// Tur ortasında geldin ya da hazır değilsin: oyuncu yok, odayı izlersin; sonuç kartı açıksa kart kalır
+function beginSpectate(r) {
+  if (state === 'menu') return;            // menüdeyken arkada dönen yerel tur kalsın; "Yeni tur"/"Çevrimiçi oyna" katılır
+  onlineMode = true; round = r; challengeRound = false;
+  const skin = KUMUL_SKINS[savedSkin % KUMUL_SKINS.length];
+  player = new RemoteBeetle({ id: 0, name: playerName(), color: skin.colors[0], skin: skin.colors, bot: false, chatter: false, nemesis: false, trait: '' });
+  player.alive = false; player.place = 0; r.player = player;
+  revived = true; awarded = 'spectate'; overShown = true;   // diriliş yok, ilerleme yazılmaz, sonuç kartı üzerine yazılmaz
+  state = 'dead'; paused = false; setHidden('pauseModal', true);
+  syncTouchUi();
+}
+// Açık oda listesi (menüde "Odalar"): 4 sn'de bir tazelenir
+function renderRooms(list) {
+  const box = $('roomList'); if (!box) return;
+  box.textContent = '';
+  if (!list.length) { const p = document.createElement('span'); p.className = 'small'; p.textContent = T('noRooms'); box.appendChild(p); return; }
+  for (const r of list) {
+    const row = document.createElement('div'); row.className = 'room';
+    const s = document.createElement('span');
+    s.textContent = `${T('roomRow', r.name, r.humans)} · ${r.state === 'lobby' ? T('roomLobby', r.wait) : r.state === 'playing' ? T('roomPlaying', r.left, r.dropin) : T('roomOver')}`;
+    const b = document.createElement('button'); b.className = 'btn ghost mini'; b.textContent = T('join');
+    b.addEventListener('click', () => startOnline({ room: r.id }));
+    row.appendChild(s); row.appendChild(b); box.appendChild(row);
+  }
+}
+function stopRoomsPoll() { if (roomsTimer) { clearInterval(roomsTimer); roomsTimer = null; } }
+async function toggleRooms() {
+  const box = $('roomBox'); if (!box) return;
+  if (!box.hidden) { box.hidden = true; stopRoomsPoll(); return; }
+  box.hidden = false; setText('roomList', T('roomsLoading'));
+  if (!(await ensureNet())) return;
+  if ($('onlineBtn')) $('onlineBtn').disabled = false;
+  if ($('onlineLine').textContent === T('connecting')) netStatus('');
+  const ask = () => { if (net && net.connected && !box.hidden && state === 'menu') net.send({ t: 'rooms' }); };
+  ask(); stopRoomsPoll(); roomsTimer = setInterval(ask, 4000);
+}
+if ($('onlineBtn')) $('onlineBtn').addEventListener('click', () => startOnline(lastJoin));
+if ($('roomsBtn')) $('roomsBtn').addEventListener('click', toggleRooms);
+if ($('createRoomBtn')) $('createRoomBtn').addEventListener('click', () => startOnline({ create: true }));
+if ($('joinCodeBtn')) $('joinCodeBtn').addEventListener('click', () => { const c = $('roomCodeInput').value.trim().toUpperCase(); if (c) startOnline({ code: c }); });
+if ($('roomCodeInput')) $('roomCodeInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('joinCodeBtn').click(); });
+if ($('beginBtn')) $('beginBtn').addEventListener('click', () => { if (net && net.connected) net.send({ t: 'begin' }); });
+if ($('copyRoomBtn')) $('copyRoomBtn').addEventListener('click', async () => {
+  const btn = $('copyRoomBtn'), link = `${location.origin}${location.pathname}?oda=${btn.dataset.code || ''}`;
+  try { await navigator.clipboard.writeText(link); btn.textContent = T('copied'); setTimeout(() => { btn.textContent = T('copyLink'); }, 1600); }
+  catch { prompt('', link); }
+});
 
 // Sonucu istatistiğe ve ilerlemeye yaz. Aynı turda ikinci kez çağrılırsa (dirilişten sonra) yalnızca fark eklenir.
 function recordResult() {
@@ -3977,8 +4100,12 @@ $('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key
 $('againBtn').addEventListener('click', async () => {
   stats.again = (stats.again || 0) + 1; store.set(GAME.key + '-stats', stats); track('again');
   await Ads.interstitial();            // tur arası reklam yeri
-  if (onlineMode && net && net.connected) { $('result').hidden = true; $('menu').hidden = false; state = 'menu'; round = new Round(); startOnline(); }
-  else startRound();
+  if (onlineMode && net && net.connected) {
+    $('result').hidden = true;
+    // Tur hâlâ sürüyorsa odada kal ve izle (sunucu seni bot yerine sokar ya da sıradaki tura alır); bittiyse menüye dön
+    if (!net.round || net.round.over) { $('menu').hidden = false; state = 'menu'; round = new Round(); }
+    startOnline(lastJoin);
+  } else startRound();
 });
 $('reviveBtn').addEventListener('click', async () => {
   $('reviveBtn').hidden = true;
