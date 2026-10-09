@@ -3263,7 +3263,7 @@ const GAME = {
   tutor: true,                       // kademeli öğretme: FIRLAT 3. turdan, KAZI ve menü derinliği 5. turdan
   reviveTop: 8,                      // diriliş teklifi yalnız bu sıra ve üstünde (portal kuralı: her ölümde teklif yok)
   analytics: { endpoint: '' },       // olay toplayıcı adresi (boş: ağa çıkılmaz, sayaçlar yerelde kalır) — kumul-analitik.js
-  online: { url: '' },               // çok oyunculu sunucu (wss://…); boşsa aynı kökteki sunucu aranır (/__net) — skarabe-ag.js
+  online: { url: 'wss://skarabe-sunucu.onrender.com' }, // çok oyunculu sunucu (Render); boşsa aynı kökteki sunucu aranır (/__net) — skarabe-ag.js
   huylar: HUYLAR,                    // tur öncesi huy seçimi (itis.js)
   // Metinler kumul-dil.js'ten: dil değişince de doğru olsun diye işlev olarak
   get firstLine() { return T('firstLine'); },
@@ -3833,18 +3833,30 @@ async function initOnline() {
   if (!url) { try { const r = await fetch('/__net', { cache: 'no-store' }); if (r.ok) url = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host; } catch {} }
   if (!url) return;
   onlineUrl = url; setHidden('onlineBtn', false);
+  wakeServer();
+}
+// Ücretsiz barındırma boşta uyur (ilk istek 30–60 sn): menü açılır açılmaz sağlık ucuna dokunup uyandırırız.
+function wakeServer() {
+  if (!onlineUrl || GAME.online.url === '') return;
+  try { fetch(onlineUrl.replace(/^ws/, 'http') + '/__net', { mode: 'no-cors', cache: 'no-store' }).catch(() => {}); } catch {}
 }
 initOnline();
 async function startOnline() {
   Sfx.init();
   const name = playerName(), btn = $('onlineBtn');
   if (!net || !net.connected) {
-    net = new NetClient(onlineUrl);
-    net.onLobby = m => setText('onlineLine', T('matching', m.wait, m.humans));
-    net.onStart = r => beginOnlineRound(r);
-    net.onClose = () => { if (onlineMode && (state === 'playing' || state === 'dead')) renderer.showToast(T('onlineLost')); onlineMode = false; setText('onlineLine', ''); if (btn) btn.disabled = false; };
+    if (btn) btn.disabled = true;
     setText('onlineLine', T('connecting'));
-    try { await net.connect(); } catch { setText('onlineLine', T('onlineFail')); net = null; return; }
+    let ok = false;
+    for (let deneme = 0; deneme < 4 && !ok; deneme++) {   // sunucu uyanıyorsa birkaç kez dene (toplam ~45 sn)
+      net = new NetClient(onlineUrl);
+      net.onLobby = m => setText('onlineLine', T('matching', m.wait, m.humans));
+      net.onStart = r => beginOnlineRound(r);
+      net.onClose = () => { if (!net) return; if (onlineMode && (state === 'playing' || state === 'dead')) renderer.showToast(T('onlineLost')); onlineMode = false; setText('onlineLine', ''); if (btn) btn.disabled = false; };
+      try { await net.connect(); ok = true; }
+      catch { net = null; if (deneme < 3) { wakeServer(); setText('onlineLine', T('connecting')); await new Promise(r => setTimeout(r, 10000)); } }
+    }
+    if (!ok) { setText('onlineLine', T('onlineFail')); if (btn) btn.disabled = false; return; }
   }
   if (btn) btn.disabled = true;
   track('online_join');
