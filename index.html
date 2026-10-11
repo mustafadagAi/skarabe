@@ -784,7 +784,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610111320';
+const DIL_SURUM = '202610111332';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -2208,7 +2208,7 @@ const AgKodek = {
     const r1 = AgKodek.r1, id = o => (o ? o.id : 0);
     const out = { type: e.type };
     if (e.who) out.who = id(e.who); if (e.killer) out.killer = id(e.killer); if (e.a) out.a = id(e.a); if (e.c) out.c = id(e.c);
-    if (e.cause) out.cause = e.cause; if (e.power !== undefined) out.power = r1(e.power); if (e.x !== undefined) { out.x = r1(e.x); out.y = r1(e.y); }
+    if (e.cause) out.cause = e.cause; if (e.power !== undefined) out.power = typeof e.power === 'number' ? r1(e.power) : e.power; if (e.x !== undefined) { out.x = r1(e.x); out.y = r1(e.y); }
     if (e.ball) out.ball = { owner: id(e.ball.owner), mass: r1(e.ball.mass), kills: e.ball.kills || 0 };
     if (e.stolen !== undefined) out.stolen = e.stolen; if (e.before !== undefined) out.before = r1(e.before); if (e.left !== undefined) out.left = r1(e.left);
     if (e.seconds !== undefined) out.seconds = e.seconds; if (e.changes) out.changes = e.changes.map(c => ({ who: id(c.who), before: r1(c.before), after: r1(c.after) }));
@@ -3118,9 +3118,14 @@ class BeetleRenderer extends ArenaRenderer {
       const ready = s.dashTimer <= 0, total = s.turbo > 0 ? POWER.turboCooldown : PHYS.dashCooldown;
       ctx.strokeStyle = ready ? KUMUL.teal : 'rgba(42,31,20,0.45)'; ctx.lineWidth = 3 / this.zoom;
       ctx.beginPath(); ctx.arc(x, y, r + 20 / this.zoom, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (ready ? 1 : 1 - s.dashTimer / total)); ctx.stroke();
-      if (s.magnet > 0) {
-        ctx.strokeStyle = 'rgba(193,18,31,0.3)'; ctx.lineWidth = 2 / this.zoom; ctx.setLineDash([8 / this.zoom, 8 / this.zoom]);
-        ctx.beginPath(); ctx.arc(x, y, POWER.magnetRadius, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+      if (s.magnet > 0) {   // mıknatıs: dönen kesikli halka, menzildeki topaklardan böceğe ışın
+        ctx.strokeStyle = 'rgba(193,18,31,0.55)'; ctx.lineWidth = 2.5 / this.zoom; ctx.setLineDash([10 / this.zoom, 8 / this.zoom]); ctx.lineDashOffset = -this.time * 60;
+        ctx.beginPath(); ctx.arc(x, y, POWER.magnetRadius, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.lineDashOffset = 0;
+        ctx.strokeStyle = 'rgba(193,18,31,0.35)'; ctx.lineWidth = 1.5 / this.zoom;
+        for (const f of this.lastWorld ? this.lastWorld.foods : []) {
+          const d = Math.hypot(f.x - x, f.y - y); if (d >= POWER.magnetRadius || d < r + 6) continue;
+          ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.lineTo(f.x + (x - f.x) * 0.35, f.y + (y - f.y) * 0.35); ctx.stroke();
+        }
       }
     }
 
@@ -3191,8 +3196,9 @@ class BeetleRenderer extends ArenaRenderer {
   }
 
   // Serbest toplar ve çarpışma halkaları
+  addBurst(x, y, color) { (this.bursts ||= []).push({ x, y, t: this.time, color: color || KUMUL.ink }); }
   drawEffects(world) {
-    const ctx = this.ctx;
+    const ctx = this.ctx; this.lastWorld = world; this.bursts ||= [];
     for (const ball of world.balls || []) {
       const speed = Math.hypot(ball.vx, ball.vy), angle = speed > 1 ? Math.atan2(ball.vy, ball.vx) : 0;
       if (speed > PHYS.grabSpeed) {
@@ -3207,6 +3213,15 @@ class BeetleRenderer extends ArenaRenderer {
         ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.radius + (10 + 6 * pulse) / this.zoom, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
       }
     }
+    for (const b of this.bursts) {   // güç alma: büyüyen halka + 8 kıvılcım (0,6 sn)
+      const age = this.time - b.t; if (age < 0 || age > 0.6) continue;
+      const k = age / 0.6, R = 18 + k * 70;
+      ctx.strokeStyle = this.withAlpha(b.color, 0.8 * (1 - k)); ctx.lineWidth = (4 - 3 * k) / this.zoom;
+      ctx.beginPath(); ctx.arc(b.x, b.y, R, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = this.withAlpha(b.color, 0.9 * (1 - k));
+      for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4 + 0.4, rr = 24 + k * 95; ctx.beginPath(); ctx.arc(b.x + Math.cos(a) * rr, b.y + Math.sin(a) * rr, (4 - 3 * k) / this.zoom + 1, 0, Math.PI * 2); ctx.fill(); }
+    }
+    this.bursts = this.bursts.filter(b => this.time - b.t <= 0.6);
     for (const h of world.hits || []) {
       const age = world.time - h.t;
       if (age < 0 || age > 0.35) continue;
@@ -4032,6 +4047,7 @@ function handleEvents() {
       Sfx.pellet();
     } else if (e.type === 'power') {
       if (e.who === player) Sfx.power();
+      if (e.who && renderer.addBurst) renderer.addBurst(e.who.x, e.who.y, (POWER_LOOK[e.power] || {}).color);
     } else if (e.type === 'out' && e.who !== player) {
       if (renderer.streamer) renderer.pushFeed(`${e.killer ? e.killer.name + ' → ' : ''}${e.who.name}`);
       if (e.killer === player && state === 'playing') {

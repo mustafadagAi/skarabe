@@ -1133,7 +1133,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610111320';
+const DIL_SURUM = '202610111332';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -2732,6 +2732,7 @@ function handleEvents() {
       Sfx.pellet();
     } else if (e.type === 'power') {
       if (e.who === player) Sfx.power();
+      if (e.who && renderer.addBurst) renderer.addBurst(e.who.x, e.who.y, (POWER_LOOK[e.power] || {}).color);
     } else if (e.type === 'out' && e.who !== player) {
       if (renderer.streamer) renderer.pushFeed(`${e.killer ? e.killer.name + ' → ' : ''}${e.who.name}`);
       if (e.killer === player && state === 'playing') {
