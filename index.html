@@ -205,6 +205,36 @@
   .key kbd { font: 700 11px 'Rubik', system-ui, sans-serif; color: var(--ink); background: var(--paper); border: 1.5px solid rgba(42, 31, 20, 0.5);
              border-bottom-width: 3px; border-radius: 6px; padding: 2px 7px; white-space: nowrap; }
 
+  /* ---- Paylaşım tepsisi ---- */
+  .shareTray { width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 10px; padding-top: 4px; border-top: 1.5px solid rgba(42, 31, 20, 0.15); }
+  .shareTray[hidden] { display: none; }
+  .sBtn { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 64px; background: none; border: 0; cursor: pointer; color: var(--ink); font: 500 11px 'Rubik', system-ui, sans-serif; padding: 4px 0; }
+  .sBtn[hidden] { display: none; }
+  .sBtn svg { width: 44px; height: 44px; padding: 10px; box-sizing: border-box; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); box-shadow: 0 3px 0 rgba(42, 31, 20, 0.25); transition: transform 0.1s; }
+  .sBtn:hover svg { transform: translateY(-1px); } .sBtn:active svg { transform: translateY(2px); box-shadow: 0 1px 0 rgba(42, 31, 20, 0.25); }
+  .sBtn.ok svg { background: var(--amber); color: var(--paper); }
+
+  /* ---- Duraklatma ve sezon: aynı panel dili ---- */
+  .pauseCard { width: min(360px, 92vw); padding: 26px 24px 20px; gap: 16px; }
+  .pauseCard .resultHead h2 { font-family: 'Rammetto One', 'Rubik', system-ui, sans-serif; font-weight: 400; font-size: 30px; margin: 0; }
+  .seasonCard { width: min(560px, 94vw); padding: 22px 22px 18px; gap: 14px; align-items: stretch; }
+  .seasonCard .resultHead h2 { font-family: 'Rammetto One', 'Rubik', system-ui, sans-serif; font-weight: 400; font-size: 30px; margin: 0; text-align: center; }
+  .seasonStats b { font-size: 24px; }
+  .trackHead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .seasonCard .track { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .seasonCard .step { border: 1.5px solid rgba(42, 31, 20, 0.22); border-radius: 12px; padding: 8px 4px 8px; background: rgba(232, 213, 169, 0.42);
+                      font-size: 11.5px; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 64px; justify-content: center; }
+  .seasonCard .step b { font-size: 13px; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center; background: var(--paper); color: var(--ink); }
+  .seasonCard .step.done { opacity: 0.55; }
+  .seasonCard .step.done b { background: var(--ink); color: var(--paper); }
+  .seasonCard .step.ready { border-color: var(--amber); background: rgba(242, 161, 4, 0.16); color: var(--ink); }
+  .seasonCard .step.ready b { background: var(--amber); border-color: var(--ink); color: var(--paper); }
+  .seasonCard .step button { margin-top: 2px; font-size: 11px; padding: 4px 9px; border-radius: 8px; border: 2px solid var(--ink); background: var(--amber); color: var(--paper); font-weight: 800; cursor: pointer; box-shadow: 0 2px 0 rgba(42, 31, 20, 0.35); }
+  .boxArea { align-items: center; gap: 10px; padding: 14px; }
+  .boxArea .small { font-weight: 600; color: var(--ink); }
+  .seasonCard .cardBtn { border-radius: 14px; box-shadow: 0 4px 0 var(--teal-deep); }
+  .seasonCard .cardBtn.open { box-shadow: 0 4px 0 rgba(42, 31, 20, 0.25); }
+
   /* ---- Sonuç kartı: lobi paneliyle aynı dil; büyük "Yeni tur", istatistik kutucukları ---- */
   .resultCard { width: min(440px, 92vw); padding: 24px 24px 18px; gap: 14px; }
   .resultHead { display: flex; flex-direction: column; align-items: center; gap: 4px; }
@@ -340,20 +370,39 @@
       <button id="clipBtn" class="btn mini" data-t="clipBtn" hidden>Klibi paylaş</button>
       <span id="roundCode" class="small"></span>
     </div>
+    <!-- Paylaşım tepsisi: popüler uygulamalar (web paylaşım bağlantıları); Instagram'ın web bağlantısı yok → telefonda sistem paylaşımı, masaüstünde kopyala -->
+    <div id="shareTray" class="shareTray" hidden>
+      <button type="button" class="sBtn" data-share="wa" title="WhatsApp"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.2 8.4c.2-.4.5-.4.8-.4l.6 1.4c.1.3 0 .5-.2.7l-.4.5c.5 1 1.4 1.9 2.4 2.4l.5-.4c.2-.2.4-.3.7-.2l1.4.6c0 .3 0 .6-.4.8-.6.5-1.5.6-2.3.2a7 7 0 0 1-3.3-3.3c-.4-.8-.3-1.7.2-2.3z" fill="currentColor"/></svg><span>WhatsApp</span></button>
+      <button type="button" class="sBtn" data-share="tg" title="Telegram"><svg viewBox="0 0 24 24"><path d="M20.5 4.5 3.8 11c-.8.3-.8 1.1 0 1.4l4.2 1.3 1.6 5c.2.6.9.7 1.3.3l2.3-2.1 4.3 3.2c.6.4 1.3.1 1.5-.6L21.9 5.6c.2-.8-.6-1.4-1.4-1.1zM9.5 13.2l8-5-6.3 6-.3 3.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Telegram</span></button>
+      <button type="button" class="sBtn" data-share="x" title="X"><svg viewBox="0 0 24 24"><path d="M4 4l16 16M20 4 4 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>X</span></button>
+      <button type="button" class="sBtn" data-share="fb" title="Facebook"><svg viewBox="0 0 24 24"><path d="M14 8.5V6.8c0-.8.4-1.3 1.3-1.3H17V2.5h-2.5C11.8 2.5 10.5 4 10.5 6.5v2H8v3.2h2.5V21.5H14v-9.8h2.6l.4-3.2z" fill="currentColor"/></svg><span>Facebook</span></button>
+      <button type="button" class="sBtn" data-share="ig" title="Instagram"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.8" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="7" r="1.1" fill="currentColor"/></svg><span>Instagram</span></button>
+      <button type="button" class="sBtn" data-share="copy" title="Kopyala"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><span data-t="copy">Kopyala</span></button>
+      <button type="button" class="sBtn" data-share="more" title="Diğer" hidden><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="18" cy="12" r="1.8" fill="currentColor"/></svg><span data-t="more2">Diğer</span></button>
+    </div>
     <textarea id="shareBox" hidden readonly rows="3"></textarea>
   </div>
 </div>
 
 <div id="seasonModal" class="overlay" hidden>
-  <div class="card defterCard">
-    <h2 id="seasonTitle" data-t="season">Sezon</h2>
-    <p id="seasonSummary" class="small"></p>
+  <div class="panel seasonCard">
+    <div class="resultHead">
+      <span id="seasonLabel" class="mLabel" data-t="season">Sezon</span>
+      <h2 id="seasonTitle"></h2>
+      <p id="seasonTitlePill" class="pill"></p>
+    </div>
+    <div class="statRow tiles seasonStats">
+      <div><b id="sXp"></b><span data-t="sPoints">Sezon puanı</span></div>
+      <div><b id="sDays"></b><span data-t="sDays">Gün kaldı</span></div>
+      <div><b id="sNext"></b><span id="sNextL"></span></div>
+    </div>
+    <div class="trackHead"><span class="mLabel" data-t="trackLabel">Ödül hattı</span><span id="seasonSummary" class="mProg"></span></div>
     <div id="seasonTrack" class="track"></div>
-    <div id="boxArea" hidden>
+    <div id="boxArea" class="infoCard boxArea" hidden>
       <p id="boxText" class="small" data-t="boxPick">Kum Kutusu: bir kart seç.</p>
       <div id="boxCards" class="cards"></div>
     </div>
-    <div class="actions"><button id="seasonCloseBtn" class="btn ghost" data-t="close">Kapat</button></div>
+    <div class="actions resultActions"><button id="seasonCloseBtn" class="btn big ghost" data-t="close">Kapat</button></div>
   </div>
 </div>
 
@@ -369,10 +418,13 @@
 </div>
 
 <div id="pauseModal" class="overlay" hidden>
-  <div class="card">
-    <h2 data-t="paused">Duraklatıldı</h2>
-    <p class="small" data-t="pauseHint">Esc ya da P: duraklat</p>
-    <div class="actions"><button id="resumeBtn" class="btn" data-t="resume">Devam et</button></div>
+  <div class="panel pauseCard">
+    <div class="resultHead">
+      <span class="mLabel" data-t="pauseLabel">Oyun</span>
+      <h2 data-t="paused">Duraklatıldı</h2>
+    </div>
+    <div class="actions resultActions"><button id="resumeBtn" class="btn big" data-t="resume">Devam et</button></div>
+    <div class="keys"><span class="key"><kbd>Esc</kbd><span data-t="pauseKeyHint">devam</span></span><span class="key"><kbd>P</kbd><span data-t="pauseKeyHint">devam</span></span></div>
   </div>
 </div>
 
@@ -683,7 +735,10 @@ tr: {
   tipLaunchMouse: 'Tıklamayı basılı tut, bırak: topunu fırlat', tipLaunchTouch: 'Düğmeyi basılı tut, bırak: topunu fırlat',
   tipDigMouse: 'X ya da sağ tık: yere gömül, 0,8 sn kimse itemez', tipDigTouch: 'KAZ düğmesi: yere gömül, 0,8 sn kimse itemez',
   // sezon sayfası
-  seasonTitle: (i, tier) => `Sezon ${i} — ${tier}`,
+  seasonTitle: (i, tier) => `Sezon ${i} — ${tier}`, seasonLabel: i => `Sezon ${i}`, sPoints: 'Sezon puanı', sDays: 'Gün kaldı',
+  sNextTier: t => `${t} için puan`, sTop: 'En üst kademe', titleLabel: t => `Unvan: ${t}`, trackLabel: 'Ödül hattı', trackProgress: (a, b) => `${a} / ${b} açıldı`,
+  pauseLabel: 'Oyun', pauseKeyHint: 'devam',
+  copy: 'Kopyala', more2: 'Diğer', copiedIg: 'Kopyalandı, Instagram\'a yapıştır',
   seasonSummary: (xp, days, next, need, title) => `${xp} sezon puanı · ${days} gün kaldı${next ? ` · ${next} için ${need} puan` : ' · en üst kademe'}${title ? ` · unvan: ${title}` : ''}`,
   stepOpen: 'açıldı', box: 'Kum Kutusu', stepNeed: n => `${n} puan`, boxPick: 'Kum Kutusu: bir kart seç.',
   boxWon: (name, type) => `Kazandın: ${name}${type === 'trail' ? ' (iz, oyunda görünür)' : type === 'title' ? ' (unvan)' : ''}`,
@@ -790,7 +845,10 @@ en: {
   helpFinal: ' Last 3 standing: 15-second sumo.',
   tipLaunchMouse: 'Hold the click, release: launch your ball', tipLaunchTouch: 'Hold the button, release: launch your ball',
   tipDigMouse: 'X or right click: burrow, unpushable for 0.8 s', tipDigTouch: 'DIG button: burrow, unpushable for 0.8 s',
-  seasonTitle: (i, tier) => `Season ${i} — ${tier}`,
+  seasonTitle: (i, tier) => `Season ${i} — ${tier}`, seasonLabel: i => `Season ${i}`, sPoints: 'Season points', sDays: 'Days left',
+  sNextTier: t => `points to ${t}`, sTop: 'Top tier', titleLabel: t => `Title: ${t}`, trackLabel: 'Reward track', trackProgress: (a, b) => `${a} / ${b} opened`,
+  pauseLabel: 'Game', pauseKeyHint: 'resume',
+  copy: 'Copy', more2: 'More', copiedIg: 'Copied, paste into Instagram',
   seasonSummary: (xp, days, next, need, title) => `${xp} season points · ${days} days left${next ? ` · ${need} points to ${next}` : ' · top tier'}${title ? ` · title: ${title}` : ''}`,
   stepOpen: 'opened', box: 'Sand Box', stepNeed: n => `${n} pts`, boxPick: 'Sand Box: pick a card.',
   boxWon: (name, type) => `You got: ${name}${type === 'trail' ? ' (trail, shown in game)' : type === 'title' ? ' (title)' : ''}`,
@@ -3503,9 +3561,15 @@ const missionText = m => { const k = 'mission:' + m.id, v = T(k); return v === k
 function renderSeason() {
   if (!useSeason) return;
   const cur = Season.current(), esc = s => String(s).replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[ch]);
-  setText('seasonTitle', T('seasonTitle', cur.index + 1, T('tier:' + Season.tier())));
+  // Başlık: "SEZON 2" etiketi + kademe adı; kutucuklar: puan / gün / sıradaki kademe; unvan rozet
+  setText('seasonLabel', T('seasonLabel', cur.index + 1));
+  setText('seasonTitle', T('tier:' + Season.tier()));
+  setText('seasonTitlePill', Season.titleName() ? T('titleLabel', Season.titleName()) : '');
   const nextTier = Season.TIERS.find(t => t[1] > Season.data.xp);
-  setText('seasonSummary', T('seasonSummary', Season.data.xp, cur.daysLeft, nextTier ? T('tier:' + nextTier[0]) : null, nextTier ? nextTier[1] - Season.data.xp : 0, Season.titleName()));
+  setText('sXp', Season.data.xp); setText('sDays', cur.daysLeft);
+  setText('sNext', nextTier ? nextTier[1] - Season.data.xp : '★'); setText('sNextL', nextTier ? T('sNextTier', T('tier:' + nextTier[0])) : T('sTop'));
+  const claimed = Season.data.claimed.length;
+  setText('seasonSummary', T('trackProgress', claimed, Season.STEPS));
   const track = $('seasonTrack'); if (!track) return;
   const can = Season.claimable();
   track.innerHTML = Array.from({ length: Season.STEPS }, (_, i) => {
@@ -3811,7 +3875,36 @@ function shareText() {
   const line = T('shareLine', title, round.code, player.name, place, player.kills || 0, lastHighlight ? lastHighlight.stamp : '');
   return { text: `${line}\n${T('shareAsk')} ${url || T('roundCodeOnly', round.code)}`, url };
 }
-async function share() {
+// "Meydan oku": paylaşım tepsisini aç/kapat (WhatsApp, Telegram, X, Facebook, Instagram, kopyala, telefonda "Diğer" = sistem paylaşımı)
+function share() {
+  const tray = $('shareTray'); if (!tray) return shareNative();
+  tray.hidden = !tray.hidden;
+  if (!tray.hidden) { const m = tray.querySelector('[data-share="more"]'); if (m) m.hidden = !navigator.share; track('share_open'); }
+}
+const SHARE_LINKS = {
+  wa: s => `https://wa.me/?text=${encodeURIComponent(s.text)}`,
+  tg: s => `https://t.me/share/url?url=${encodeURIComponent(s.url || '')}&text=${encodeURIComponent(s.text)}`,
+  x:  s => `https://twitter.com/intent/tweet?text=${encodeURIComponent(s.text)}`,
+  fb: s => (s.url ? `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(s.url)}` : null),
+};
+async function shareVia(via, btn) {
+  const s = shareText();
+  stats.shares = (stats.shares || 0) + 1; store.set(GAME.key + '-stats', stats); track('share', { via });
+  const flash = key => { const lbl = btn.querySelector('span'), old = lbl.textContent; btn.classList.add('ok'); lbl.textContent = T(key); setTimeout(() => { btn.classList.remove('ok'); lbl.textContent = old; }, 1800); };
+  if (via === 'more' || (via === 'ig' && navigator.share)) {       // Instagram'ın web bağlantısı yok: telefonda sistem paylaşımı Instagram'ı listeler
+    try { await navigator.share({ text: s.text }); } catch (e) { if (!e || e.name !== 'AbortError') shareNative(); }
+    return;
+  }
+  if (via === 'copy' || via === 'ig') {
+    try { await navigator.clipboard.writeText(s.text); flash(via === 'ig' ? 'copiedIg' : 'copied'); }
+    catch { const box = $('shareBox'); if (box) { box.hidden = false; box.value = s.text; box.focus(); box.select(); } }
+    return;
+  }
+  const link = SHARE_LINKS[via] && SHARE_LINKS[via](s);
+  if (link) window.open(link, '_blank', 'noopener');
+}
+if ($('shareTray')) for (const b of $('shareTray').querySelectorAll('[data-share]')) b.addEventListener('click', () => shareVia(b.dataset.share, b));
+async function shareNative() {
   const s = shareText(), btn = $('shareBtn'), box = $('shareBox');
   stats.shares = (stats.shares || 0) + 1; store.set(GAME.key + '-stats', stats); track('share', { native: !!navigator.share });
   if (navigator.share) { try { await navigator.share({ text: s.text }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }

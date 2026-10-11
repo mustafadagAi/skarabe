@@ -1172,7 +1172,10 @@ tr: {
   tipLaunchMouse: 'Tıklamayı basılı tut, bırak: topunu fırlat', tipLaunchTouch: 'Düğmeyi basılı tut, bırak: topunu fırlat',
   tipDigMouse: 'X ya da sağ tık: yere gömül, 0,8 sn kimse itemez', tipDigTouch: 'KAZ düğmesi: yere gömül, 0,8 sn kimse itemez',
   // sezon sayfası
-  seasonTitle: (i, tier) => `Sezon ${i} — ${tier}`,
+  seasonTitle: (i, tier) => `Sezon ${i} — ${tier}`, seasonLabel: i => `Sezon ${i}`, sPoints: 'Sezon puanı', sDays: 'Gün kaldı',
+  sNextTier: t => `${t} için puan`, sTop: 'En üst kademe', titleLabel: t => `Unvan: ${t}`, trackLabel: 'Ödül hattı', trackProgress: (a, b) => `${a} / ${b} açıldı`,
+  pauseLabel: 'Oyun', pauseKeyHint: 'devam',
+  copy: 'Kopyala', more2: 'Diğer', copiedIg: 'Kopyalandı, Instagram\'a yapıştır',
   seasonSummary: (xp, days, next, need, title) => `${xp} sezon puanı · ${days} gün kaldı${next ? ` · ${next} için ${need} puan` : ' · en üst kademe'}${title ? ` · unvan: ${title}` : ''}`,
   stepOpen: 'açıldı', box: 'Kum Kutusu', stepNeed: n => `${n} puan`, boxPick: 'Kum Kutusu: bir kart seç.',
   boxWon: (name, type) => `Kazandın: ${name}${type === 'trail' ? ' (iz, oyunda görünür)' : type === 'title' ? ' (unvan)' : ''}`,
@@ -1279,7 +1282,10 @@ en: {
   helpFinal: ' Last 3 standing: 15-second sumo.',
   tipLaunchMouse: 'Hold the click, release: launch your ball', tipLaunchTouch: 'Hold the button, release: launch your ball',
   tipDigMouse: 'X or right click: burrow, unpushable for 0.8 s', tipDigTouch: 'DIG button: burrow, unpushable for 0.8 s',
-  seasonTitle: (i, tier) => `Season ${i} — ${tier}`,
+  seasonTitle: (i, tier) => `Season ${i} — ${tier}`, seasonLabel: i => `Season ${i}`, sPoints: 'Season points', sDays: 'Days left',
+  sNextTier: t => `points to ${t}`, sTop: 'Top tier', titleLabel: t => `Title: ${t}`, trackLabel: 'Reward track', trackProgress: (a, b) => `${a} / ${b} opened`,
+  pauseLabel: 'Game', pauseKeyHint: 'resume',
+  copy: 'Copy', more2: 'More', copiedIg: 'Copied, paste into Instagram',
   seasonSummary: (xp, days, next, need, title) => `${xp} season points · ${days} days left${next ? ` · ${need} points to ${next}` : ' · top tier'}${title ? ` · title: ${title}` : ''}`,
   stepOpen: 'opened', box: 'Sand Box', stepNeed: n => `${n} pts`, boxPick: 'Sand Box: pick a card.',
   boxWon: (name, type) => `You got: ${name}${type === 'trail' ? ' (trail, shown in game)' : type === 'title' ? ' (title)' : ''}`,
@@ -2385,9 +2391,15 @@ const missionText = m => { const k = 'mission:' + m.id, v = T(k); return v === k
 function renderSeason() {
   if (!useSeason) return;
   const cur = Season.current(), esc = s => String(s).replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[ch]);
-  setText('seasonTitle', T('seasonTitle', cur.index + 1, T('tier:' + Season.tier())));
+  // Başlık: "SEZON 2" etiketi + kademe adı; kutucuklar: puan / gün / sıradaki kademe; unvan rozet
+  setText('seasonLabel', T('seasonLabel', cur.index + 1));
+  setText('seasonTitle', T('tier:' + Season.tier()));
+  setText('seasonTitlePill', Season.titleName() ? T('titleLabel', Season.titleName()) : '');
   const nextTier = Season.TIERS.find(t => t[1] > Season.data.xp);
-  setText('seasonSummary', T('seasonSummary', Season.data.xp, cur.daysLeft, nextTier ? T('tier:' + nextTier[0]) : null, nextTier ? nextTier[1] - Season.data.xp : 0, Season.titleName()));
+  setText('sXp', Season.data.xp); setText('sDays', cur.daysLeft);
+  setText('sNext', nextTier ? nextTier[1] - Season.data.xp : '★'); setText('sNextL', nextTier ? T('sNextTier', T('tier:' + nextTier[0])) : T('sTop'));
+  const claimed = Season.data.claimed.length;
+  setText('seasonSummary', T('trackProgress', claimed, Season.STEPS));
   const track = $('seasonTrack'); if (!track) return;
   const can = Season.claimable();
   track.innerHTML = Array.from({ length: Season.STEPS }, (_, i) => {
@@ -2693,7 +2705,36 @@ function shareText() {
   const line = T('shareLine', title, round.code, player.name, place, player.kills || 0, lastHighlight ? lastHighlight.stamp : '');
   return { text: `${line}\n${T('shareAsk')} ${url || T('roundCodeOnly', round.code)}`, url };
 }
-async function share() {
+// "Meydan oku": paylaşım tepsisini aç/kapat (WhatsApp, Telegram, X, Facebook, Instagram, kopyala, telefonda "Diğer" = sistem paylaşımı)
+function share() {
+  const tray = $('shareTray'); if (!tray) return shareNative();
+  tray.hidden = !tray.hidden;
+  if (!tray.hidden) { const m = tray.querySelector('[data-share="more"]'); if (m) m.hidden = !navigator.share; track('share_open'); }
+}
+const SHARE_LINKS = {
+  wa: s => `https://wa.me/?text=${encodeURIComponent(s.text)}`,
+  tg: s => `https://t.me/share/url?url=${encodeURIComponent(s.url || '')}&text=${encodeURIComponent(s.text)}`,
+  x:  s => `https://twitter.com/intent/tweet?text=${encodeURIComponent(s.text)}`,
+  fb: s => (s.url ? `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(s.url)}` : null),
+};
+async function shareVia(via, btn) {
+  const s = shareText();
+  stats.shares = (stats.shares || 0) + 1; store.set(GAME.key + '-stats', stats); track('share', { via });
+  const flash = key => { const lbl = btn.querySelector('span'), old = lbl.textContent; btn.classList.add('ok'); lbl.textContent = T(key); setTimeout(() => { btn.classList.remove('ok'); lbl.textContent = old; }, 1800); };
+  if (via === 'more' || (via === 'ig' && navigator.share)) {       // Instagram'ın web bağlantısı yok: telefonda sistem paylaşımı Instagram'ı listeler
+    try { await navigator.share({ text: s.text }); } catch (e) { if (!e || e.name !== 'AbortError') shareNative(); }
+    return;
+  }
+  if (via === 'copy' || via === 'ig') {
+    try { await navigator.clipboard.writeText(s.text); flash(via === 'ig' ? 'copiedIg' : 'copied'); }
+    catch { const box = $('shareBox'); if (box) { box.hidden = false; box.value = s.text; box.focus(); box.select(); } }
+    return;
+  }
+  const link = SHARE_LINKS[via] && SHARE_LINKS[via](s);
+  if (link) window.open(link, '_blank', 'noopener');
+}
+if ($('shareTray')) for (const b of $('shareTray').querySelectorAll('[data-share]')) b.addEventListener('click', () => shareVia(b.dataset.share, b));
+async function shareNative() {
   const s = shareText(), btn = $('shareBtn'), box = $('shareBox');
   stats.shares = (stats.shares || 0) + 1; store.set(GAME.key + '-stats', stats); track('share', { native: !!navigator.share });
   if (navigator.share) { try { await navigator.share({ text: s.text }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
