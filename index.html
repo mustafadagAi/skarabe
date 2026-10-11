@@ -2805,7 +2805,8 @@ class ArenaRenderer extends RenderBase {
 
     // Üst orta: KALAN sayacı + evre etiketi + tur ilerleme çubuğu. Dar ekranda sağa yaslanır (sol paneli örtmesin).
     const narrow = W < 560;
-    const pw = 224, ptop = 10, px = narrow ? W - pw - 10 : W / 2 - pw / 2;
+    // Dar ekranda sol oyuncu paneli (10..154) ile çakışmasın: panel daralır, evre etiketi ikinci satıra iner
+    const pw = narrow ? Math.max(150, Math.min(204, W - 174)) : 224, ptop = 10, px = narrow ? W - pw - 10 : W / 2 - pw / 2;
     this.panel(px, ptop, pw, 66);
     this.label(T('left'), px + 14, ptop + 21);
     ctx.textAlign = 'left'; ctx.fillStyle = KUMUL.ink; ctx.font = `800 26px ${KUMUL.font}`;
@@ -2814,8 +2815,13 @@ class ArenaRenderer extends RenderBase {
     ctx.fillText(`/ ${round.total}`, px + 14 + nw + 6, ptop + 51);
     const phaseColor = ph.key === 'calm' ? KUMUL.muted : KUMUL.storm;
     const label = ph.key === 'calm' ? T('phaseCalm', Math.ceil(ph.left)) : ph.key === 'shrink' ? T('phaseShrink') : ph.key === 'final3' ? T('phaseFinal3', Math.ceil(ph.left)) : T('phaseFinal');
-    this.label(label, px + pw - 14, ptop + 21, 'right', phaseColor);
-    this.bar(px + 96, ptop + 42, pw - 110, 6, round.time / ARENA.finalEnd, phaseColor);
+    if (narrow) {
+      this.bar(px + 70, ptop + 15, pw - 84, 6, round.time / ARENA.finalEnd, phaseColor);
+      this.label(label, px + pw - 14, ptop + 51, 'right', phaseColor);
+    } else {
+      this.label(label, px + pw - 14, ptop + 21, 'right', phaseColor);
+      this.bar(px + 96, ptop + 42, pw - 110, 6, round.time / ARENA.finalEnd, phaseColor);
+    }
 
     // Sol üst: oyuncu kutucuğu (ağırlık | itiş) ve altında durum rozetleri
     if (player && player.alive) {
