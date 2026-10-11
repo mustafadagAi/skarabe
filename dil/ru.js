@@ -84,6 +84,7 @@ DIL.ru = {
   'tier:Larva': 'Личинка', 'tier:Böcek': 'Жук', 'tier:Yuvarlayıcı': 'Катальщик', 'tier:Şampiyon': 'Чемпион', 'tier:Kutsal Skarabe': 'Священный скарабей',
   'reward:yildiz': 'Звёздный след', 'reward:alev': 'След из углей', 'reward:yaprak': 'Лиственный след', 'reward:yuvarlayici': 'Катальщик', 'reward:firtina': 'Повелитель бури', 'reward:hirsiz': 'Похититель шаров', 'reward:xp': n => `+${n} очков`,
   nextRound: 'Следующий раунд', toMenu: 'В меню',
+  leaderLabel: 'Таблица лидеров', today: 'Сегодня', thisWeek: 'Неделя', onlineOnly: 'Только онлайн-раунды', leaderEmpty: 'Пока нет результатов', yourRank: (d, w) => `Сегодня #${d} · за неделю #${w}`,
   watch: 'Смотреть', backToResult: 'Результаты',
   paused: 'Пауза', resume: 'Продолжить', pauseHint: 'Esc или P: пауза',
   online: 'Играть онлайн', connecting: 'Подключение к серверу…', matching: (w, h) => `Подбор: ${w} с · ${h} игр. (остальные — боты)`,

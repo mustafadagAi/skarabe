@@ -84,6 +84,7 @@ DIL.ko = {
   'tier:Larva': '애벌레', 'tier:Böcek': '딱정벌레', 'tier:Yuvarlayıcı': '굴림꾼', 'tier:Şampiyon': '챔피언', 'tier:Kutsal Skarabe': '신성한 스카라베',
   'reward:yildiz': '별 흔적', 'reward:alev': '불씨 흔적', 'reward:yaprak': '나뭇잎 흔적', 'reward:yuvarlayici': '굴림꾼', 'reward:firtina': '폭풍의 달인', 'reward:hirsiz': '공 도둑', 'reward:xp': n => `+${n}점`,
   nextRound: '다음 라운드', toMenu: '메뉴로 돌아가기',
+  leaderLabel: '리더보드', today: '오늘', thisWeek: '이번 주', onlineOnly: '온라인 라운드만', leaderEmpty: '아직 기록 없음', yourRank: (d, w) => `오늘 ${d}위 · 이번 주 ${w}위`,
   watch: '관전', backToResult: '결과',
   paused: '일시정지', resume: '계속', pauseHint: 'Esc 또는 P: 일시정지',
   online: '온라인 플레이', connecting: '서버에 연결 중…', matching: (w, h) => `매칭 중: ${w}초 · ${h}명 (나머지는 봇)`,

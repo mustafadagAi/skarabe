@@ -1133,7 +1133,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610111332';
+const DIL_SURUM = '202610111345';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1243,6 +1243,7 @@ tr: {
   'reward:yildiz': 'Yıldız izi', 'reward:alev': 'Kor izi', 'reward:yaprak': 'Yaprak izi', 'reward:yuvarlayici': 'Yuvarlayıcı', 'reward:firtina': 'Fırtına Ustası', 'reward:hirsiz': 'Top Hırsızı', 'reward:xp': n => `+${n} puan`,
   // duraklatma
   nextRound: 'Sıradaki tur', toMenu: 'Menüye dön',
+  leaderLabel: 'Liderlik', today: 'Bugün', thisWeek: 'Bu hafta', onlineOnly: 'Yalnız çevrimiçi turlar', leaderEmpty: 'Henüz sonuç yok', yourRank: (d, w) => `Bugün ${d}. · bu hafta ${w}.`,
   watch: 'İzle', backToResult: 'Sonuç kartı',
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
   // çevrimiçi
@@ -1346,6 +1347,7 @@ en: {
   'tier:Larva': 'Larva', 'tier:Böcek': 'Beetle', 'tier:Yuvarlayıcı': 'Roller', 'tier:Şampiyon': 'Champion', 'tier:Kutsal Skarabe': 'Sacred Scarab',
   'reward:yildiz': 'Star trail', 'reward:alev': 'Ember trail', 'reward:yaprak': 'Leaf trail', 'reward:yuvarlayici': 'Roller', 'reward:firtina': 'Storm Master', 'reward:hirsiz': 'Ball Thief', 'reward:xp': n => `+${n} points`,
   nextRound: 'Next round', toMenu: 'Back to menu',
+  leaderLabel: 'Leaderboard', today: 'Today', thisWeek: 'This week', onlineOnly: 'Online rounds only', leaderEmpty: 'No results yet', yourRank: (d, w) => `Today #${d} · this week #${w}`,
   watch: 'Watch', backToResult: 'Results',
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
   online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
@@ -2888,6 +2890,29 @@ function enterRound() {
 // ona, yoksa GAME.online.url'ye bağlanır. Lobi -> tur -> sonuç; "Yeni tur" yeniden eşleştirir.
 // ---------------------------------------------------------------------
 let onlineUrl = '', net = null, onlineMode = false, lastJoin = {}, roomsTimer = null;
+// Liderlik kimliği: cihaz başına rastgele, kalıcı (sunucu kişi başı en iyi sonucu bununla tutar)
+const pid = store.get(GAME.key + '-pid') || (() => { const v = Math.random().toString(36).slice(2, 10) + Date.now().toString(36); store.set(GAME.key + '-pid', v); return v; })();
+let liderData = null, liderTab = 'day', liderTimer = null;
+async function pollLider() {
+  clearTimeout(liderTimer);
+  if (!onlineUrl || $('menu').hidden) return;
+  try { const r = await fetch(onlineUrl.replace(/^ws/, 'http') + '/__lider?pid=' + pid, { cache: 'no-store' }); liderData = await r.json(); renderLider(); } catch {}
+  liderTimer = setTimeout(pollLider, 30000);
+}
+function renderLider() {
+  const box = $('liderBox'); if (!box) return;
+  setHidden('liderBox', !onlineUrl);
+  $('liderDay').classList.toggle('on', liderTab === 'day'); $('liderWeek').classList.toggle('on', liderTab === 'week');
+  const list = liderData ? liderData[liderTab] || [] : [], ol = $('liderList');
+  ol.innerHTML = '';
+  if (!list.length) { const li = document.createElement('li'); li.className = 'empty'; li.textContent = T(liderData ? 'leaderEmpty' : 'roomsLoading'); ol.appendChild(li); return; }
+  list.forEach((e, i) => {
+    const li = document.createElement('li'); if (e.me) li.className = 'me';
+    const n = document.createElement('i'); n.textContent = i + 1; const nm = document.createElement('span'); nm.textContent = e.name; const m = document.createElement('b'); m.textContent = e.mass;
+    li.append(n, nm, m); ol.appendChild(li);
+  });
+}
+if ($('liderDay')) { $('liderDay').addEventListener('click', () => { liderTab = 'day'; renderLider(); }); $('liderWeek').addEventListener('click', () => { liderTab = 'week'; renderLider(); }); }
 const urlRoom = (params.get('oda') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4) || null;   // ?oda=KOD: arkadaşın özel odası
 async function initOnline() {
   if (!GAME.online || typeof NetClient === 'undefined') return;
@@ -2900,7 +2925,7 @@ async function initOnline() {
   if (ob && pb) { ob.dataset.t = 'play'; pb.dataset.t = 'practice'; pb.classList.add('ghost'); Lang.applyDom(); }
   if (urlRoom) { setText('onlineBtn', T('joinRoomBtn', urlRoom)); lastJoin = { code: urlRoom }; }
   wakeServer();
-  pollOnlineCount();
+  pollOnlineCount(); pollLider();
 }
 // Menüde "● N oyuncu çevrimiçi" (sağlık ucu; 0 ise satır boş)
 async function pollOnlineCount() {
@@ -2965,7 +2990,7 @@ async function startOnline(opts = {}) {
   if (btn) btn.disabled = true;
   lastJoin = opts.create ? {} : opts;      // kurulan odanın kodu lobby mesajıyla gelir; "Yeni tur" aynı odada kalır
   track('online_join', { how: opts.code ? 'code' : opts.create ? 'create' : opts.room ? 'room' : 'quick' });
-  net.join({ name, skin: savedSkin, stage: Tutor.stage(), chat: useStream && Twitch.queue.length ? Twitch.take(15) : null, ...opts });
+  net.join({ name, pid, skin: savedSkin, stage: Tutor.stage(), chat: useStream && Twitch.queue.length ? Twitch.take(15) : null, ...opts });
 }
 function beginOnlineRound(r) {
   onlineMode = true; round = r; challengeRound = false; urlSeed = null;
@@ -3021,7 +3046,7 @@ function leaveOnline() {
   if (net && net.connected) net.send({ t: 'leave' });
   onlineMode = false; state = 'menu'; round = new Round(); player = null; watching = false; setHidden('backBtn', true);
   $('result').hidden = true; $('menu').hidden = false; setHidden('waitCard', true); netStatus('');
-  if ($('onlineBtn')) $('onlineBtn').disabled = false;
+  if ($('onlineBtn')) $('onlineBtn').disabled = false; pollLider();
   syncTouchUi(); refreshMenu();
 }
 if ($('leaveBtn')) $('leaveBtn').addEventListener('click', leaveOnline);
@@ -3081,6 +3106,7 @@ function showResult(title, sub, allowRevive) {
   $('statKills').textContent = player.kills || 0;
   $('statMass').textContent = Math.round(player.score);
   setText('highlightLine', lastHighlight ? T('highlightLine', lastHighlight.stamp, lastHighlight.sub) : '');
+  setText('rankLine', onlineMode && round.rank && round.rank.day ? T('yourRank', round.rank.day, round.rank.week) : '');
   const place = round.placementOf(player);
   setText('roundCode', T('roundCode', round.code));
   setHidden('clipBtn', !(useClips && Clip.last));
@@ -3143,6 +3169,7 @@ function onRoundOverWhileDead() {
   $('watchBtn').hidden = true;
   if (watching) setWatching(false);   // izlerken tur bitti: sonuç kartı geri gelir
   $('resultSub').textContent = round.winner ? T('roundWonBy', round.winner.name) : T('roundOver');
+  setText('rankLine', onlineMode && round.rank && round.rank.day ? T('yourRank', round.rank.day, round.rank.week) : '');
   $('reviveBtn').hidden = true;
 }
 
@@ -3155,7 +3182,7 @@ $('againBtn').addEventListener('click', async () => {
   if (onlineMode && net && net.connected) {
     $('result').hidden = true;
     // Tur hâlâ sürüyorsa odada kal ve izle (sunucu seni bot yerine sokar ya da sıradaki tura alır); bittiyse menüye dön
-    if (!net.round || net.round.over) { $('menu').hidden = false; state = 'menu'; round = new Round(); }
+    if (!net.round || net.round.over) { $('menu').hidden = false; state = 'menu'; round = new Round(); pollLider(); }
     startOnline(lastJoin);
   } else startRound();
 });

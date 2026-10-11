@@ -84,6 +84,7 @@ DIL.de = {
   'tier:Larva': 'Larve', 'tier:Böcek': 'Käfer', 'tier:Yuvarlayıcı': 'Roller', 'tier:Şampiyon': 'Champion', 'tier:Kutsal Skarabe': 'Heiliger Skarabäus',
   'reward:yildiz': 'Sternenspur', 'reward:alev': 'Glutspur', 'reward:yaprak': 'Blätterspur', 'reward:yuvarlayici': 'Roller', 'reward:firtina': 'Sturmmeister', 'reward:hirsiz': 'Kugeldieb', 'reward:xp': n => `+${n} Punkte`,
   nextRound: 'Nächste Runde', toMenu: 'Zurück zum Menü',
+  leaderLabel: 'Bestenliste', today: 'Heute', thisWeek: 'Diese Woche', onlineOnly: 'Nur Online-Runden', leaderEmpty: 'Noch keine Ergebnisse', yourRank: (d, w) => `Heute Platz ${d} · diese Woche Platz ${w}`,
   watch: 'Zuschauen', backToResult: 'Ergebnis',
   paused: 'Pause', resume: 'Weiter', pauseHint: 'Esc oder P: Pause',
   online: 'Online spielen', connecting: 'Verbinde mit Server…', matching: (w, h) => `Suche: ${w} s · ${h} Spieler (Bots füllen auf)`,

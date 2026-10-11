@@ -84,6 +84,7 @@ DIL.pt = {
   'tier:Larva': 'Larva', 'tier:Böcek': 'Besouro', 'tier:Yuvarlayıcı': 'Rolador', 'tier:Şampiyon': 'Campeão', 'tier:Kutsal Skarabe': 'Escaravelho sagrado',
   'reward:yildiz': 'Rastro de estrelas', 'reward:alev': 'Rastro de brasas', 'reward:yaprak': 'Rastro de folhas', 'reward:yuvarlayici': 'Rolador', 'reward:firtina': 'Mestre da tempestade', 'reward:hirsiz': 'Ladrão de bolas', 'reward:xp': n => `+${n} pontos`,
   nextRound: 'Próxima rodada', toMenu: 'Voltar ao menu',
+  leaderLabel: 'Classificação', today: 'Hoje', thisWeek: 'Esta semana', onlineOnly: 'Só partidas online', leaderEmpty: 'Sem resultados ainda', yourRank: (d, w) => `Hoje #${d} · esta semana #${w}`,
   watch: 'Assistir', backToResult: 'Resultados',
   paused: 'Pausado', resume: 'Continuar', pauseHint: 'Esc ou P: pausar',
   online: 'Jogar online', connecting: 'Conectando ao servidor…', matching: (w, h) => `Procurando: ${w} s · ${h} jogador${h === 1 ? '' : 'es'} (bots completam o resto)`,

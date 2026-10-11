@@ -84,6 +84,7 @@ DIL.hi = {
   'tier:Larva': 'लार्वा', 'tier:Böcek': 'भृंग', 'tier:Yuvarlayıcı': 'लुढ़काने वाला', 'tier:Şampiyon': 'चैंपियन', 'tier:Kutsal Skarabe': 'पवित्र स्कारब',
   'reward:yildiz': 'तारों की लकीर', 'reward:alev': 'अंगारों की लकीर', 'reward:yaprak': 'पत्तों की लकीर', 'reward:yuvarlayici': 'लुढ़काने वाला', 'reward:firtina': 'तूफ़ान का उस्ताद', 'reward:hirsiz': 'गेंद चोर', 'reward:xp': n => `+${n} अंक`,
   nextRound: 'अगला राउंड', toMenu: 'मेनू पर लौटें',
+  leaderLabel: 'लीडरबोर्ड', today: 'आज', thisWeek: 'इस हफ्ते', onlineOnly: 'केवल ऑनलाइन राउंड', leaderEmpty: 'अभी कोई नतीजा नहीं', yourRank: (d, w) => `आज #${d} · इस हफ्ते #${w}`,
   watch: 'देखें', backToResult: 'परिणाम',
   paused: 'रुका हुआ', resume: 'जारी रखें', pauseHint: 'Esc या P: रोकें',
   online: 'ऑनलाइन खेलें', connecting: 'सर्वर से जुड़ रहे हैं…', matching: (w, h) => `मिलान: ${w} से. · ${h} खिलाड़ी (बाकी बॉट)`,
