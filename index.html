@@ -205,6 +205,24 @@
   .key kbd { font: 700 11px 'Rubik', system-ui, sans-serif; color: var(--ink); background: var(--paper); border: 1.5px solid rgba(42, 31, 20, 0.5);
              border-bottom-width: 3px; border-radius: 6px; padding: 2px 7px; white-space: nowrap; }
 
+  /* ---- Böcek Defteri: panel dili, tür ve başarım kutucukları ---- */
+  .bookCard { width: min(620px, 94vw); padding: 22px 22px 18px; gap: 14px; align-items: stretch; }
+  .bookCard .resultHead h2 { font-family: 'Rammetto One', 'Rubik', system-ui, sans-serif; font-weight: 400; font-size: 30px; margin: 0; text-align: center; }
+  .bookStats { grid-template-columns: repeat(2, 1fr); }
+  .bookStats b { font-size: 24px; }
+  .bookStats .bar.mini { margin-top: 6px; }
+  .bookGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .bookGrid .entry { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border-radius: 12px;
+                     background: rgba(232, 213, 169, 0.42); border: 1.5px solid rgba(42, 31, 20, 0.22); min-width: 0; }
+  .bookGrid .entry.locked { opacity: 0.6; border-style: dashed; background: transparent; }
+  .bookGrid .entry .badge { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center; font-weight: 800; font-size: 13px; background: var(--paper); }
+  .bookGrid .entry.open .badge { background: var(--amber); color: var(--paper); }
+  .bookGrid .entry b { font-size: 13.5px; display: block; line-height: 1.3; }
+  .bookGrid .entry b i { font-weight: 400; color: var(--muted); font-size: 12px; }
+  .bookGrid .entry p { margin: 3px 0 0; font-size: 12px; line-height: 1.4; color: var(--ink); }
+  .bookGrid .entry > div > i { font-style: normal; color: var(--muted); font-size: 12px; display: block; margin-top: 2px; }
+  @media (max-width: 560px) { .bookGrid { grid-template-columns: 1fr; } }
+
   /* ---- Paylaşım tepsisi ---- */
   .shareTray { width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 10px; padding-top: 4px; border-top: 1.5px solid rgba(42, 31, 20, 0.15); }
   .shareTray[hidden] { display: none; }
@@ -407,13 +425,21 @@
 </div>
 
 <div id="defterModal" class="overlay" hidden>
-  <div class="card defterCard">
-    <h2 data-t="bookTitle">Böcek Defteri</h2>
-    <p id="defterSummary" class="small"></p>
-    <div id="speciesList" class="list"></div>
-    <h3 data-t="hiddenAch">Gizli başarımlar</h3>
-    <div id="achList" class="list"></div>
-    <div class="actions"><button id="defterCloseBtn" class="btn ghost" data-t="close">Kapat</button></div>
+  <div class="panel bookCard">
+    <div class="resultHead">
+      <span class="mLabel" data-t="bookLabel">Defter</span>
+      <h2 data-t="bookTitle">Böcek Defteri</h2>
+    </div>
+    <div class="statRow tiles bookStats">
+      <div><b id="bSpecies"></b><span data-t="speciesLabel">Tür</span><div class="bar mini"><i id="bSpeciesBar"></i></div></div>
+      <div><b id="bAch"></b><span data-t="achLabel">Başarım</span><div class="bar mini"><i id="bAchBar"></i></div></div>
+    </div>
+    <p id="defterSummary" class="small" hidden></p>
+    <div class="trackHead"><span class="mLabel" data-t="speciesLabel2">Türler</span><span id="bSpeciesNote" class="mProg"></span></div>
+    <div id="speciesList" class="bookGrid"></div>
+    <div class="trackHead"><span class="mLabel" data-t="hiddenAch">Gizli başarımlar</span><span id="bAchNote" class="mProg"></span></div>
+    <div id="achList" class="bookGrid"></div>
+    <div class="actions resultActions"><button id="defterCloseBtn" class="btn big ghost" data-t="close">Kapat</button></div>
   </div>
 </div>
 
@@ -744,7 +770,7 @@ tr: {
   boxWon: (name, type) => `Kazandın: ${name}${type === 'trail' ? ' (iz, oyunda görünür)' : type === 'title' ? ' (unvan)' : ''}`,
   close: 'Kapat',
   // defter
-  bookTitle: 'Böcek Defteri', hiddenAch: 'Gizli başarımlar', toOpen: h => `Açmak için: ${h}`, achSkin: s => ` · görünüm: ${s}`, achCrown: ' · altın taç',
+  bookTitle: 'Böcek Defteri', hiddenAch: 'Gizli başarımlar', bookLabel: 'Defter', speciesLabel: 'Tür', achLabel: 'Başarım', speciesLabel2: 'Türler', leftToFind: n => (n ? `${n} kaldı` : 'tamamlandı'), toOpen: h => `Açmak için: ${h}`, achSkin: s => ` · görünüm: ${s}`, achCrown: ' · altın taç',
   bookSummary: (a, b, c, d) => `Defter ${a}/${b} · Başarım ${c}/${d}`, hintLater: n => `ipucu ${n}. turdan sonra`,
   rarity: { yaygın: 'yaygın', nadir: 'nadir', 'çok nadir': 'çok nadir', efsane: 'efsane' },
   // yarım kalan
@@ -853,7 +879,7 @@ en: {
   stepOpen: 'opened', box: 'Sand Box', stepNeed: n => `${n} pts`, boxPick: 'Sand Box: pick a card.',
   boxWon: (name, type) => `You got: ${name}${type === 'trail' ? ' (trail, shown in game)' : type === 'title' ? ' (title)' : ''}`,
   close: 'Close',
-  bookTitle: 'Beetle Book', hiddenAch: 'Hidden achievements', toOpen: h => `To unlock: ${h}`, achSkin: s => ` · skin: ${s}`, achCrown: ' · golden crown',
+  bookTitle: 'Beetle Book', hiddenAch: 'Hidden achievements', bookLabel: 'Book', speciesLabel: 'Species', achLabel: 'Achievements', speciesLabel2: 'Species', leftToFind: n => (n ? `${n} left` : 'complete'), toOpen: h => `To unlock: ${h}`, achSkin: s => ` · skin: ${s}`, achCrown: ' · golden crown',
   bookSummary: (a, b, c, d) => `Book ${a}/${b} · Achievements ${c}/${d}`, hintLater: n => `hint after round ${n}`,
   rarity: { yaygın: 'common', nadir: 'rare', 'çok nadir': 'very rare', efsane: 'legendary' },
   goalMission: (n, t) => `${n} to go on the daily mission (${t})`, goalLevel: (l, n) => `${n} points to level ${l}`,
@@ -3607,6 +3633,12 @@ function renderDefter() {
   if (!useDefter) return;
   const C = GAME.collection, esc = s => String(s).replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[ch]);
   setText('defterSummary', C.summary());
+  // Kutucuklar: tür a/b ve başarım c/d, mini çubuklarla; bölüm başlıklarında kalanlar
+  const ns = C.data.species.length, nt = SPECIES.length, na = C.data.ach.length, nat = ACHIEVEMENTS.length;
+  setText('bSpecies', `${ns} / ${nt}`); setText('bAch', `${na} / ${nat}`);
+  if ($('bSpeciesBar')) $('bSpeciesBar').style.width = Math.round(ns / nt * 100) + '%';
+  if ($('bAchBar')) $('bAchBar').style.width = Math.round(na / nat * 100) + '%';
+  setText('bSpeciesNote', T('leftToFind', nt - ns)); setText('bAchNote', T('leftToFind', nat - na));
   const sp = $('speciesList'), ac = $('achList');
   if (sp) sp.innerHTML = C.speciesRows().map((s, i) => `<div class="entry ${s.open ? 'open' : 'locked'}"><div class="badge">${i + 1}</div><div><b>${esc(s.tr)} <i>${esc(s.latin)}</i></b>${s.open ? `<p>${esc(s.fact)}</p>` : `<i>${esc(T('toOpen', s.hint))}</i>`}</div></div>`).join('');
   if (ac) ac.innerHTML = C.achievementRows().map(a => `<div class="entry ${a.open ? 'open' : 'locked'}"><div class="badge">${a.open ? '★' : '?'}</div><div><b>${esc(a.shownName)} <i>${esc(a.rarity)}</i></b><i>${esc(a.shownHint)}${a.skin ? esc(T('achSkin', a.skinName)) : a.crown ? esc(T('achCrown')) : ''}</i></div></div>`).join('');

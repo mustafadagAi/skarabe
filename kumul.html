@@ -1181,7 +1181,7 @@ tr: {
   boxWon: (name, type) => `Kazandın: ${name}${type === 'trail' ? ' (iz, oyunda görünür)' : type === 'title' ? ' (unvan)' : ''}`,
   close: 'Kapat',
   // defter
-  bookTitle: 'Böcek Defteri', hiddenAch: 'Gizli başarımlar', toOpen: h => `Açmak için: ${h}`, achSkin: s => ` · görünüm: ${s}`, achCrown: ' · altın taç',
+  bookTitle: 'Böcek Defteri', hiddenAch: 'Gizli başarımlar', bookLabel: 'Defter', speciesLabel: 'Tür', achLabel: 'Başarım', speciesLabel2: 'Türler', leftToFind: n => (n ? `${n} kaldı` : 'tamamlandı'), toOpen: h => `Açmak için: ${h}`, achSkin: s => ` · görünüm: ${s}`, achCrown: ' · altın taç',
   bookSummary: (a, b, c, d) => `Defter ${a}/${b} · Başarım ${c}/${d}`, hintLater: n => `ipucu ${n}. turdan sonra`,
   rarity: { yaygın: 'yaygın', nadir: 'nadir', 'çok nadir': 'çok nadir', efsane: 'efsane' },
   // yarım kalan
@@ -1290,7 +1290,7 @@ en: {
   stepOpen: 'opened', box: 'Sand Box', stepNeed: n => `${n} pts`, boxPick: 'Sand Box: pick a card.',
   boxWon: (name, type) => `You got: ${name}${type === 'trail' ? ' (trail, shown in game)' : type === 'title' ? ' (title)' : ''}`,
   close: 'Close',
-  bookTitle: 'Beetle Book', hiddenAch: 'Hidden achievements', toOpen: h => `To unlock: ${h}`, achSkin: s => ` · skin: ${s}`, achCrown: ' · golden crown',
+  bookTitle: 'Beetle Book', hiddenAch: 'Hidden achievements', bookLabel: 'Book', speciesLabel: 'Species', achLabel: 'Achievements', speciesLabel2: 'Species', leftToFind: n => (n ? `${n} left` : 'complete'), toOpen: h => `To unlock: ${h}`, achSkin: s => ` · skin: ${s}`, achCrown: ' · golden crown',
   bookSummary: (a, b, c, d) => `Book ${a}/${b} · Achievements ${c}/${d}`, hintLater: n => `hint after round ${n}`,
   rarity: { yaygın: 'common', nadir: 'rare', 'çok nadir': 'very rare', efsane: 'legendary' },
   goalMission: (n, t) => `${n} to go on the daily mission (${t})`, goalLevel: (l, n) => `${n} points to level ${l}`,
@@ -2437,6 +2437,12 @@ function renderDefter() {
   if (!useDefter) return;
   const C = GAME.collection, esc = s => String(s).replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[ch]);
   setText('defterSummary', C.summary());
+  // Kutucuklar: tür a/b ve başarım c/d, mini çubuklarla; bölüm başlıklarında kalanlar
+  const ns = C.data.species.length, nt = SPECIES.length, na = C.data.ach.length, nat = ACHIEVEMENTS.length;
+  setText('bSpecies', `${ns} / ${nt}`); setText('bAch', `${na} / ${nat}`);
+  if ($('bSpeciesBar')) $('bSpeciesBar').style.width = Math.round(ns / nt * 100) + '%';
+  if ($('bAchBar')) $('bAchBar').style.width = Math.round(na / nat * 100) + '%';
+  setText('bSpeciesNote', T('leftToFind', nt - ns)); setText('bAchNote', T('leftToFind', nat - na));
   const sp = $('speciesList'), ac = $('achList');
   if (sp) sp.innerHTML = C.speciesRows().map((s, i) => `<div class="entry ${s.open ? 'open' : 'locked'}"><div class="badge">${i + 1}</div><div><b>${esc(s.tr)} <i>${esc(s.latin)}</i></b>${s.open ? `<p>${esc(s.fact)}</p>` : `<i>${esc(T('toOpen', s.hint))}</i>`}</div></div>`).join('');
   if (ac) ac.innerHTML = C.achievementRows().map(a => `<div class="entry ${a.open ? 'open' : 'locked'}"><div class="badge">${a.open ? '★' : '?'}</div><div><b>${esc(a.shownName)} <i>${esc(a.rarity)}</i></b><i>${esc(a.shownHint)}${a.skin ? esc(T('achSkin', a.skinName)) : a.crown ? esc(T('achCrown')) : ''}</i></div></div>`).join('');
