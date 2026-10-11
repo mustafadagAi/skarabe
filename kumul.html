@@ -2062,12 +2062,29 @@ class ArenaRenderer extends RenderBase {
     }
   }
 
-  panel(x, y, w, h, r = 10) {
+  // --- HUD yapı taşları: lobi panelleriyle aynı dil (kağıt zemin, mürekkep çerçeve, offset gölge, büyük harf etiket) ---
+  rrect(x, y, w, h, r) { const ctx = this.ctx; ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h); }
+  panel(x, y, w, h, r = 12, opts = {}) {
     const ctx = this.ctx;
-    ctx.fillStyle = KUMUL.paper; ctx.strokeStyle = 'rgba(42,31,20,0.25)'; ctx.lineWidth = 1;
-    ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h);
-    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(42,31,20,0.16)'; this.rrect(x, y + 3, w, h, r); ctx.fill();
+    ctx.fillStyle = opts.fill || KUMUL.paper; ctx.strokeStyle = opts.stroke || KUMUL.ink; ctx.lineWidth = opts.line || 1.5;
+    this.rrect(x, y, w, h, r); ctx.fill(); ctx.stroke();
+  }
+  label(text, x, y, align = 'left', color = KUMUL.muted) {
+    const ctx = this.ctx, code = typeof Lang !== 'undefined' && Lang.code === 'tr' ? 'tr' : 'en';
+    ctx.save(); ctx.textAlign = align; ctx.fillStyle = color; ctx.font = `700 10px ${KUMUL.font}`;
+    try { ctx.letterSpacing = '1.2px'; } catch {}
+    ctx.fillText(String(text).toLocaleUpperCase(code), x, y); ctx.restore();
+  }
+  bar(x, y, w, h, frac, color) {
+    const ctx = this.ctx;
+    ctx.fillStyle = 'rgba(42,31,20,0.12)'; this.rrect(x, y, w, h, h / 2); ctx.fill();
+    if (frac > 0) { ctx.fillStyle = color; this.rrect(x, y, Math.max(h, w * Math.min(1, frac)), h, h / 2); ctx.fill(); }
+  }
+  clipName(name, maxW) {
+    const ctx = this.ctx; if (ctx.measureText(name).width <= maxW) return name;
+    let s = name; while (s.length > 1 && ctx.measureText(s + '…').width > maxW) s = s.slice(0, -1);
+    return s + '…';
   }
 
   drawArenaHud(world, player, round, spectating) {
@@ -2075,92 +2092,98 @@ class ArenaRenderer extends RenderBase {
     const alive = world.snakes.filter(s => s.alive).sort((a, b) => b.mass - a.mass);
     const ph = round.phase();
 
-    // Üst orta: kalan oyuncu + fırtına durumu. Dar ekranda sağa yaslanır (sol paneli örtmesin).
+    // Üst orta: KALAN sayacı + evre etiketi + tur ilerleme çubuğu. Dar ekranda sağa yaslanır (sol paneli örtmesin).
     const narrow = W < 560;
-    const pw = 176, px = narrow ? W - pw - 10 : W / 2 - pw / 2;
-    this.panel(px, 10, pw, 62);
-    ctx.textAlign = 'left'; ctx.fillStyle = KUMUL.muted; ctx.font = `500 11px ${KUMUL.font}`;
-    ctx.fillText(T('left'), px + 14, 30);
-    ctx.fillStyle = KUMUL.ink; ctx.font = `700 26px ${KUMUL.font}`;
-    const n = String(alive.length); ctx.fillText(n, px + 14, 58);
-    ctx.fillStyle = KUMUL.muted; ctx.font = `500 13px ${KUMUL.font}`;
-    ctx.fillText(`/ ${round.total}`, px + 18 + ctx.measureText(n).width * 2, 58);
-    ctx.textAlign = 'right'; ctx.font = `500 12px ${KUMUL.font}`;
-    ctx.fillStyle = ph.key === 'calm' ? KUMUL.muted : KUMUL.storm;
+    const pw = 224, ptop = 10, px = narrow ? W - pw - 10 : W / 2 - pw / 2;
+    this.panel(px, ptop, pw, 66);
+    this.label(T('left'), px + 14, ptop + 21);
+    ctx.textAlign = 'left'; ctx.fillStyle = KUMUL.ink; ctx.font = `800 26px ${KUMUL.font}`;
+    const n = String(alive.length), nw = ctx.measureText(n).width; ctx.fillText(n, px + 14, ptop + 51);
+    ctx.fillStyle = KUMUL.muted; ctx.font = `600 13px ${KUMUL.font}`;
+    ctx.fillText(`/ ${round.total}`, px + 14 + nw + 6, ptop + 51);
+    const phaseColor = ph.key === 'calm' ? KUMUL.muted : KUMUL.storm;
     const label = ph.key === 'calm' ? T('phaseCalm', Math.ceil(ph.left)) : ph.key === 'shrink' ? T('phaseShrink') : ph.key === 'final3' ? T('phaseFinal3', Math.ceil(ph.left)) : T('phaseFinal');
-    ctx.fillText(label, px + pw - 14, 30);
-    // Tur ilerleme çubuğu
-    ctx.fillStyle = 'rgba(42,31,20,0.12)'; ctx.fillRect(px + 92, 46, pw - 106, 6);
-    ctx.fillStyle = KUMUL.storm; ctx.fillRect(px + 92, 46, (pw - 106) * Math.min(1, round.time / ARENA.finalEnd), 6);
+    this.label(label, px + pw - 14, ptop + 21, 'right', phaseColor);
+    this.bar(px + 96, ptop + 42, pw - 110, 6, round.time / ARENA.finalEnd, phaseColor);
 
-    // Sol üst: oyuncu durumu ve güçler
+    // Sol üst: oyuncu kutucuğu (ağırlık | itiş) ve altında durum rozetleri
     if (player && player.alive) {
-      this.panel(10, 10, 132, 62);
-      ctx.textAlign = 'left'; ctx.fillStyle = KUMUL.muted; ctx.font = `500 11px ${KUMUL.font}`;
-      ctx.fillText(this.hudText.size, 22, 30); ctx.fillText(this.hudText.kills, 96, 30);
-      ctx.fillStyle = KUMUL.ink; ctx.font = `700 22px ${KUMUL.font}`;
-      ctx.fillText(String(Math.round(player.mass)), 22, 56); ctx.fillText(String(player.kills || 0), 96, 56);
+      const lw = 144;
+      this.panel(10, 10, lw, 66);
+      this.label(this.hudText.size, 22, 31); this.label(this.hudText.kills, 94, 31);
+      ctx.textAlign = 'left'; ctx.fillStyle = KUMUL.ink; ctx.font = `800 22px ${KUMUL.font}`;
+      ctx.fillText(String(Math.round(player.mass)), 22, 59); ctx.fillText(String(player.kills || 0), 94, 59);
+      ctx.fillStyle = 'rgba(42,31,20,0.15)'; ctx.fillRect(82, 22, 1.5, 42);
       const chips = this.playerChips(player);
-      let cy = 82;
+      let cy = 88;
       for (const [type, text, color] of chips) {
-        ctx.font = `500 12px ${KUMUL.font}`;
-        const w = ctx.measureText(text).width + 40;
-        this.panel(10, cy, w, 26, 13);
-        this.chipIcon(type, 25, cy + 13, color);
-        ctx.fillStyle = color; ctx.textAlign = 'left'; ctx.fillText(text, 38, cy + 17);
-        cy += 32;
+        ctx.font = `600 12px ${KUMUL.font}`;
+        const w = ctx.measureText(text).width + 44;
+        this.panel(10, cy, w, 28, 14);
+        this.chipIcon(type, 26, cy + 14, color);
+        ctx.fillStyle = color; ctx.textAlign = 'left'; ctx.fillText(text, 40, cy + 18);
+        cy += 34;
       }
     }
 
-    // Sağ üst: en büyükler (dar ekranda gizli). cornerY: sağ üst köşede bir sonraki boş satır.
-    let cornerY = 82;
+    // Sağ üst: EN BÜYÜK listesi (dar ekranda gizli): sıra, renk noktası, ad, ağırlık; kendi satırın amber bantlı
+    let cornerY = 86;
     if (!narrow) {
-      const rows = alive.slice(0, 5), lw = 150;
-      cornerY = 10 + 26 + rows.length * 17 + 10;
-      this.panel(W - lw - 10, 10, lw, 26 + rows.length * 17);
-      ctx.textAlign = 'left'; ctx.fillStyle = KUMUL.muted; ctx.font = `500 11px ${KUMUL.font}`;
-      ctx.fillText(T('biggest'), W - lw + 2, 28);
+      const rows = alive.slice(0, 5), lw = 176, rh = 19, x = W - lw - 10, top = 10, h = 30 + rows.length * rh + 8;
+      cornerY = top + h + 12;
+      this.panel(x, top, lw, h);
+      this.label(T('biggest'), x + 14, top + 21);
       rows.forEach((s, i) => {
-        const y = 46 + i * 17;
-        ctx.fillStyle = s.color; ctx.beginPath(); ctx.arc(W - lw + 7, y - 4, 4, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = KUMUL.ink; ctx.font = `${s === player ? 700 : 400} 12px ${KUMUL.font}`;
-        ctx.textAlign = 'left'; ctx.fillText(s.name, W - lw + 17, y);
-        ctx.textAlign = 'right'; ctx.fillText(String(Math.round(s.mass)), W - 22, y);
+        const y = top + 30 + i * rh, me = s === player;
+        if (me) { ctx.fillStyle = 'rgba(242,161,4,0.22)'; this.rrect(x + 6, y, lw - 12, rh, 6); ctx.fill(); }
+        ctx.textAlign = 'center'; ctx.fillStyle = KUMUL.muted; ctx.font = `700 10px ${KUMUL.font}`; ctx.fillText(String(i + 1), x + 18, y + 13);
+        ctx.fillStyle = s.color; ctx.beginPath(); ctx.arc(x + 32, y + rh / 2, 4, 0, Math.PI * 2); ctx.fill();
+        if (s.nemesis) { ctx.strokeStyle = KUMUL.crimson; ctx.lineWidth = 1.5; ctx.stroke(); }
+        ctx.fillStyle = KUMUL.ink; ctx.font = `${me ? 700 : 500} 12px ${KUMUL.font}`; ctx.textAlign = 'left';
+        ctx.fillText(this.clipName(s.name, lw - 92), x + 42, y + 13);
+        ctx.textAlign = 'right'; ctx.font = `700 12px ${KUMUL.font}`; ctx.fillText(String(Math.round(s.mass)), x + lw - 14, y + 13);
       });
     }
 
-    // Mini harita (fırtına + güvenli alan + oyuncular). Masaüstünde sağ altta;
+    // Mini harita: çerçeveli, yuvarlak köşeli (fırtına + güvenli alan + oyuncular). Masaüstünde sağ altta;
     // dokunmatikte sağ alt atılma düğmesine ayrıldığı için sağ üste, panellerin altına çıkar.
     const touch = this.touchLayout;
-    const ms = touch ? 76 : 92, mx = W - ms - (touch ? 10 : 12), my = touch ? cornerY : H - ms - 12;
+    const ms = touch ? 76 : 96, mx = W - ms - (touch ? 10 : 12), my = touch ? cornerY : H - ms - 14;
     const k = ms / ARENA.size, b = world.bounds;
-    ctx.fillStyle = 'rgba(181,83,46,0.85)'; ctx.fillRect(mx, my, ms, ms);
+    ctx.fillStyle = 'rgba(42,31,20,0.16)'; this.rrect(mx, my + 3, ms, ms, 8); ctx.fill();
+    ctx.save(); this.rrect(mx, my, ms, ms, 8); ctx.clip();
+    ctx.fillStyle = 'rgba(181,83,46,0.9)'; ctx.fillRect(mx, my, ms, ms);
     ctx.fillStyle = KUMUL.sandLight; ctx.fillRect(mx + b.x0 * k, my + b.y0 * k, (b.x1 - b.x0) * k, (b.y1 - b.y0) * k);
-    ctx.strokeStyle = KUMUL.ink; ctx.lineWidth = 1.5; ctx.strokeRect(mx, my, ms, ms);
     for (const s of alive) {
-      ctx.fillStyle = s === player ? KUMUL.ink : s.nemesis ? KUMUL.crimson : s.color;
-      ctx.beginPath(); ctx.arc(mx + s.x * k, my + s.y * k, s === player ? 3.2 : s.nemesis ? 3 : 2, 0, Math.PI * 2); ctx.fill();
+      if (s === player) continue;
+      ctx.fillStyle = s.nemesis ? KUMUL.crimson : s.color;
+      ctx.beginPath(); ctx.arc(mx + s.x * k, my + s.y * k, s.nemesis ? 3 : 2, 0, Math.PI * 2); ctx.fill();
     }
+    if (player && player.alive) {
+      ctx.fillStyle = '#fdf9ee'; ctx.beginPath(); ctx.arc(mx + player.x * k, my + player.y * k, 4.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = KUMUL.ink; ctx.beginPath(); ctx.arc(mx + player.x * k, my + player.y * k, 3, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+    ctx.strokeStyle = KUMUL.ink; ctx.lineWidth = 1.5; this.rrect(mx, my, ms, ms, 8); ctx.stroke();
 
     this.drawStreamerHud(touch ? cornerY + ms + 10 : cornerY);
 
-    const noteY = narrow ? 172 : this.streamer ? 112 : 82;      // bildirim ve izleme etiketi: dar ekranda panellerin altına iner
+    const noteY = narrow ? 176 : this.streamer ? 116 : 86;      // bildirim ve izleme etiketi: dar ekranda panellerin altına iner
     if (!spectating && this.toast && this.time - this.toast.t < 1.8) {
       const age = this.time - this.toast.t, alpha = age > 1.4 ? (1.8 - age) / 0.4 : 1;
       ctx.globalAlpha = alpha;
-      ctx.textAlign = 'center'; ctx.font = `700 14px ${KUMUL.font}`;
-      const w = ctx.measureText(this.toast.text).width + 32;
-      ctx.fillStyle = KUMUL.ink;
-      ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(W / 2 - w / 2, noteY, w, 30, 15); else ctx.rect(W / 2 - w / 2, noteY, w, 30); ctx.fill();
+      ctx.textAlign = 'center'; ctx.font = `700 13px ${KUMUL.font}`;
+      const w = ctx.measureText(this.toast.text).width + 34;
+      ctx.fillStyle = KUMUL.ink; this.rrect(W / 2 - w / 2, noteY, w, 30, 15); ctx.fill();
       ctx.fillStyle = '#fdf9ee'; ctx.fillText(this.toast.text, W / 2, noteY + 20);
       ctx.globalAlpha = 1;
     }
 
     if (spectating) {
-      ctx.textAlign = 'center'; ctx.font = `500 13px ${KUMUL.font}`;
-      const text = T('watching', spectating.name), w = ctx.measureText(text).width + 28;
+      ctx.font = `600 12px ${KUMUL.font}`;
+      const text = T('watching', spectating.name), w = ctx.measureText(text).width + 32;
       this.panel(W / 2 - w / 2, noteY - 2, w, 28, 14);
-      ctx.fillStyle = KUMUL.ink; ctx.fillText(text, W / 2, noteY + 17);
+      ctx.textAlign = 'center'; ctx.fillStyle = KUMUL.ink; ctx.fillText(text, W / 2, noteY + 17);
     }
 
     if (this.stick) this.drawStick(this.stick);
