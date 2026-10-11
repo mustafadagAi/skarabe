@@ -1148,12 +1148,15 @@ tr: {
   practice: 'Botlarla pratik', panelPlayer: 'Oyuncu', panelToday: 'Bugün', onlineNow: n => `● ${n} oyuncu çevrimiçi`,
   missionLabel: 'Günlük görev', missionDoneShort: 'Tamamlandı', reward: r => `+${r}`, weekLabel: 'Bu haftanın mutasyonu',
   kMouse: 'Fare', kClick: 'Tık / Boşluk', kStick: 'Sol çubuk', kBtn: 'Sağ düğme', kHold: 'Basılı tut', kX: 'X / Sağ tık', kDigBtn: 'KAZ',
-  aSteer: 'yön', aDash: 'atılma', aLaunch: 'topu fırlat', aDig: 'kazı (liderin yarısından küçükken)',
-  more: 'Daha fazla', season: 'Sezon', book: 'Defter', streamTools: 'Yayıncı araçları', channelPh: 'Twitch kanalı',
+  aSteer: 'yön', aDash: 'atılma', aLaunch: 'topu fırlat', aDig: 'kazı',
+  statRounds: 'tur', statWins: 'galibiyet', statBest: 'en iyi', nemesisLabel: 'Rakip', nemesisShort: k => `Seni ${k} kez eledi · sahada taçlı · ödeşme 2×`,
+  streakShort: (d, l) => `Seri ${d} gün · kum izi için ${l} gün daha`, streakShortTrail: (d, h) => `Seri ${d} gün · kum izi ${h} saat daha`,
+  seasonShort: (i, tier, ready) => `Sezon ${i} · ${tier}${ready ? ` · ${ready} kutu hazır!` : ''}`, bookShort: (a, b, c, d) => `Tür ${a}/${b} · Başarım ${c}/${d}`,
+  more: 'Sezon ve Defter', season: 'Sezon', book: 'Defter', streamTools: 'Yayıncı araçları', channelPh: 'Twitch kanalı',
   connect: 'Bağlan', disconnect: 'Kes', streamerMode: 'Yayıncı kipi',
   twitchIntro: 'Sohbete "!katıl" yazan izleyiciler botların adını alır; sen onları fırtınaya itersin. Salt okunur, giriş gerekmez.',
   twitchQueue: n => ` · sırada ${n} izleyici`, twitchOff: 'kapalı',
-  soundOn: 'Ses açık', soundOff: 'Ses kapalı', dash: 'ATIL', dig: 'KAZ', lang: 'EN',
+  soundOn: 'Ses açık', soundOff: 'Ses kapalı', dash: 'ATIL', dig: 'KAZ', lang: 'TR',
   statsLine: (r, w, b) => `${r} tur · ${w} galibiyet · en iyi sıra ${b}.`,
   level: l => `Seviye ${l}`, levelNext: (a, b) => `${a} / ${b} puan`,
   missionDone: t => `Günlük görev tamamlandı: ${t}.`, mission: (t, p, n, r) => `Günlük görev: ${t} (${p}/${n}) · ${r} puan`,
@@ -1261,12 +1264,15 @@ en: {
   practice: 'Practice vs bots', panelPlayer: 'Player', panelToday: 'Today', onlineNow: n => `● ${n} player${n === 1 ? '' : 's'} online`,
   missionLabel: 'Daily mission', missionDoneShort: 'Done', reward: r => `+${r}`, weekLabel: "This week's mutation",
   kMouse: 'Mouse', kClick: 'Click / Space', kStick: 'Left stick', kBtn: 'Right button', kHold: 'Hold', kX: 'X / Right click', kDigBtn: 'DIG',
-  aSteer: 'steer', aDash: 'dash', aLaunch: 'launch ball', aDig: 'dig (under half the leader)',
-  more: 'More', season: 'Season', book: 'Beetle Book', streamTools: 'Streamer tools', channelPh: 'Twitch channel',
+  aSteer: 'steer', aDash: 'dash', aLaunch: 'launch ball', aDig: 'dig',
+  statRounds: 'rounds', statWins: 'wins', statBest: 'best', nemesisLabel: 'Rival', nemesisShort: k => `Took you out ${k}× · crowned on the field · payback 2×`,
+  streakShort: (d, l) => `Streak ${d} days · ${l} more for the sand trail`, streakShortTrail: (d, h) => `Streak ${d} days · sand trail ${h} h left`,
+  seasonShort: (i, tier, ready) => `Season ${i} · ${tier}${ready ? ` · ${ready} box${ready > 1 ? 'es' : ''} ready!` : ''}`, bookShort: (a, b, c, d) => `Species ${a}/${b} · Achievements ${c}/${d}`,
+  more: 'Season & Book', season: 'Season', book: 'Beetle Book', streamTools: 'Streamer tools', channelPh: 'Twitch channel',
   connect: 'Connect', disconnect: 'Disconnect', streamerMode: 'Streamer mode',
   twitchIntro: 'Viewers who type "!join" in chat become the bots; you push them into the storm. Read-only, no login.',
   twitchQueue: n => ` · ${n} viewers in queue`, twitchOff: 'off',
-  soundOn: 'Sound on', soundOff: 'Sound off', dash: 'DASH', dig: 'DIG', lang: 'TR',
+  soundOn: 'Sound on', soundOff: 'Sound off', dash: 'DASH', dig: 'DIG', lang: 'EN',
   statsLine: (r, w, b) => `${r} rounds · ${w} wins · best place ${b}.`,
   level: l => `Level ${l}`, levelNext: (a, b) => `${a} / ${b} points`,
   missionDone: t => `Daily mission done: ${t}.`, mission: (t, p, n, r) => `Daily mission: ${t} (${p}/${n}) · ${r} points`,
@@ -1383,14 +1389,146 @@ en: {
   'ach:pasifist': 'Pacifist', 'achh:pasifist': 'win a round without a knockout', 'ach:samanyolu': 'Milky Way', 'achh:samanyolu': 'win in the Night mutation',
   'ach:odesme10': 'Payback ×10', 'achh:odesme10': 'get payback 10 times',
 },
+// --- Arapça (Modern Standart). Sağdan sola: Lang.applyDom dir=rtl verir; Rubik'in Arapça alt kümesi gömülüdür. ---
+ar: {
+  tagline: 'ادفع، أسقطهم في العاصفة، وكن آخر خنفساء صامدة.',
+  namePh: 'الاسم المستعار', prevSkin: 'المظهر السابق', nextSkin: 'المظهر التالي', unlockNow: 'افتح الآن', play: 'العب',
+  practice: 'تدريب ضد الروبوتات', panelPlayer: 'اللاعب', panelToday: 'اليوم', onlineNow: n => `● ${n} لاعب متصل`,
+  missionLabel: 'المهمة اليومية', missionDoneShort: 'مكتملة', reward: r => `+${r}`, weekLabel: 'طفرة هذا الأسبوع',
+  kMouse: 'الفأرة', kClick: 'نقرة / مسافة', kStick: 'العصا اليسرى', kBtn: 'الزر الأيمن', kHold: 'اضغط مطولًا', kX: 'X / زر أيمن', kDigBtn: 'حفر',
+  aSteer: 'التوجيه', aDash: 'الاندفاع', aLaunch: 'إطلاق الكرة', aDig: 'الحفر',
+  statRounds: 'جولة', statWins: 'فوز', statBest: 'الأفضل', nemesisLabel: 'المنافس', nemesisShort: k => `أقصاك ${k} مرة · صاحب التاج في الساحة · الثأر 2×`,
+  streakShort: (d, l) => `سلسلة ${d} يوم · ${l} يوم آخر لأثر الرمل`, streakShortTrail: (d, h) => `سلسلة ${d} يوم · أثر الرمل ${h} ساعة`,
+  seasonShort: (i, tier, ready) => `الموسم ${i} · ${tier}${ready ? ` · ${ready} صندوق جاهز!` : ''}`, bookShort: (a, b, c, d) => `الأنواع ${a}/${b} · الإنجازات ${c}/${d}`,
+  more: 'الموسم والدفتر', season: 'الموسم', book: 'دفتر الخنافس', streamTools: 'أدوات البث', channelPh: 'قناة تويتش',
+  connect: 'اتصال', disconnect: 'قطع', streamerMode: 'وضع البث',
+  twitchIntro: 'المشاهدون الذين يكتبون "!join" في الدردشة يصبحون الروبوتات؛ وأنت تدفعهم إلى العاصفة. للقراءة فقط، بلا تسجيل دخول.',
+  twitchQueue: n => ` · ${n} مشاهد في الطابور`, twitchOff: 'مغلق',
+  soundOn: 'الصوت مفعّل', soundOff: 'الصوت مغلق', dash: 'اندفع', dig: 'احفر', lang: 'AR',
+  statsLine: (r, w, b) => `${r} جولة · ${w} فوز · أفضل مركز ${b}.`,
+  level: l => `المستوى ${l}`, levelNext: (a, b) => `${a} / ${b} نقطة`,
+  missionDone: t => `اكتملت المهمة اليومية: ${t}.`, mission: (t, p, n, r) => `المهمة اليومية: ${t} (${p}/${n}) · ${r} نقطة`,
+  nemesisLine: (n, k) => `${n} أقصاك ${k} مرة${k >= 3 ? ' — عدوك اللدود' : ''}. في الساحة هذه الجولة: ابحث عن صاحب التاج، والثأر يضاعف نقاطك.`,
+  streakTrail: (d, h) => `الساعة الرملية: ${d} يوم متتالٍ · أثر سحابة الرمل لـ ${h} ساعة أخرى`,
+  streakLeft: (d, l) => `الساعة الرملية: ${d} يوم متتالٍ · العب ${l} يومًا آخر لفتح أثر سحابة الرمل`,
+  streak: d => `الساعة الرملية: ${d} يوم متتالٍ`,
+  mutationLine: (n, t) => `طفرة هذا الأسبوع: ${n} — ${t}.`,
+  seasonLine: (i, tier, xp, days, title, ready) => `الموسم ${i} · ${tier} · ${xp} نقطة · ${days} يوم${title ? ' · ' + title : ''}${ready ? ` · ${ready} صندوق رمل جاهز!` : ''}`,
+  helpMouse: 'الفأرة توجّه، النقرة أو المسافة للاندفاع. اجمع الحبيبات وادفع المنافسين إلى العاصفة.',
+  helpTouch: 'العصا اليسرى توجّه، الزر الأيمن للاندفاع. اجمع الحبيبات وادفع المنافسين إلى العاصفة.',
+  helpLaunch: ' اضغط مطولًا ثم أفلت: تطلق كرتك؛ حين تبطئ تصبح لمن يلمسها.',
+  helpDigMouse: ' X أو الزر الأيمن: احفر عندما تكون أصغر من نصف المتصدر.', helpDigTouch: ' زر الحفر: احفر عندما تكون أصغر من نصف المتصدر.',
+  helpFinal: ' عند بقاء 3: سومو لمدة 15 ثانية.',
+  tipLaunchMouse: 'اضغط مطولًا ثم أفلت: أطلق كرتك', tipLaunchTouch: 'اضغط الزر مطولًا ثم أفلت: أطلق كرتك',
+  tipDigMouse: 'X أو الزر الأيمن: احفر، لا يمكن دفعك 0.8 ثانية', tipDigTouch: 'زر الحفر: احفر، لا يمكن دفعك 0.8 ثانية',
+  seasonTitle: (i, tier) => `الموسم ${i} — ${tier}`, seasonLabel: i => `الموسم ${i}`, sPoints: 'نقاط الموسم', sDays: 'يوم متبقٍ',
+  sNextTier: t => `نقطة حتى ${t}`, sTop: 'أعلى رتبة', titleLabel: t => `اللقب: ${t}`, trackLabel: 'مسار المكافآت', trackProgress: (a, b) => `فُتح ${a} / ${b}`,
+  pauseLabel: 'اللعبة', pauseKeyHint: 'استئناف',
+  copy: 'نسخ', more2: 'المزيد', copiedIg: 'تم النسخ، ألصقه في إنستغرام',
+  seasonSummary: (xp, days, next, need, title) => `${xp} نقطة موسم · ${days} يوم متبقٍ${next ? ` · ${need} نقطة حتى ${next}` : ' · أعلى رتبة'}${title ? ` · اللقب: ${title}` : ''}`,
+  stepOpen: 'مفتوح', box: 'صندوق الرمل', stepNeed: n => `${n} نقطة`, boxPick: 'صندوق الرمل: اختر بطاقة.',
+  boxWon: (name, type) => `حصلت على: ${name}${type === 'trail' ? ' (أثر، يظهر في اللعبة)' : type === 'title' ? ' (لقب)' : ''}`,
+  close: 'إغلاق',
+  bookTitle: 'دفتر الخنافس', hiddenAch: 'إنجازات خفية', bookLabel: 'الدفتر', speciesLabel: 'نوع', achLabel: 'إنجاز', speciesLabel2: 'الأنواع', leftToFind: n => (n ? `بقي ${n}` : 'مكتمل'), toOpen: h => `للفتح: ${h}`, achSkin: s => ` · مظهر: ${s}`, achCrown: ' · تاج ذهبي',
+  bookSummary: (a, b, c, d) => `الدفتر ${a}/${b} · الإنجازات ${c}/${d}`, hintLater: n => `تلميح بعد الجولة ${n}`,
+  rarity: { yaygın: 'شائع', nadir: 'نادر', 'çok nadir': 'نادر جدًا', efsane: 'أسطوري' },
+  goalMission: (n, t) => `بقي ${n} في المهمة اليومية (${t})`, goalLevel: (l, n) => `${n} نقطة حتى المستوى ${l}`,
+  goalNemesis: n => `${n} في الساحة؛ أقصِه لتضاعف النقاط`, goalStreak: n => `العب ${n} يومًا آخر لفتح أثر سحابة الرمل`,
+  goalBest: b => `أفضل مركز لك ${b}؛ احتل المركز ${b - 1} لتسجيل رقم قياسي`, goalPrefix: t => `لم يكتمل: ${t}.`,
+  lockAch: 'يُفتح بإنجاز خفي', lockLevel: l => `يُفتح عند المستوى ${l}`, mastery: (a, b) => `الإتقان: ${a}/${b} جولة`, masterSkin: 'مظهر متقن',
+  revenge: 'ثأر', revengeSub: n => `${n} في العاصفة، نقاط مضاعفة هذه الجولة`,
+  stole: (n, m) => `سُرقت الكرة من ${n}: +${m}`, stolenBy: n => `${n} سرق كرتك`, escaped: 'النفَس الأخير! بقيت كرتك خلفك', ballLost: 'ذهبت كرتك إلى العاصفة',
+  final3: 'الثلاثة الأخيرون', final3Sub: (s, a, b) => `سومو ${s} ثانية، بلا حبيبات` + (a !== null ? ` · كتلتك ${a} ← ${b}` : ''),
+  streakBroken: b => `انقطعت السلسلة (الأفضل ${b} يومًا)؛ اليوم هو اليوم 1`, streakTrailOn: d => `الساعة الرملية يوم ${d}: أثر سحابة الرمل مفعّل`, streakDay: d => `الساعة الرملية: اليوم ${d}`,
+  someone: 'شخص ما', rival: 'منافسك', you: 'أنت',
+  challengeLine: (w, c, p) => `${w} تحدّاك: احتل المركز ${p} في الجولة #${c}. العب الجولة نفسها وتفوّق عليه.`,
+  challengeLineNoPlace: (w, c) => `${w} تحدّاك: العب الجولة #${c}.`,
+  shareLine: (title, code, name, place, kills, stamp) => `${title} #${code} — ${name} احتل المركز ${place}، ${kills} إقصاء${stamp ? ' · ' + stamp : ''} 🪲`,
+  shareAsk: 'أي مركز ستحتل أنت؟', roundCodeOnly: c => `رمز الجولة: ${c}`, copied: 'تم النسخ', challengeBtn: 'تحدٍّ',
+  roundCode: c => `رمز الجولة #${c}`, clipBtn: 'شارك المقطع',
+  beat: (w, p, m) => `${w} احتل ${p}، وأنت ${m} — تفوقت عليه!`, tie: (w, p) => `المركز نفسه مع ${w}: ${p}.`, lost: (w, p, m) => `${w} احتل ${p}، وأنت ${m} — حاول مجددًا.`,
+  place: 'المركز', kills: 'إقصاءات', mass: 'الكتلة', revive: 'إحياء مرة واحدة', again: 'جولة جديدة',
+  died: p => `احتللت المركز ${p}`, roundWonBy: n => `${n} فاز بالجولة.`, roundOver: 'انتهت الجولة.',
+  xpGain: g => `+${g} نقطة`, levelUp: l => `ارتقيت إلى المستوى ${l}`, newSkins: s => `مظهر جديد: ${s}`, missionReward: r => `اكتملت المهمة اليومية، +${r}`,
+  newPrefix: s => `جديد: ${s}`, masteryNew: (n, stars) => `الإتقان: ${n} ${stars}`, bookNew: n => `الدفتر: ${n}`, achNew: (n, s) => `إنجاز: ${n}${s ? ' (' + s + ')' : ''}`,
+  highlightLine: (st, sub) => `لحظة الجولة: ${st} — ${sub}`,
+  clipLabel: 'مقطع اللحظة · 9:16',
+  clip: 'مقطع', clipPrep: p => `يُجهَّز المقطع، شاهد: ${p}%`, clipReady: (st, kb) => `جاهز: ${st} · ${kb} ك.ب`, share: 'مشاركة', download: 'تنزيل',
+  clipFail: e => `فشل المقطع: ${e}`, watermark: c => `الجولة #${c} · أي مركز ستحتل؟`, game: 'لعبة',
+  left: 'المتبقون', biggest: 'الأكبر', watching: n => `تشاهد: ${n}`,
+  phaseCalm: s => `العاصفة بعد ${s} ث`, phaseShrink: 'العاصفة تقترب', phaseFinal3: s => `الثلاثة الأخيرون ${s} ث`, phaseFinal: 'الضغطة الأخيرة',
+  hudMass: 'الكتلة', hudKills: 'إقصاءات', chatScore: (a, b) => `الدردشة ${a} · المذيع ${b}`,
+  chipShield: s => `درع ${s}`, chipNaked: 'بلا كرة: استعدها', chipCharge: p => `إطلاق ${p}%`, chipDug: 'محفور',
+  chipDigCd: s => `حفر ${s}`, chipDigReady: 'الحفر جاهز (X)', chipDigReadyTouch: 'الحفر جاهز',
+  chipDashCd: s => `اندفاع ${s}`, chipDashReady: 'الاندفاع جاهز', chipAnchor: s => `مرساة ${s}`, chipMagnet: s => `مغناطيس ${s}`, chipTurbo: s => `توربو ${s}`,
+  breath: 'النفَس الأخير', breathMouse: 'نقرة أو مسافة: أسقط الكرة وعد إلى الداخل', breathTouch: 'زر الاندفاع: أسقط الكرة وعد إلى الداخل',
+  firstLine: 'جولتك الأولى. 16 خنفساء وفائز واحد.', winTitle: 'آخر خنفساء صامدة', winText: n => `الأول من بين ${n} خنفساء.`,
+  deathOwnBall: 'كرتك أنت دفعتك إلى العاصفة.', deathPushed: n => `${n} دفعك إلى العاصفة.`, deathWall: 'تدحرجت إلى العاصفة.', outText: n => `${n} في العاصفة`,
+  'mission:it3': 'أقصِ 3 خنافس', 'mission:ilk5': 'أنهِ جولتين ضمن أفضل 5', 'mission:guc6': 'اجمع 6 قوى', 'mission:tur5': 'العب 5 جولات', 'mission:it6': 'أقصِ 6 خنافس', 'mission:kazan1': 'افز بجولة',
+  'stamp:cig': 'انهيار!', 'stamp:dirilis': 'عاد للحياة', 'stamp:pacavra': 'الحصان الأسود', 'stamp:hirsiz': 'سرقة', 'stamp:kilpayi': 'بشق الأنفس', 'stamp:pinball': 'بينبول', 'stamp:kendigol': 'هدف ذاتي',
+  'sub:cig': n => `${n} خنافس في العاصفة بإطلاق واحد`, 'sub:dirilis': 'عاد من النفَس الأخير وفاز', 'sub:pacavra': 'دخل الثلاثة الأخيرين وهو الأصغر وفاز',
+  'sub:hirsiz': (n, who) => `خطف كرة ${who}: +${n}`, 'sub:kilpayi': ms => `نجا من العاصفة وبقي ${ms} مللي ثانية`, 'sub:pinball': n => `ارتدّ بين ${n} خنافس وما زال صامدًا`, 'sub:kendigol': 'كرته هو دفعته إلى العاصفة',
+  'mut:agir': 'كرات ثقيلة', 'mutt:agir': 'التصادمات أقوى بـ 1.5 مرة', 'mut:kucuk': 'ساحة صغيرة', 'mutt:kucuk': 'الساحة 1500، العاصفة تغلق مبكرًا',
+  'mut:gece': 'الليل', 'mutt:gece': 'الرؤية 300؛ اتبع النجوم', 'mut:kaygan': 'رمل زلق', 'mutt:kaygan': 'نصف الاحتكاك؛ احسب الانزلاق',
+  'mut:hizli': 'عاصفة سريعة', 'mutt:hizli': 'تكتمل العاصفة عند الثانية 40', 'mut:dev': 'كرات عملاقة', 'mutt:dev': 'يبدأ الجميع بكتلة 60',
+  'mut:miknatis': 'يوم المغناطيس', 'mutt:miknatis': 'المغناطيس يجذب ضعف المسافة، والقوى في كل مكان', 'mut:cilgin': 'جنون الاندفاع', 'mutt:cilgin': 'اندفاع كل 0.8 ثانية',
+  'tier:Larva': 'يرقة', 'tier:Böcek': 'خنفساء', 'tier:Yuvarlayıcı': 'مدحرج', 'tier:Şampiyon': 'بطل', 'tier:Kutsal Skarabe': 'الجعران المقدس',
+  'reward:yildiz': 'أثر النجوم', 'reward:alev': 'أثر الجمر', 'reward:yaprak': 'أثر الأوراق', 'reward:yuvarlayici': 'المدحرج', 'reward:firtina': 'سيد العاصفة', 'reward:hirsiz': 'سارق الكرات', 'reward:xp': n => `+${n} نقطة`,
+  paused: 'متوقف مؤقتًا', resume: 'استئناف', pauseHint: 'Esc أو P: إيقاف مؤقت',
+  online: 'العب عبر الإنترنت', connecting: 'جارٍ الاتصال بالخادم…', matching: (w, h) => `المطابقة: ${w} ث · ${h} لاعب (الروبوتات تملأ الباقي)`,
+  onlineLost: 'انقطع الاتصال', onlineFail: 'تعذر الوصول إلى الخادم',
+  rooms: 'الغرف', join: 'انضم', createRoom: 'أنشئ غرفة خاصة', codePh: 'رمز الغرفة', copyLink: 'نسخ الرابط', begin: 'ابدأ',
+  roomRow: (n, h) => `${n.replace('Oda', 'غرفة')} · ${h} لاعب`, roomLobby: w => (w === null ? 'في الانتظار' : `تبدأ بعد ${w} ث`),
+  roomPlaying: (left, dropin) => (dropin ? 'الجولة جارية · انضم الآن' : `الجولة جارية · ~${left} ث`), roomOver: 'انتهت الجولة',
+  noRooms: 'لا غرف مفتوحة — "العب عبر الإنترنت" يفتح غرفة جديدة', roomsLoading: 'جارٍ تحميل الغرف…',
+  roomIdle: h => `${h} في الغرفة · من يضغط "جولة جديدة" يلعب`, waitRound: (l, h) => `الجولة جارية · الجولة التالية بعد ~${l} ث (${h} في الغرفة)`,
+  roomCode: (c, r, h) => `غرفة خاصة ${c} · ${h} هنا، ${r} جاهز`, hostHint: 'شارك الرابط، واضغط ابدأ عند الجاهزية', waitHost: 'المضيف يبدأ الجولة',
+  startingIn: w => `تبدأ الجولة بعد ${w} ث`, joinRoomBtn: c => `انضم إلى الغرفة ${c}`, joinedMid: 'انضممت في منتصف الجولة مكان روبوت',
+  spectating: 'تشاهد', 'err:noRoom': 'لا توجد غرفة بهذا الرمز', 'err:full': 'الغرفة ممتلئة', 'err:crash': 'تعطلت الغرفة، حاول مجددًا',
+  'tw:need': 'اسم القناة مطلوب', 'tw:fail': 'تعذر الاتصال', 'tw:connecting': 'جارٍ الاتصال…', 'tw:on': c => `متصل: #${c} — اكتب "!join" في الدردشة للعب`,
+  'tw:error': 'خطأ في الاتصال (قد تحظر المنصة الاتصالات الخارجية)', 'tw:closed': 'أُغلق الاتصال',
+  'skin:Çini': 'خزف', 'skin:Nar': 'رمان', 'skin:Gece': 'ليل', 'skin:Lacivert': 'كحلي', 'skin:Zümrüt': 'زمرد', 'skin:Mor Dağ': 'الجبل البنفسجي',
+  'skin:Kobra': 'كوبرا', 'skin:Akrep': 'عقرب', 'skin:Vaha': 'واحة', 'skin:Lale': 'توليب', 'skin:Bulut': 'سحابة', 'skin:Şafak': 'فجر',
+  'skin:Çalıntı Altın': 'ذهب مسروق', 'skin:Kum Bulutu': 'سحابة رمل', 'skin:Kaya': 'صخرة', 'skin:Yırtık': 'ممزق', 'skin:Beyaz': 'أبيض', 'skin:Samanyolu': 'درب التبانة',
+  'sp:sacer': 'الجعران المقدس', 'sph:sacer': 'العب جولة', 'spf:sacer': 'رأى فيه المصريون القدماء الإله خبري الذي يدحرج الشمس عبر السماء؛ ومعظم تمائم الجعران من هذا النوع.',
+  'sp:satyrus': 'خنفساء النجوم', 'sph:satyrus': 'افز بجولة في طفرة الليل', 'spf:satyrus': 'أثبتت تجارب عام 2013 أنها تتدحرج في خط مستقيم بالنظر إلى شريط درب التبانة حين لا يوجد قمر.',
+  'sp:taurus': 'خنفساء الثور', 'sph:taurus': 'أقصِ 3 خنافس في جولة واحدة', 'spf:taurus': 'تجرّ 1141 ضعف وزنها: أقوى حشرة معروفة نسبةً إلى وزنها.',
+  'sp:dominus': 'خنفساء الروث العملاقة', 'sph:dominus': 'بلغ كتلة 300', 'spf:dominus': 'تعيش على روث الفيلة؛ وبعض أنواع جنسها تصنع كرات حضانة بحجم كرة التنس.',
+  'sp:vindex': 'جعران قوس قزح', 'sph:vindex': 'المستوى 5', 'spf:vindex': 'قشرة معدنية خضراء ونحاسية وزرقاء؛ الذكور تحمل قرنًا واحدًا طويلًا.',
+  'sp:kheper': 'مقاتل الكرات', 'sph:kheper': 'اسرق 10 كرات', 'spf:kheper': 'مدحرج كبير في السافانا الأفريقية؛ ما إن تكتمل الكرة حتى يأتي الجيران لسرقتها. المعارك أمر معتاد.',
+  'sp:sisyphus': 'خنفساء سيزيف', 'sph:sisyphus': 'عد من النفَس الأخير 5 مرات', 'spf:sisyphus': 'سُميت على اسم سيزيف الذي يدفع صخرته إلى أعلى؛ الأزواج يدحرجون الكرة معًا عكس المنحدر.',
+  'sp:canthon': 'الخنفساء المتدحرجة', 'sph:canthon': 'أقصِ 3 خنافس بكرة مُطلَقة', 'spf:canthon': 'تُعرف في أمريكا الشمالية بالخنفساء المتدحرجة؛ تدحرج الكرة إلى الخلف بأرجلها الخلفية.',
+  'sp:circellium': 'الجعران الذي لا يطير', 'sph:circellium': 'أنهِ ضمن أفضل 3 خمس مرات', 'spf:circellium': 'لا يستطيع الطيران؛ محمي في متنزه أدو للفيلة بجنوب أفريقيا، حيث تطلب لافتات الطرق من السيارات إفساح الطريق للخنافس.',
+  'sp:valgum': 'الخنفساء الصيادة', 'sph:valgum': 'عش لحظة "الحصان الأسود"', 'spf:valgum': 'لا تأكل الروث: تصطاد الدودة الألفية وتقطع رأسها وتأكل داخلها. من خنافس الروث اللاحمة القليلة المعروفة.',
+  'sp:gazella': 'خنفساء الغزال', 'sph:gazella': 'العب 20 جولة', 'spf:gazella': 'جُلبت إلى أستراليا في الستينيات لتنظيف روث الماشية؛ وقلّلت أعداد الذباب بشكل ملحوظ.',
+  'sp:molossus': 'العملاق ذو القرن', 'sph:molossus': 'أقصِ 5 خنافس في جولة واحدة', 'spf:molossus': 'النوع الكبير في جنوب شرق آسيا؛ الذكور تتقاتل عند مداخل الأنفاق بالقرن الواحد على رؤوسها.',
+  'sp:zambesianus': 'خنفساء ضوء القمر', 'sph:zambesianus': 'العب 3 جولات في طفرة الليل', 'spf:zambesianus': 'في عام 2003 صارت أول حيوان يثبت أنه يهتدي باستقطاب ضوء القمر: في ليالي البدر تتدحرج في خط مستقيم تمامًا.',
+  'sp:lamarcki': 'الخنفساء الراقصة', 'sph:lamarcki': 'عش لحظة "بشق الأنفس"', 'spf:lamarcki': 'حين يحرق الرمل أقدامها تصعد على الكرة و"ترقص": تبرّد أرجلها على الكرة الأبرد ثم تواصل.',
+  'sp:pachysoma': 'الجرّار', 'sph:pachysoma': 'أطلق 10 مرات', 'spf:pachysoma': 'تعيش في صحراء ناميب، لا تطير ولا تدحرج: تجرّ حبيبات الروث الجافة إلى الأمام بأرجلها الأمامية.',
+  'sp:copris': 'كوبريس الإسباني', 'sph:copris': 'العب 50 جولة', 'spf:copris': 'النوع الذي راقبه فابر: تبقى الأم مع كرات حضانتها الكمثرية أشهرًا تنظّفها من العفن حتى يخرج الصغار.',
+  'sp:geotrupes': 'الحفّار', 'sph:geotrupes': 'احفر 10 مرات', 'spf:geotrupes': 'تحفر أنفاقًا عمودية تحت الروث وتحمله إلى الأسفل؛ وتركب على ظهرها عثّات صغيرة تنتقل من كومة إلى أخرى.',
+  'sp:lancifer': 'عملاق الأمازون', 'sph:lancifer': 'افز بـ 3 جولات', 'spf:lancifer': 'أكبر خنفساء روث في الأمازون؛ زرقاء بنفسجية معدنية، والجنسان ذوا قرون. تدفن الجيف لا الروث.',
+  'sp:typhaeus': 'خنفساء المينوتور', 'sph:typhaeus': 'اثأر 3 مرات', 'spf:typhaeus': 'الذكور تحمل ثلاثة قرون؛ تحفر أنفاقًا بعمق 1.5 م لروث الأرانب والأغنام.',
+  'sp:cyanellus': 'المدحرج الأزرق', 'sph:cyanellus': 'أنهِ ضمن أفضل 3 خمس عشرة مرة', 'spf:cyanellus': 'نوع أخضر مزرق معدني من المكسيك؛ يدحرج كرات من الجيف ويبقى الوالدان في العش لرعاية كرات الحضانة.',
+  'sp:acuminatus': 'الذكر المتسلل', 'sph:acuminatus': 'اسرق 25 كرة', 'spf:acuminatus': 'بعض الذكور تولد بقرون وبعضها بلا قرون: ذوو القرون يحرسون مدخل النفق، وعديمو القرون يتسللون عبر أنفاق جانبية.',
+  'sp:stercorosus': 'خنفساء الغابة', 'sph:stercorosus': 'العب 100 جولة', 'spf:stercorosus': 'أشيع خنفساء روث في غابات أوروبا؛ قشرتها الزرقاء السوداء اللامعة مألوفة على دروب الغابات.',
+  'sp:fimetarius': 'الجناح الأحمر', 'sph:fimetarius': 'عد من النفَس الأخير 15 مرة', 'spf:fimetarius': 'لا تصنع كرة ولا تحفر نفقًا: تعيش داخل الروث. هذا النوع الصغير ذو الجناحين الأحمرين موجود في كل أنحاء الأرض تقريبًا.',
+  'sp:sagittarius': 'الأنثى ذات القرن', 'sph:sagittarius': 'بلغ كتلة 500', 'spf:sagittarius': 'استثناء نادر: الإناث أيضًا لها قرون أكبر من قرون الذكور، وتتقاتل فيما بينها على الأنفاق.',
+  'ach:hirsiz': 'لص', 'achh:hirsiz': 'اسرق 3 كرات في جولة واحدة', 'ach:nefes': 'سيد النفَس الأخير', 'achh:nefes': 'عد من النفَس الأخير 5 مرات',
+  'ach:cifte': 'مزدوج', 'achh:cifte': 'أقصِ خنفستين بإطلاق واحد', 'ach:pacavra': 'الحصان الأسود', 'achh:pacavra': 'ادخل الثلاثة الأخيرين وأنت الأصغر وافز',
+  'ach:pasifist': 'مسالم', 'achh:pasifist': 'افز بجولة دون أي إقصاء', 'ach:samanyolu': 'درب التبانة', 'achh:samanyolu': 'افز في طفرة الليل',
+  'ach:odesme10': 'ثأر ×10', 'achh:odesme10': 'اثأر 10 مرات',
+},
 };
 
 const Lang = {
   code: 'tr',
+  CODES: ['tr', 'en', 'ar'],           // düğme bu sırayla döner; ar sağdan sola (dir=rtl)
   init() {
     let saved = null;
     try { saved = localStorage.getItem('kumul-lang'); } catch {}
-    this.code = saved === 'en' || saved === 'tr' ? saved : (String(navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en');
+    const nav = String(navigator.language || 'tr').toLowerCase();
+    this.code = this.CODES.includes(saved) ? saved : nav.startsWith('tr') ? 'tr' : nav.startsWith('ar') ? 'ar' : 'en';
     this.applyDom();
   },
   t(key, ...a) {
@@ -1399,11 +1537,13 @@ const Lang = {
     return typeof v === 'function' ? v(...a) : v;
   },
   set(code) { this.code = code; try { localStorage.setItem('kumul-lang', code); } catch {} this.applyDom(); },
-  toggle() { this.set(this.code === 'tr' ? 'en' : 'tr'); },
+  toggle() { this.set(this.CODES[(this.CODES.indexOf(this.code) + 1) % this.CODES.length]); },
+  get rtl() { return this.code === 'ar'; },
   // data-t: metin, data-t-ph: placeholder, data-t-aria: aria-label
   applyDom() {
     if (typeof document === 'undefined') return;
     document.documentElement.lang = this.code;
+    document.documentElement.dir = this.rtl ? 'rtl' : 'ltr';
     for (const el of document.querySelectorAll('[data-t]')) el.textContent = this.t(el.dataset.t);
     for (const el of document.querySelectorAll('[data-t-ph]')) el.placeholder = this.t(el.dataset.tPh);
     for (const el of document.querySelectorAll('[data-t-aria]')) el.setAttribute('aria-label', this.t(el.dataset.tAria));
@@ -2071,9 +2211,9 @@ class ArenaRenderer extends RenderBase {
     this.rrect(x, y, w, h, r); ctx.fill(); ctx.stroke();
   }
   label(text, x, y, align = 'left', color = KUMUL.muted) {
-    const ctx = this.ctx, code = typeof Lang !== 'undefined' && Lang.code === 'tr' ? 'tr' : 'en';
-    ctx.save(); ctx.textAlign = align; ctx.fillStyle = color; ctx.font = `700 10px ${KUMUL.font}`;
-    try { ctx.letterSpacing = '1.2px'; } catch {}
+    const ctx = this.ctx, code = typeof Lang !== 'undefined' ? Lang.code : 'tr';
+    ctx.save(); ctx.textAlign = align; ctx.fillStyle = color; ctx.font = `700 ${code === 'ar' ? 11 : 10}px ${KUMUL.font}`;
+    try { ctx.letterSpacing = code === 'ar' ? '0px' : '1.2px'; } catch {}   // Arapça harfler bitişik: aralık verilmez
     ctx.fillText(String(text).toLocaleUpperCase(code), x, y); ctx.restore();
   }
   bar(x, y, w, h, frac, color) {
@@ -2383,6 +2523,7 @@ showMute();
 
 function refreshMenu() {
   setText('statsLine', stats.rounds ? T('statsLine', stats.rounds, stats.wins, stats.best) : GAME.firstLine);
+  setText('stRounds', stats.rounds || 0); setText('stWins', stats.wins || 0); setText('stBest', stats.best ? stats.best + '.' : '–');
   if (!useProgress) return;
   const li = Progress.levelInfo();
   setText('levelText', T('level', li.level));
@@ -2397,16 +2538,17 @@ function refreshMenu() {
     if ($('missionBar')) $('missionBar').style.width = Math.round(Math.min(1, (m.done ? m.target : m.progress) / m.target) * 100) + '%';
   }
   const n = Nemesis.get();
-  setText('nemesisLine', n ? T('nemesisLine', n.name, n.kills) : '');
+  setHidden('nemesisBox', !n);
+  if (n) { setText('nemesisName', n.name); setText('nemesisLine', T('nemesisShort', n.kills)); }
   const sd = Streak.data, left = Streak.TRAIL_DAYS - sd.days;
-  setText('streakLine', !sd.days ? '' : Streak.hasTrail() ? T('streakTrail', sd.days, Streak.trailHoursLeft()) : left > 0 ? T('streakLeft', sd.days, left) : T('streak', sd.days));
+  setText('streakLine', !sd.days ? '' : Streak.hasTrail() ? T('streakShortTrail', sd.days, Streak.trailHoursLeft()) : left > 0 ? T('streakShort', sd.days, left) : T('streak', sd.days));
   setHidden('mutationBox', !weekMutation);
   if (weekMutation) { setText('mutationName', T('mut:' + weekMutation.key)); setText('mutationLine', T('mutt:' + weekMutation.key)); }
-  if (useDefter) setText('defterLine', GAME.collection.summary());
+  if (useDefter) { const C = GAME.collection; setText('defterLine', T('bookShort', C.data.species.length, SPECIES.length, C.data.ach.length, ACHIEVEMENTS.length)); }
   syncTutorMenu();
   if (useSeason) {
-    const cur = Season.current(), title = Season.titleName(), ready = Season.claimable().length;
-    setText('seasonLine', T('seasonLine', cur.index + 1, T('tier:' + Season.tier()), Season.data.xp, cur.daysLeft, title, ready));
+    const cur = Season.current(), ready = Season.claimable().length;
+    setText('seasonLine', T('seasonShort', cur.index + 1, T('tier:' + Season.tier()), ready));
   }
 }
 // Günlük görev metni: anahtarı varsa çeviriden, yoksa tanımdaki metin
@@ -2569,6 +2711,7 @@ function syncTouchUi() {
   if (digBtn) digBtn.hidden = !(playing && player && player.digEligible);   // KAZI düğmesi yalnızca hak varken (her karede tazelenir)
   setHidden('muteBtn', playing);
   setHidden('langBtn', state !== 'menu');                                   // dil düğmesi yalnız menüde
+  document.body.classList.toggle('inMenu', state === 'menu');               // menüde ses düğmesi alt köşeye iner (mini harita yok)
 }
 function setTouchMode(on) { touch.enabled = on; syncTouchUi(); }
 function syncBoost() { input.boost = touch.boostIds.size > 0 || touch.btnDown; }
