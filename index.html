@@ -779,7 +779,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610111236';
+const DIL_SURUM = '202610111239';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -889,6 +889,7 @@ tr: {
   'reward:yildiz': 'Yıldız izi', 'reward:alev': 'Kor izi', 'reward:yaprak': 'Yaprak izi', 'reward:yuvarlayici': 'Yuvarlayıcı', 'reward:firtina': 'Fırtına Ustası', 'reward:hirsiz': 'Top Hırsızı', 'reward:xp': n => `+${n} puan`,
   // duraklatma
   nextRound: 'Sıradaki tur', toMenu: 'Menüye dön',
+  watchNext: 'tıkla: değiştir',
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
   // çevrimiçi
   online: 'Çevrimiçi oyna', connecting: 'Sunucuya bağlanılıyor…', matching: (w, h) => `Eşleşiyor: ${w} sn · ${h} oyuncu (kalan yerler bot)`,
@@ -991,6 +992,7 @@ en: {
   'tier:Larva': 'Larva', 'tier:Böcek': 'Beetle', 'tier:Yuvarlayıcı': 'Roller', 'tier:Şampiyon': 'Champion', 'tier:Kutsal Skarabe': 'Sacred Scarab',
   'reward:yildiz': 'Star trail', 'reward:alev': 'Ember trail', 'reward:yaprak': 'Leaf trail', 'reward:yuvarlayici': 'Roller', 'reward:firtina': 'Storm Master', 'reward:hirsiz': 'Ball Thief', 'reward:xp': n => `+${n} points`,
   nextRound: 'Next round', toMenu: 'Back to menu',
+  watchNext: 'click: switch',
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
   online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
   onlineLost: 'Connection lost', onlineFail: 'Could not reach the server',
@@ -2495,6 +2497,11 @@ class ArenaRenderer extends RenderBase {
   drawEffects(world) {}                // oyunculardan sonra, fırtınadan önce çizilen efektler
   drawOverlay(world, player, vx0, vy0, vx1, vy1) {}   // fırtınadan sonra, HUD'dan önce (dünya uzayı): gece karanlığı gibi
 
+  // Ekran (CSS px) → dünya: draw() ile aynı dönüşüm (sarsıntı yok sayılır). İzlenecek oyuncuyu tıklayarak seçmek için.
+  screenToWorld(cx, cy) {
+    const scale = this.zoom * this.dpr;
+    return { x: this.camX + (cx * this.dpr - this.canvas.width / 2) / scale, y: this.camY + (cy * this.dpr - this.canvas.height / 2) / scale };
+  }
   draw(world, player, round, spectating) {
     const ctx = this.ctx, W = this.canvas.width, H = this.canvas.height;
     const scale = this.zoom * this.dpr;
@@ -2839,7 +2846,7 @@ class ArenaRenderer extends RenderBase {
 
     if (spectating) {
       ctx.font = `600 12px ${KUMUL.font}`;
-      const text = T('watching', spectating.name), w = ctx.measureText(text).width + 32;
+      const text = `${T('watching', spectating.name)} · ${T('watchNext')}`, w = ctx.measureText(text).width + 32;
       this.panel(W / 2 - w / 2, noteY - 2, w, 28, 14);
       ctx.textAlign = 'center'; ctx.fillStyle = KUMUL.ink; ctx.fillText(text, W / 2, noteY + 17);
     }
@@ -3861,7 +3868,11 @@ refreshMenu();
 const input = { px: 0, py: 0, boost: false, dig: false, active: false };
 const setPointer = e => { input.px = e.clientX; input.py = e.clientY; input.active = true; };
 canvas.addEventListener('mousemove', e => { setPointer(e); if (touch.enabled && !touch.coarse) setTouchMode(false); });
-canvas.addEventListener('mousedown', e => { setPointer(e); if (e.button === 2) input.dig = true; else input.boost = true; });
+canvas.addEventListener('mousedown', e => { setPointer(e); if (e.button === 2) input.dig = true; else input.boost = true; if (state === 'dead' && e.button === 0) pickSpectate(e.clientX, e.clientY); });
+// Sonuç kartının dışına tıklama / dokunma da izlenen oyuncuyu değiştirir (kart tüm ekranı kaplar)
+if ($('result')) $('result').addEventListener('mousedown', e => { if (e.target === $('result') && e.button === 0) pickSpectate(e.clientX, e.clientY); });
+if ($('result')) $('result').addEventListener('touchstart', e => { const t = e.changedTouches[0]; if (e.target === $('result') && t) pickSpectate(t.clientX, t.clientY); }, { passive: true });
+canvas.addEventListener('touchstart', e => { const t = e.changedTouches[0]; if (state === 'dead' && t) pickSpectate(t.clientX, t.clientY); }, { passive: true });
 window.addEventListener('mouseup', e => { if (e.button === 2) input.dig = false; else input.boost = false; });
 canvas.addEventListener('contextmenu', e => e.preventDefault());        // sağ tık = KAZI
 const DIG_KEYS = new Set(['KeyX', 'ShiftLeft', 'ShiftRight']);
@@ -4136,7 +4147,7 @@ function enterRound() {
   player.mastery = useProgress ? Progress.masteryOf(savedSkin) : 0;
   player.crowned = useDefter && GAME.collection.crowned();
   player.revenge = false; if (!onlineMode) player.ballKills = 0;
-  revived = false; awarded = null; overShown = false;
+  revived = false; awarded = null; overShown = false; spectateId = null;
   state = 'playing'; paused = false; setHidden('pauseModal', true);
   renderer.camX = player.x; renderer.camY = player.y; renderer.zoom = 1;
   $('menu').hidden = true; $('result').hidden = true;
@@ -4242,7 +4253,7 @@ function beginSpectate(r) {
   const skin = KUMUL_SKINS[savedSkin % KUMUL_SKINS.length];
   player = new RemoteBeetle({ id: 0, name: playerName(), color: skin.colors[0], skin: skin.colors, bot: false, chatter: false, nemesis: false, trait: '' });
   player.alive = false; player.place = 0; r.player = player;
-  revived = true; awarded = 'spectate'; overShown = true;   // diriliş yok, ilerleme yazılmaz, sonuç kartı üzerine yazılmaz
+  revived = true; awarded = 'spectate'; overShown = true; spectateId = null;   // diriliş yok, ilerleme yazılmaz, sonuç kartı üzerine yazılmaz
   state = 'dead'; paused = false; setHidden('pauseModal', true);
   syncTouchUi();
 }
@@ -4500,8 +4511,22 @@ function tick(dt) {
 }
 
 // İzlenecek oyuncu: sen, yoksa seni eleyen, yoksa en büyük
+// Elendikten sonra izlenen oyuncu: tıklanan böcek (yakınsa) ya da tıkla → sıradaki canlı; seçim yoksa seni eleyen, o da yoksa en büyük
+let spectateId = null;
+function pickSpectate(cx, cy) {
+  if (state !== 'dead' || !round || !round.world) return;
+  const alive = round.world.snakes.filter(s => s.alive && s !== player).sort((a, b) => b.mass - a.mass);
+  if (!alive.length) return;
+  const w = renderer.screenToWorld(cx, cy);
+  let hit = null, best = Infinity;
+  for (const s of alive) { const d = Math.hypot(s.x - w.x, s.y - w.y); if (d < s.radius + 60 && d < best) { best = d; hit = s; } }
+  if (!hit) { const cur = cameraTarget(), i = alive.indexOf(cur); hit = alive[(i + 1) % alive.length]; }   // boşa tıklama: sıradaki
+  spectateId = hit.id;
+  renderer.showToast(T('watching', hit.name));
+}
 function cameraTarget() {
   if (player && player.alive && state !== 'menu') return player;
+  if (state === 'dead' && spectateId !== null) { const s = round.world.snakes.find(x => x.id === spectateId); if (s && s.alive) return s; spectateId = null; }
   if (state === 'dead' && player.killer && player.killer.alive) return player.killer;
   let best = null;
   for (const s of round.world.snakes) if (s.alive && (!best || s.mass > best.mass)) best = s;

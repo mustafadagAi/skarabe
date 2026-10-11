@@ -84,6 +84,7 @@ DIL.ja = {
   'tier:Larva': '幼虫', 'tier:Böcek': '甲虫', 'tier:Yuvarlayıcı': '転がし屋', 'tier:Şampiyon': 'チャンピオン', 'tier:Kutsal Skarabe': '聖なるスカラベ',
   'reward:yildiz': '星の軌跡', 'reward:alev': '熾火の軌跡', 'reward:yaprak': '木の葉の軌跡', 'reward:yuvarlayici': '転がし屋', 'reward:firtina': '嵐の達人', 'reward:hirsiz': '玉泥棒', 'reward:xp': n => `+${n} pt`,
   nextRound: '次のラウンド', toMenu: 'メニューへ戻る',
+  watchNext: 'クリックで切替',
   paused: '一時停止', resume: '再開', pauseHint: 'Esc か P：一時停止',
   online: 'オンラインで遊ぶ', connecting: 'サーバーに接続中…', matching: (w, h) => `マッチング：${w} 秒 · ${h} 人（残りはボット）`,
   onlineLost: '接続が切れた', onlineFail: 'サーバーに接続できない',
