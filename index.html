@@ -766,7 +766,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610111127';
+const DIL_SURUM = '202610111227';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -2205,14 +2205,32 @@ class RemoteBeetle {
     this.kills = 0; this.score = 0; this.steals = 0; this.breaths = 0; this.launches = 0; this.digs = 0; this.ballKills = 0;
     this.input = { targetAngle: 0, throttle: 1, boost: false, dig: false };
     this.px = this.py = this.pa = null; this.tx = this.ty = this.ta = null;
+    this.snaps = [];
+  }
+  // renderT anındaki konum: tampondaki iki anlık görüntü arasında ara değer; sondan sonrası için hızla kısa tahmin
+  sample(renderT) {
+    const s = this.snaps; if (!s.length) return;
+    let i = s.length - 1;
+    while (i > 0 && s[i - 1].t > renderT) i--;
+    const b = s[i];
+    if (i > 0 && s[i].t >= renderT) {
+      const a = s[i - 1], k = Math.max(0, Math.min(1, (renderT - a.t) / Math.max(1, b.t - a.t)));
+      this.x = a.x + (b.x - a.x) * k; this.y = a.y + (b.y - a.y) * k;
+      let d = b.a - a.a; d = Math.atan2(Math.sin(d), Math.cos(d)); this.angle = a.a + d * k;
+    } else {
+      const dt = Math.min(0.12, Math.max(0, (renderT - b.t) / 1000));   // tampon tükendi: en çok 120 ms ileri tahmin
+      this.x = b.x + b.vx * dt; this.y = b.y + b.vy * dt; this.angle = b.a;
+    }
   }
   get radius() { return this.mass > 0 ? ballRadius(this.mass) : PHYS.nakedRadius; }
   get hasBall() { return this.mass > 0; }
   get speed() { return Math.hypot(this.vx, this.vy); }
-  apply(p) {
+  // Anlık görüntü tamponu: paketler düzensiz gelse de (jitter) çizim 1,5 paket geriden akar; tampon biterse hız ile ≤120 ms tahmin.
+  apply(p, now = performance.now()) {
     const F = AgKodek.F;
     this.px = this.tx ?? p[1]; this.py = this.ty ?? p[2]; this.pa = this.ta ?? p[5];
     this.tx = p[1]; this.ty = p[2]; this.ta = p[5];
+    this.snaps.push({ t: now, x: p[1], y: p[2], a: p[5], vx: p[3], vy: p[4] }); if (this.snaps.length > 8) this.snaps.shift();
     this.vx = p[3]; this.vy = p[4]; this.mass = p[6]; this.roll = p[8]; this.charge = p[9];
     const f = p[7];
     this.alive = !!(f & F.alive); this.dig = f & F.dig ? 1 : 0; this.breath = f & F.breath ? 1 : 0; this.charging = !!(f & F.charging); this.launching = !!(f & F.launching);
@@ -2338,7 +2356,10 @@ class NetClient {
   // Her karede: yumuşat ve girdiyi gönder (değişmişse, en çok 30 Hz)
   tick() {
     const r = this.round; if (!r) return;
-    if (this.lastStateAt) { const k = Math.min(1, (performance.now() - this.lastStateAt) / this.stateInterval); for (const s of r.world.snakes) if (s.tx !== null) s.lerp(k); }
+    if (this.lastStateAt) {   // çizim zamanı: paket aralığının 1,5 katı geriden (60–150 ms); jitter'ı yutar, donma/zıplama olmaz
+      const delay = Math.max(60, Math.min(150, this.stateInterval * 1.5)), renderT = performance.now() - delay;
+      for (const s of r.world.snakes) if (s.snaps.length) s.sample(renderT);
+    }
     const p = r.player; if (!p || !p.alive) return;
     const now = performance.now(); if (now - this.lastSendAt < 33) return;
     const i = p.input, msg = { t: 'input', a: Math.round(i.targetAngle * 1000) / 1000, th: Math.round((i.throttle ?? 1) * 20) / 20, b: !!i.boost, d: !!i.dig };
@@ -3519,7 +3540,7 @@ const GAME = {
   tutor: true,                       // kademeli öğretme: FIRLAT 3. turdan, KAZI ve menü derinliği 5. turdan
   reviveTop: 8,                      // diriliş teklifi yalnız bu sıra ve üstünde (portal kuralı: her ölümde teklif yok)
   analytics: { endpoint: '' },       // olay toplayıcı adresi (boş: ağa çıkılmaz, sayaçlar yerelde kalır) — kumul-analitik.js
-  online: { url: 'wss://skarabe-sunucu.onrender.com' }, // çok oyunculu sunucu (Render); boşsa aynı kökteki sunucu aranır (/__net) — skarabe-ag.js
+  online: { url: 'wss://skarabe-eu.onrender.com' }, // çok oyunculu sunucu (Render, Frankfurt); boşsa aynı kökteki sunucu aranır (/__net) — skarabe-ag.js
   // Metinler kumul-dil.js'ten: dil değişince de doğru olsun diye işlev olarak
   get firstLine() { return T('firstLine'); },
   get winTitle() { return T('winTitle'); },
