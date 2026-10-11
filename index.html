@@ -139,7 +139,11 @@
   #muteBtn { position: fixed; z-index: 5; right: 12px; bottom: 116px; padding: 6px 12px; font: 500 12px 'Rubik', system-ui, sans-serif;
              border: 1.5px solid var(--ink); border-radius: 10px; background: rgba(253, 249, 238, 0.85); color: var(--ink); cursor: pointer; }
   body.inMenu #muteBtn { bottom: 12px; }   /* menüde mini harita yok: panellerin üstüne binmesin */
-  #langBtn { position: fixed; z-index: 5; right: 12px; top: 12px; }   /* yalnız menüde görünür; oyunda HUD'un üstüne binmesin */
+  /* Dil seçimi: düğme görünümlü <select>; yalnız menüde görünür (oyunda HUD'un üstüne binmesin) */
+  #langBtn { position: fixed; z-index: 5; right: 12px; top: 12px; appearance: none; -webkit-appearance: none; padding-right: 26px; cursor: pointer;
+             background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+             background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
+  html[dir="rtl"] #langBtn { direction: ltr; }
   #langBtn[hidden] { display: none; }
   /* Çevrimiçi durum şeridi: oyun içinde ve özel odada üstte (lobi, bekleme, oda kodu) */
   #netBanner { position: fixed; z-index: 5; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center;
@@ -304,7 +308,7 @@
 <button id="boostBtn" data-t="dash" hidden>ATIL</button>
 <button id="digBtn" data-t="dig" hidden>KAZ</button>
 <button id="muteBtn">Ses açık</button>
-<button id="langBtn" class="btn ghost mini" data-t="lang" title="Türkçe / English / العربية">TR</button>
+<select id="langBtn" class="btn ghost mini" aria-label="Dil / Language" title="Türkçe · English · العربية · Español · 中文"></select>
 <div id="netBanner" hidden><span id="netText"></span><button id="copyRoomBtn" class="btn ghost mini" data-t="copyLink" hidden>Bağlantıyı kopyala</button><button id="beginBtn" class="btn mini" data-t="begin" hidden>Başlat</button></div>
 
 <div id="menu" class="overlay">
@@ -1144,16 +1148,277 @@ ar: {
   'ach:pasifist': 'مسالم', 'achh:pasifist': 'افز بجولة دون أي إقصاء', 'ach:samanyolu': 'درب التبانة', 'achh:samanyolu': 'افز في طفرة الليل',
   'ach:odesme10': 'ثأر ×10', 'achh:odesme10': 'اثأر 10 مرات',
 },
+// --- İspanyolca ---
+es: {
+  tagline: 'Empuja, tíralos a la tormenta y sé el último escarabajo en pie.',
+  namePh: 'Apodo', prevSkin: 'Aspecto anterior', nextSkin: 'Aspecto siguiente', unlockNow: 'Desbloquear ya', play: 'Jugar',
+  practice: 'Practicar con bots', panelPlayer: 'Jugador', panelToday: 'Hoy', onlineNow: n => `● ${n} jugador${n === 1 ? '' : 'es'} en línea`,
+  missionLabel: 'Misión diaria', missionDoneShort: 'Completada', reward: r => `+${r}`, weekLabel: 'Mutación de la semana',
+  kMouse: 'Ratón', kClick: 'Clic / Espacio', kStick: 'Stick izquierdo', kBtn: 'Botón derecho', kHold: 'Mantén', kX: 'X / Clic derecho', kDigBtn: 'CAVAR',
+  aSteer: 'dirigir', aDash: 'embestir', aLaunch: 'lanzar la bola', aDig: 'cavar',
+  statRounds: 'rondas', statWins: 'victorias', statBest: 'mejor', nemesisLabel: 'Rival', nemesisShort: k => `Te eliminó ${k} ${k === 1 ? 'vez' : 'veces'} · con corona en la arena · revancha 2×`,
+  streakShort: (d, l) => `Racha ${d} día${d === 1 ? '' : 's'} · ${l} más para la estela de arena`, streakShortTrail: (d, h) => `Racha ${d} días · estela de arena ${h} h más`,
+  seasonShort: (i, tier, ready) => `Temporada ${i} · ${tier}${ready ? ` · ${ready} caja${ready > 1 ? 's' : ''} lista${ready > 1 ? 's' : ''}` : ''}`, bookShort: (a, b, c, d) => `Especies ${a}/${b} · Logros ${c}/${d}`,
+  more: 'Temporada y Libro', season: 'Temporada', book: 'Libro de escarabajos', streamTools: 'Herramientas de streamer', channelPh: 'Canal de Twitch',
+  connect: 'Conectar', disconnect: 'Desconectar', streamerMode: 'Modo streamer',
+  twitchIntro: 'Los espectadores que escriben "!join" en el chat se convierten en bots; tú los empujas a la tormenta. Solo lectura, sin iniciar sesión.',
+  twitchQueue: n => ` · ${n} espectadores en cola`, twitchOff: 'apagado',
+  soundOn: 'Sonido activado', soundOff: 'Sonido desactivado', dash: 'EMBESTIR', dig: 'CAVAR', lang: 'ES',
+  statsLine: (r, w, b) => `${r} rondas · ${w} victorias · mejor puesto ${b}.`,
+  level: l => `Nivel ${l}`, levelNext: (a, b) => `${a} / ${b} puntos`,
+  missionDone: t => `Misión diaria completada: ${t}.`, mission: (t, p, n, r) => `Misión diaria: ${t} (${p}/${n}) · ${r} puntos`,
+  nemesisLine: (n, k) => `${n} te eliminó ${k} ${k === 1 ? 'vez' : 'veces'}${k >= 3 ? ' — tu archienemigo' : ''}. En la arena esta ronda: busca al coronado, la revancha duplica tus puntos.`,
+  streakTrail: (d, h) => `Reloj de arena: ${d} días seguidos · estela de nube de arena ${h} horas más`,
+  streakLeft: (d, l) => `Reloj de arena: ${d} día${d > 1 ? 's' : ''} seguido${d > 1 ? 's' : ''} · juega ${l} día${l > 1 ? 's' : ''} más para desbloquear la estela de nube de arena`,
+  streak: d => `Reloj de arena: ${d} días seguidos`,
+  mutationLine: (n, t) => `Mutación de la semana: ${n} — ${t}.`,
+  seasonLine: (i, tier, xp, days, title, ready) => `Temporada ${i} · ${tier} · ${xp} pts · ${days} días${title ? ' · ' + title : ''}${ready ? ` · ${ready} Caja${ready > 1 ? 's' : ''} de Arena lista${ready > 1 ? 's' : ''}!` : ''}`,
+  helpMouse: 'El ratón dirige, clic o espacio embiste. Recoge bolitas y empuja a los rivales a la tormenta.',
+  helpTouch: 'El stick izquierdo dirige, el botón derecho embiste. Recoge bolitas y empuja a los rivales a la tormenta.',
+  helpLaunch: ' Mantén y suelta: lanzas tu bola; cuando frena, es de quien la toque.',
+  helpDigMouse: ' X o clic derecho: entiérrate si tienes menos de la mitad del líder.', helpDigTouch: ' Botón CAVAR: entiérrate si tienes menos de la mitad del líder.',
+  helpFinal: ' Con 3 en pie: sumo de 15 segundos.',
+  tipLaunchMouse: 'Mantén el clic y suelta: lanza tu bola', tipLaunchTouch: 'Mantén el botón y suelta: lanza tu bola',
+  tipDigMouse: 'X o clic derecho: entiérrate, nadie te empuja 0,8 s', tipDigTouch: 'Botón CAVAR: entiérrate, nadie te empuja 0,8 s',
+  seasonTitle: (i, tier) => `Temporada ${i} — ${tier}`, seasonLabel: i => `Temporada ${i}`, sPoints: 'Puntos de temporada', sDays: 'Días restantes',
+  sNextTier: t => `puntos para ${t}`, sTop: 'Rango máximo', titleLabel: t => `Título: ${t}`, trackLabel: 'Línea de recompensas', trackProgress: (a, b) => `${a} / ${b} abiertas`,
+  pauseLabel: 'Juego', pauseKeyHint: 'continuar',
+  copy: 'Copiar', more2: 'Más', copiedIg: 'Copiado, pégalo en Instagram',
+  seasonSummary: (xp, days, next, need, title) => `${xp} puntos de temporada · ${days} días restantes${next ? ` · ${need} puntos para ${next}` : ' · rango máximo'}${title ? ` · título: ${title}` : ''}`,
+  stepOpen: 'abierta', box: 'Caja de Arena', stepNeed: n => `${n} pts`, boxPick: 'Caja de Arena: elige una carta.',
+  boxWon: (name, type) => `Conseguiste: ${name}${type === 'trail' ? ' (estela, visible en el juego)' : type === 'title' ? ' (título)' : ''}`,
+  close: 'Cerrar',
+  bookTitle: 'Libro de escarabajos', hiddenAch: 'Logros ocultos', bookLabel: 'Libro', speciesLabel: 'Especies', achLabel: 'Logros', speciesLabel2: 'Especies', leftToFind: n => (n ? `faltan ${n}` : 'completo'), toOpen: h => `Para desbloquear: ${h}`, achSkin: s => ` · aspecto: ${s}`, achCrown: ' · corona dorada',
+  bookSummary: (a, b, c, d) => `Libro ${a}/${b} · Logros ${c}/${d}`, hintLater: n => `pista tras la ronda ${n}`,
+  rarity: { yaygın: 'común', nadir: 'raro', 'çok nadir': 'muy raro', efsane: 'legendario' },
+  goalMission: (n, t) => `faltan ${n} en la misión diaria (${t})`, goalLevel: (l, n) => `${n} puntos para el nivel ${l}`,
+  goalNemesis: n => `${n} está en la arena; elimínalo por puntos dobles`, goalStreak: n => `juega ${n} día${n > 1 ? 's' : ''} más para la estela de nube de arena`,
+  goalBest: b => `tu mejor puesto es ${b}; queda ${b - 1}º para un récord`, goalPrefix: t => `Pendiente: ${t}.`,
+  lockAch: 'Se desbloquea con un logro oculto', lockLevel: l => `Se desbloquea en el nivel ${l}`, mastery: (a, b) => `Maestría: ${a}/${b} rondas`, masterSkin: 'Aspecto dominado',
+  revenge: 'REVANCHA', revengeSub: n => `${n} está en la tormenta, puntos dobles esta ronda`,
+  stole: (n, m) => `Bola robada a ${n}: +${m}`, stolenBy: n => `${n} robó tu bola`, escaped: '¡Último aliento! Tu bola se quedó atrás', ballLost: 'Tu bola cayó en la tormenta',
+  final3: 'ÚLTIMOS TRES', final3Sub: (s, a, b) => `sumo de ${s} s, sin bolitas` + (a !== null ? ` · tu masa ${a} → ${b}` : ''),
+  streakBroken: b => `Racha rota (mejor ${b} días); hoy es el día 1`, streakTrailOn: d => `Reloj de arena día ${d}: estela de nube de arena activa`, streakDay: d => `Reloj de arena: día ${d}`,
+  someone: 'Alguien', rival: 'Tu rival', you: 'Tú',
+  challengeLine: (w, c, p) => `${w} te retó: quedó ${p}º en la ronda #${c}. Juega la misma ronda y supéralo.`,
+  challengeLineNoPlace: (w, c) => `${w} te retó: juega la ronda #${c}.`,
+  shareLine: (title, code, name, place, kills, stamp) => `${title} #${code} — ${name} quedó ${place}º, ${kills} eliminaciones${stamp ? ' · ' + stamp : ''} 🪲`,
+  shareAsk: '¿En qué puesto quedarías tú?', roundCodeOnly: c => `Código de ronda: ${c}`, copied: 'Copiado', challengeBtn: 'Retar',
+  roundCode: c => `Código de ronda #${c}`, clipBtn: 'Compartir clip',
+  beat: (w, p, m) => `${w} quedó ${p}, tú ${m} — ¡lo superaste!`, tie: (w, p) => `Mismo puesto que ${w}: ${p}.`, lost: (w, p, m) => `${w} quedó ${p}, tú ${m} — inténtalo de nuevo.`,
+  place: 'Puesto', kills: 'Eliminaciones', mass: 'Masa', revive: 'Revivir una vez', again: 'Nueva ronda',
+  died: p => `Quedaste ${p}º`, roundWonBy: n => `${n} ganó la ronda.`, roundOver: 'Ronda terminada.',
+  xpGain: g => `+${g} puntos`, levelUp: l => `Subes al nivel ${l}`, newSkins: s => `Nuevo aspecto: ${s}`, missionReward: r => `Misión diaria completada, +${r}`,
+  newPrefix: s => `Nuevo: ${s}`, masteryNew: (n, stars) => `Maestría: ${n} ${stars}`, bookNew: n => `Libro: ${n}`, achNew: (n, s) => `Logro: ${n}${s ? ' (' + s + ')' : ''}`,
+  highlightLine: (st, sub) => `Momento de la ronda: ${st} — ${sub}`,
+  clipLabel: 'Clip destacado · 9:16',
+  clip: 'Clip', clipPrep: p => `Preparando el clip, mira: ${p}%`, clipReady: (st, kb) => `Listo: ${st} · ${kb} KB`, share: 'Compartir', download: 'Descargar',
+  clipFail: e => `El clip falló: ${e}`, watermark: c => `ronda #${c} · ¿en qué puesto quedarías?`, game: 'Juego',
+  left: 'QUEDAN', biggest: 'LOS MÁS GRANDES', watching: n => `Viendo a: ${n}`,
+  phaseCalm: s => `Tormenta en ${s} s`, phaseShrink: 'La tormenta se cierra', phaseFinal3: s => `Últimos tres ${s} s`, phaseFinal: 'Último apretón',
+  hudMass: 'MASA', hudKills: 'ELIMINACIONES', chatScore: (a, b) => `Chat ${a} · Streamer ${b}`,
+  chipShield: s => `Escudo ${s}`, chipNaked: 'Sin bola: recupérala', chipCharge: p => `LANZAR ${p}%`, chipDug: 'Enterrado',
+  chipDigCd: s => `CAVAR ${s}`, chipDigReady: 'CAVAR listo (X)', chipDigReadyTouch: 'CAVAR listo',
+  chipDashCd: s => `Embestida ${s}`, chipDashReady: 'Embestida lista', chipAnchor: s => `Ancla ${s}`, chipMagnet: s => `Imán ${s}`, chipTurbo: s => `Turbo ${s}`,
+  breath: 'ÚLTIMO ALIENTO', breathMouse: 'Clic o espacio: suelta la bola y vuelve dentro', breathTouch: 'Botón EMBESTIR: suelta la bola y vuelve dentro',
+  firstLine: 'Tu primera ronda. 16 escarabajos, un ganador.', winTitle: 'Último escarabajo en pie', winText: n => `Primero de ${n} escarabajos.`,
+  deathOwnBall: 'Tu propia bola te empujó a la tormenta.', deathPushed: n => `${n} te empujó a la tormenta.`, deathWall: 'Rodaste hacia la tormenta.', outText: n => `${n} está en la tormenta`,
+  'mission:it3': 'Elimina 3 escarabajos', 'mission:ilk5': 'Termina 2 rondas entre los 5 primeros', 'mission:guc6': 'Recoge 6 poderes', 'mission:tur5': 'Juega 5 rondas', 'mission:it6': 'Elimina 6 escarabajos', 'mission:kazan1': 'Gana una ronda',
+  'stamp:cig': '¡AVALANCHA!', 'stamp:dirilis': 'RESUCITÓ', 'stamp:pacavra': 'EL DÉBIL', 'stamp:hirsiz': 'ROBADA', 'stamp:kilpayi': 'POR UN PELO', 'stamp:pinball': 'PINBALL', 'stamp:kendigol': 'GOL EN PROPIA',
+  'sub:cig': n => `${n} escarabajos a la tormenta con un lanzamiento`, 'sub:dirilis': 'volvió del último aliento y ganó', 'sub:pacavra': 'entró a los últimos tres siendo el más pequeño y ganó',
+  'sub:hirsiz': (n, who) => `le quitó la bola a ${who}: +${n}`, 'sub:kilpayi': ms => `escapó de la tormenta con ${ms} ms de margen`, 'sub:pinball': n => `rebotó entre ${n} escarabajos y sigue en pie`, 'sub:kendigol': 'su propia bola lo empujó a la tormenta',
+  'mut:agir': 'Bolas pesadas', 'mutt:agir': 'los choques golpean 1,5× más fuerte', 'mut:kucuk': 'Arena pequeña', 'mutt:kucuk': 'arena 1500, la tormenta se cierra antes',
+  'mut:gece': 'Noche', 'mutt:gece': 'visión 300; sigue las estrellas', 'mut:kaygan': 'Arena resbaladiza', 'mutt:kaygan': 'mitad de fricción; calcula el deslizamiento',
+  'mut:hizli': 'Tormenta rápida', 'mutt:hizli': 'la tormenta termina de cerrarse a los 40 s', 'mut:dev': 'Bolas gigantes', 'mutt:dev': 'todos empiezan con masa 60',
+  'mut:miknatis': 'Día del imán', 'mutt:miknatis': 'los imanes atraen al doble de distancia, poderes por todas partes', 'mut:cilgin': 'Frenesí de embestidas', 'mutt:cilgin': 'embestida cada 0,8 segundos',
+  'tier:Larva': 'Larva', 'tier:Böcek': 'Escarabajo', 'tier:Yuvarlayıcı': 'Rodador', 'tier:Şampiyon': 'Campeón', 'tier:Kutsal Skarabe': 'Escarabajo sagrado',
+  'reward:yildiz': 'Estela de estrellas', 'reward:alev': 'Estela de brasas', 'reward:yaprak': 'Estela de hojas', 'reward:yuvarlayici': 'Rodador', 'reward:firtina': 'Amo de la tormenta', 'reward:hirsiz': 'Ladrón de bolas', 'reward:xp': n => `+${n} puntos`,
+  paused: 'En pausa', resume: 'Continuar', pauseHint: 'Esc o P: pausa',
+  online: 'Jugar en línea', connecting: 'Conectando con el servidor…', matching: (w, h) => `Emparejando: ${w} s · ${h} jugador${h === 1 ? '' : 'es'} (los bots llenan el resto)`,
+  onlineLost: 'Conexión perdida', onlineFail: 'No se pudo conectar con el servidor',
+  rooms: 'Salas', join: 'Unirse', createRoom: 'Crear sala privada', codePh: 'Código de sala', copyLink: 'Copiar enlace', begin: 'Empezar',
+  roomRow: (n, h) => `${n.replace('Oda', 'Sala')} · ${h} jugador${h === 1 ? '' : 'es'}`, roomLobby: w => (w === null ? 'esperando' : `empieza en ${w} s`),
+  roomPlaying: (left, dropin) => (dropin ? 'ronda en curso · entra ya' : `ronda en curso · ~${left} s`), roomOver: 'ronda terminada',
+  noRooms: 'No hay salas abiertas — "Jugar en línea" abre una nueva', roomsLoading: 'cargando salas…',
+  roomIdle: h => `${h} en la sala · juega quien pulse "Nueva ronda"`, waitRound: (l, h) => `Ronda en curso · siguiente en ~${l} s (${h} en la sala)`,
+  roomCode: (c, r, h) => `Sala privada ${c} · ${h} aquí, ${r} listos`, hostHint: 'comparte el enlace y pulsa Empezar', waitHost: 'el anfitrión inicia la ronda',
+  startingIn: w => `la ronda empieza en ${w} s`, joinRoomBtn: c => `Unirse a la sala ${c}`, joinedMid: 'Entraste a media ronda en el lugar de un bot',
+  spectating: 'Espectador', 'err:noRoom': 'No existe esa sala', 'err:full': 'La sala está llena', 'err:crash': 'La sala falló, inténtalo de nuevo',
+  'tw:need': 'hace falta el nombre del canal', 'tw:fail': 'no se pudo conectar', 'tw:connecting': 'conectando…', 'tw:on': c => `conectado: #${c} — escribe "!join" en el chat para jugar`,
+  'tw:error': 'error de conexión (el portal puede bloquear conexiones externas)', 'tw:closed': 'conexión cerrada',
+  'skin:Çini': 'Azulejo', 'skin:Nar': 'Granada', 'skin:Gece': 'Noche', 'skin:Lacivert': 'Azul marino', 'skin:Zümrüt': 'Esmeralda', 'skin:Mor Dağ': 'Monte púrpura',
+  'skin:Kobra': 'Cobra', 'skin:Akrep': 'Escorpión', 'skin:Vaha': 'Oasis', 'skin:Lale': 'Tulipán', 'skin:Bulut': 'Nube', 'skin:Şafak': 'Amanecer',
+  'skin:Çalıntı Altın': 'Oro robado', 'skin:Kum Bulutu': 'Nube de arena', 'skin:Kaya': 'Roca', 'skin:Yırtık': 'Rasgado', 'skin:Beyaz': 'Blanco', 'skin:Samanyolu': 'Vía Láctea',
+  'sp:sacer': 'Escarabajo sagrado', 'sph:sacer': 'juega una ronda', 'spf:sacer': 'El antiguo Egipto lo identificó con Jepri, el dios que hace rodar el sol por el cielo; casi todos los amuletos de escarabajo son de esta especie.',
+  'sp:satyrus': 'Escarabajo de las estrellas', 'sph:satyrus': 'gana una ronda con la mutación Noche', 'spf:satyrus': 'Experimentos de 2013 mostraron que rueda en línea recta guiándose por la franja de la Vía Láctea cuando no hay luna.',
+  'sp:taurus': 'Escarabajo toro', 'sph:taurus': 'elimina 3 escarabajos en una ronda', 'spf:taurus': 'Arrastra 1.141 veces su propio peso: el insecto más fuerte conocido en proporción a su tamaño.',
+  'sp:dominus': 'Escarabajo pelotero gigante', 'sph:dominus': 'alcanza masa 300', 'spf:dominus': 'Vive del estiércol de elefante; algunas especies de su género hacen bolas de cría del tamaño de una pelota de tenis.',
+  'sp:vindex': 'Escarabajo arcoíris', 'sph:vindex': 'nivel 5', 'spf:vindex': 'Caparazón metálico verde, cobre y azul; los machos llevan un solo cuerno largo.',
+  'sp:kheper': 'Luchador de bolas', 'sph:kheper': 'roba 10 bolas', 'spf:kheper': 'Un gran rodador de la sabana africana; en cuanto termina una bola, los vecinos vienen a robarla. Las peleas son normales.',
+  'sp:sisyphus': 'Escarabajo de Sísifo', 'sph:sisyphus': 'vuelve del último aliento 5 veces', 'spf:sisyphus': 'Lleva el nombre de Sísifo empujando su roca cuesta arriba; las parejas ruedan la bola juntas, contra la pendiente.',
+  'sp:canthon': 'Rodador americano', 'sph:canthon': 'elimina 3 escarabajos con una bola lanzada', 'spf:canthon': 'En Norteamérica lo llaman tumblebug; rueda la bola hacia atrás con las patas traseras.',
+  'sp:circellium': 'Escarabajo que no vuela', 'sph:circellium': 'termina entre los 3 primeros cinco veces', 'spf:circellium': 'No puede volar; está protegido en el parque Addo de Sudáfrica, donde las señales piden a los coches ceder el paso a los escarabajos.',
+  'sp:valgum': 'Escarabajo cazador', 'sph:valgum': 'vive el momento EL DÉBIL', 'spf:valgum': 'No come estiércol: caza milpiés, los decapita y come su interior. Uno de los pocos escarabajos peloteros carnívoros conocidos.',
+  'sp:gazella': 'Escarabajo gacela', 'sph:gazella': 'juega 20 rondas', 'spf:gazella': 'Llevado a Australia en los años 60 para limpiar el estiércol del ganado; redujo notablemente las moscas.',
+  'sp:molossus': 'Gigante cornudo', 'sph:molossus': 'elimina 5 escarabajos en una ronda', 'spf:molossus': 'La gran especie del sudeste asiático; los machos pelean en la entrada de los túneles con el cuerno único de su cabeza.',
+  'sp:zambesianus': 'Escarabajo de la luna', 'sph:zambesianus': 'juega 3 rondas con la mutación Noche', 'spf:zambesianus': 'En 2003 fue el primer animal en demostrar que se orienta por la polarización de la luz de la luna: en noches de luna llena rueda totalmente recto.',
+  'sp:lamarcki': 'Escarabajo bailarín', 'sph:lamarcki': 'vive el momento POR UN PELO', 'spf:lamarcki': 'Cuando la arena le quema las patas se sube a la bola y "baila": se enfría las patas sobre la bola más fresca y sigue.',
+  'sp:pachysoma': 'El arrastrador', 'sph:pachysoma': 'lanza 10 veces', 'spf:pachysoma': 'Vive en el desierto de Namib, no vuela y no rueda: arrastra bolitas secas hacia delante con las patas delanteras.',
+  'sp:copris': 'Copris español', 'sph:copris': 'juega 50 rondas', 'spf:copris': 'La especie que observó Fabre: la madre se queda meses con sus bolas de cría en forma de pera, limpiando el moho hasta que salen las crías.',
+  'sp:geotrupes': 'El excavador', 'sph:geotrupes': 'entiérrate 10 veces', 'spf:geotrupes': 'Cava túneles verticales bajo el estiércol y lo baja; pequeños ácaros viajan en su espalda de boñiga en boñiga.',
+  'sp:lancifer': 'Gigante del Amazonas', 'sph:lancifer': 'gana 3 rondas', 'spf:lancifer': 'El escarabajo pelotero más grande del Amazonas; azul violeta metálico, ambos sexos con cuernos. Entierra carroña, no estiércol.',
+  'sp:typhaeus': 'Escarabajo minotauro', 'sph:typhaeus': 'consigue la revancha 3 veces', 'spf:typhaeus': 'Los machos llevan tres cuernos; cava túneles de hasta 1,5 m para estiércol de conejo y oveja.',
+  'sp:cyanellus': 'Rodador azul', 'sph:cyanellus': 'termina entre los 3 primeros quince veces', 'spf:cyanellus': 'Especie verde azulada metálica de México; rueda bolas de carroña y ambos padres se quedan en el nido cuidando las bolas de cría.',
+  'sp:acuminatus': 'Macho furtivo', 'sph:acuminatus': 'roba 25 bolas', 'spf:acuminatus': 'Algunos machos nacen con cuernos y otros sin ellos: los cornudos guardan la entrada del túnel, los otros se cuelan por túneles laterales.',
+  'sp:stercorosus': 'Escarabajo del bosque', 'sph:stercorosus': 'juega 100 rondas', 'spf:stercorosus': 'El escarabajo pelotero más común de los bosques europeos; su caparazón azul negro brillante es habitual en los senderos.',
+  'sp:fimetarius': 'Ala roja', 'sph:fimetarius': 'vuelve del último aliento 15 veces', 'spf:fimetarius': 'No hace bola ni cava túnel: vive dentro del estiércol. Esta pequeña especie de alas rojas está en casi todo el planeta.',
+  'sp:sagittarius': 'Hembra cornuda', 'sph:sagittarius': 'alcanza masa 500', 'spf:sagittarius': 'Una rara excepción: las hembras también tienen cuernos, más grandes que los de los machos, y pelean entre ellas por los túneles.',
+  'ach:hirsiz': 'Ladrón', 'achh:hirsiz': 'roba 3 bolas en una ronda', 'ach:nefes': 'Maestro del último aliento', 'achh:nefes': 'vuelve del último aliento 5 veces',
+  'ach:cifte': 'Doble', 'achh:cifte': 'elimina 2 escarabajos con un lanzamiento', 'ach:pacavra': 'El débil', 'achh:pacavra': 'entra a los últimos tres siendo el más pequeño y gana',
+  'ach:pasifist': 'Pacifista', 'achh:pasifist': 'gana una ronda sin eliminar a nadie', 'ach:samanyolu': 'Vía Láctea', 'achh:samanyolu': 'gana con la mutación Noche',
+  'ach:odesme10': 'Revancha ×10', 'achh:odesme10': 'consigue la revancha 10 veces',
+},
+// --- Çince (Basitleştirilmiş). Yazı tipi: Rubik'te CJK yok, sistem yazı tipine düşer (PingFang / Microsoft YaHei / Noto). ---
+zh: {
+  tagline: '推开对手，把他们撞进风暴，成为最后站着的甲虫。',
+  namePh: '昵称', prevSkin: '上一个外观', nextSkin: '下一个外观', unlockNow: '立即解锁', play: '开始',
+  practice: '和机器人练习', panelPlayer: '玩家', panelToday: '今日', onlineNow: n => `● ${n} 人在线`,
+  missionLabel: '每日任务', missionDoneShort: '已完成', reward: r => `+${r}`, weekLabel: '本周变异',
+  kMouse: '鼠标', kClick: '点击 / 空格', kStick: '左摇杆', kBtn: '右按钮', kHold: '长按', kX: 'X / 右键', kDigBtn: '挖掘',
+  aSteer: '转向', aDash: '冲刺', aLaunch: '发射粪球', aDig: '挖掘',
+  statRounds: '回合', statWins: '胜场', statBest: '最佳', nemesisLabel: '宿敌', nemesisShort: k => `淘汰你 ${k} 次 · 场上戴冠 · 复仇 2 倍`,
+  streakShort: (d, l) => `连续 ${d} 天 · 再 ${l} 天解锁沙尘拖尾`, streakShortTrail: (d, h) => `连续 ${d} 天 · 沙尘拖尾剩 ${h} 小时`,
+  seasonShort: (i, tier, ready) => `第 ${i} 赛季 · ${tier}${ready ? ` · ${ready} 个沙箱可开！` : ''}`, bookShort: (a, b, c, d) => `物种 ${a}/${b} · 成就 ${c}/${d}`,
+  more: '赛季与图鉴', season: '赛季', book: '甲虫图鉴', streamTools: '主播工具', channelPh: 'Twitch 频道',
+  connect: '连接', disconnect: '断开', streamerMode: '主播模式',
+  twitchIntro: '在聊天中输入“!join”的观众会成为机器人，由你把他们推进风暴。只读，无需登录。',
+  twitchQueue: n => ` · ${n} 位观众排队中`, twitchOff: '关闭',
+  soundOn: '声音开', soundOff: '声音关', dash: '冲刺', dig: '挖掘', lang: 'ZH',
+  statsLine: (r, w, b) => `${r} 回合 · ${w} 胜 · 最佳第 ${b} 名`,
+  level: l => `等级 ${l}`, levelNext: (a, b) => `${a} / ${b} 分`,
+  missionDone: t => `每日任务已完成：${t}。`, mission: (t, p, n, r) => `每日任务：${t}（${p}/${n}）· ${r} 分`,
+  nemesisLine: (n, k) => `${n} 淘汰了你 ${k} 次${k >= 3 ? '——你的死敌' : ''}。本回合它在场上：找到戴冠的那只，复仇得双倍分。`,
+  streakTrail: (d, h) => `沙漏：连续 ${d} 天 · 沙尘拖尾还剩 ${h} 小时`,
+  streakLeft: (d, l) => `沙漏：连续 ${d} 天 · 再玩 ${l} 天解锁沙尘拖尾`,
+  streak: d => `沙漏：连续 ${d} 天`,
+  mutationLine: (n, t) => `本周变异：${n}——${t}。`,
+  seasonLine: (i, tier, xp, days, title, ready) => `第 ${i} 赛季 · ${tier} · ${xp} 分 · ${days} 天${title ? ' · ' + title : ''}${ready ? ` · ${ready} 个沙箱可开！` : ''}`,
+  helpMouse: '鼠标转向，点击或空格冲刺。收集颗粒，把对手推进风暴。',
+  helpTouch: '左摇杆转向，右按钮冲刺。收集颗粒，把对手推进风暴。',
+  helpLaunch: ' 长按后松开：发射粪球；球减速后谁碰到归谁。',
+  helpDigMouse: ' X 或右键：体型不到领先者一半时可钻入地下。', helpDigTouch: ' 挖掘按钮：体型不到领先者一半时可钻入地下。',
+  helpFinal: ' 剩最后 3 只时：15 秒相扑。',
+  tipLaunchMouse: '按住鼠标再松开：发射粪球', tipLaunchTouch: '按住按钮再松开：发射粪球',
+  tipDigMouse: 'X 或右键：钻入地下，0.8 秒内无法被推', tipDigTouch: '挖掘按钮：钻入地下，0.8 秒内无法被推',
+  seasonTitle: (i, tier) => `第 ${i} 赛季——${tier}`, seasonLabel: i => `第 ${i} 赛季`, sPoints: '赛季积分', sDays: '剩余天数',
+  sNextTier: t => `分升至${t}`, sTop: '最高段位', titleLabel: t => `称号：${t}`, trackLabel: '奖励轨道', trackProgress: (a, b) => `已开 ${a} / ${b}`,
+  pauseLabel: '游戏', pauseKeyHint: '继续',
+  copy: '复制', more2: '更多', copiedIg: '已复制，粘贴到 Instagram',
+  seasonSummary: (xp, days, next, need, title) => `${xp} 赛季积分 · 剩 ${days} 天${next ? ` · 再 ${need} 分升至${next}` : ' · 最高段位'}${title ? ` · 称号：${title}` : ''}`,
+  stepOpen: '已开', box: '沙箱', stepNeed: n => `${n} 分`, boxPick: '沙箱：选一张卡。',
+  boxWon: (name, type) => `获得：${name}${type === 'trail' ? '（拖尾，游戏中显示）' : type === 'title' ? '（称号）' : ''}`,
+  close: '关闭',
+  bookTitle: '甲虫图鉴', hiddenAch: '隐藏成就', bookLabel: '图鉴', speciesLabel: '物种', achLabel: '成就', speciesLabel2: '物种', leftToFind: n => (n ? `还剩 ${n}` : '已集齐'), toOpen: h => `解锁条件：${h}`, achSkin: s => ` · 外观：${s}`, achCrown: ' · 金冠',
+  bookSummary: (a, b, c, d) => `图鉴 ${a}/${b} · 成就 ${c}/${d}`, hintLater: n => `第 ${n} 回合后显示提示`,
+  rarity: { yaygın: '常见', nadir: '稀有', 'çok nadir': '非常稀有', efsane: '传说' },
+  goalMission: (n, t) => `每日任务还差 ${n}（${t}）`, goalLevel: (l, n) => `再 ${n} 分升到等级 ${l}`,
+  goalNemesis: n => `${n} 在场上，淘汰它得双倍分`, goalStreak: n => `再玩 ${n} 天解锁沙尘拖尾`,
+  goalBest: b => `你的最佳是第 ${b} 名，拿到第 ${b - 1} 名即破纪录`, goalPrefix: t => `未完成：${t}。`,
+  lockAch: '由隐藏成就解锁', lockLevel: l => `等级 ${l} 解锁`, mastery: (a, b) => `精通：${a}/${b} 回合`, masterSkin: '精通外观',
+  revenge: '复仇', revengeSub: n => `${n} 进了风暴，本回合双倍分`,
+  stole: (n, m) => `从 ${n} 手里抢到粪球：+${m}`, stolenBy: n => `${n} 抢走了你的粪球`, escaped: '最后一口气！粪球留在了身后', ballLost: '你的粪球掉进了风暴',
+  final3: '最后三只', final3Sub: (s, a, b) => `${s} 秒相扑，无颗粒` + (a !== null ? ` · 你的质量 ${a} → ${b}` : ''),
+  streakBroken: b => `连续记录中断（最佳 ${b} 天）；今天是第 1 天`, streakTrailOn: d => `沙漏第 ${d} 天：沙尘拖尾已开启`, streakDay: d => `沙漏：第 ${d} 天`,
+  someone: '某人', rival: '你的对手', you: '你',
+  challengeLine: (w, c, p) => `${w} 向你挑战：在第 #${c} 回合拿到第 ${p} 名。玩同一回合，超过他。`,
+  challengeLineNoPlace: (w, c) => `${w} 向你挑战：玩第 #${c} 回合。`,
+  shareLine: (title, code, name, place, kills, stamp) => `${title} #${code}——${name} 第 ${place} 名，${kills} 次淘汰${stamp ? ' · ' + stamp : ''} 🪲`,
+  shareAsk: '你能拿第几名？', roundCodeOnly: c => `回合码：${c}`, copied: '已复制', challengeBtn: '挑战',
+  roundCode: c => `回合码 #${c}`, clipBtn: '分享片段',
+  beat: (w, p, m) => `${w} 第 ${p} 名，你第 ${m} 名——你赢了！`, tie: (w, p) => `与 ${w} 并列：第 ${p} 名。`, lost: (w, p, m) => `${w} 第 ${p} 名，你第 ${m} 名——再试一次。`,
+  place: '名次', kills: '淘汰', mass: '质量', revive: '复活一次', again: '新回合',
+  died: p => `你获得第 ${p} 名`, roundWonBy: n => `${n} 赢得了本回合。`, roundOver: '回合结束。',
+  xpGain: g => `+${g} 分`, levelUp: l => `升级：${l}`, newSkins: s => `新外观：${s}`, missionReward: r => `每日任务完成，+${r}`,
+  newPrefix: s => `新：${s}`, masteryNew: (n, stars) => `精通：${n} ${stars}`, bookNew: n => `图鉴：${n}`, achNew: (n, s) => `成就：${n}${s ? '（' + s + '）' : ''}`,
+  highlightLine: (st, sub) => `本回合高光：${st}——${sub}`,
+  clipLabel: '高光片段 · 9:16',
+  clip: '片段', clipPrep: p => `正在生成片段：${p}%`, clipReady: (st, kb) => `已就绪：${st} · ${kb} KB`, share: '分享', download: '下载',
+  clipFail: e => `片段失败：${e}`, watermark: c => `第 #${c} 回合 · 你能拿第几名？`, game: '游戏',
+  left: '剩余', biggest: '最大', watching: n => `观战中：${n}`,
+  phaseCalm: s => `风暴 ${s} 秒后`, phaseShrink: '风暴收缩中', phaseFinal3: s => `最后三只 ${s} 秒`, phaseFinal: '最后挤压',
+  hudMass: '质量', hudKills: '淘汰', chatScore: (a, b) => `聊天 ${a} · 主播 ${b}`,
+  chipShield: s => `护盾 ${s}`, chipNaked: '没有粪球：把它抢回来', chipCharge: p => `发射 ${p}%`, chipDug: '已钻地',
+  chipDigCd: s => `挖掘 ${s}`, chipDigReady: '可挖掘（X）', chipDigReadyTouch: '可挖掘',
+  chipDashCd: s => `冲刺 ${s}`, chipDashReady: '可冲刺', chipAnchor: s => `锚 ${s}`, chipMagnet: s => `磁铁 ${s}`, chipTurbo: s => `加速 ${s}`,
+  breath: '最后一口气', breathMouse: '点击或空格：丢下粪球，冲回场内', breathTouch: '冲刺按钮：丢下粪球，冲回场内',
+  firstLine: '你的第一回合。16 只甲虫，一个赢家。', winTitle: '最后站着的甲虫', winText: n => `${n} 只甲虫中的第一。`,
+  deathOwnBall: '你自己的粪球把你推进了风暴。', deathPushed: n => `${n} 把你推进了风暴。`, deathWall: '你滚进了风暴。', outText: n => `${n} 进了风暴`,
+  'mission:it3': '淘汰 3 只甲虫', 'mission:ilk5': '2 个回合进入前 5', 'mission:guc6': '收集 6 个能量', 'mission:tur5': '玩 5 个回合', 'mission:it6': '淘汰 6 只甲虫', 'mission:kazan1': '赢一个回合',
+  'stamp:cig': '雪崩！', 'stamp:dirilis': '复活', 'stamp:pacavra': '逆袭', 'stamp:hirsiz': '被抢', 'stamp:kilpayi': '千钧一发', 'stamp:pinball': '弹珠', 'stamp:kendigol': '乌龙球',
+  'sub:cig': n => `一次发射送 ${n} 只甲虫进风暴`, 'sub:dirilis': '从最后一口气回来并获胜', 'sub:pacavra': '以最小体型进入最后三只并获胜',
+  'sub:hirsiz': (n, who) => `抢走 ${who} 的粪球：+${n}`, 'sub:kilpayi': ms => `距风暴仅 ${ms} 毫秒逃脱`, 'sub:pinball': n => `在 ${n} 只甲虫之间弹来弹去仍站着`, 'sub:kendigol': '自己的粪球把他推进了风暴',
+  'mut:agir': '重球', 'mutt:agir': '碰撞力度 1.5 倍', 'mut:kucuk': '小竞技场', 'mutt:kucuk': '竞技场 1500，风暴提前收缩',
+  'mut:gece': '黑夜', 'mutt:gece': '视野 300；跟着星星走', 'mut:kaygan': '滑沙', 'mutt:kaygan': '阻力减半；算好滑行',
+  'mut:hizli': '疾风暴', 'mutt:hizli': '风暴在 40 秒时收缩完毕', 'mut:dev': '巨球', 'mutt:dev': '所有人从质量 60 开始',
+  'mut:miknatis': '磁铁日', 'mutt:miknatis': '磁铁吸引距离翻倍，能量遍地', 'mut:cilgin': '狂冲', 'mutt:cilgin': '每 0.8 秒可冲刺一次',
+  'tier:Larva': '幼虫', 'tier:Böcek': '甲虫', 'tier:Yuvarlayıcı': '滚球手', 'tier:Şampiyon': '冠军', 'tier:Kutsal Skarabe': '圣甲虫',
+  'reward:yildiz': '星光拖尾', 'reward:alev': '余烬拖尾', 'reward:yaprak': '树叶拖尾', 'reward:yuvarlayici': '滚球手', 'reward:firtina': '风暴大师', 'reward:hirsiz': '偷球贼', 'reward:xp': n => `+${n} 分`,
+  paused: '已暂停', resume: '继续', pauseHint: 'Esc 或 P：暂停',
+  online: '在线游戏', connecting: '正在连接服务器…', matching: (w, h) => `匹配中：${w} 秒 · ${h} 名玩家（其余由机器人补足）`,
+  onlineLost: '连接断开', onlineFail: '无法连接服务器',
+  rooms: '房间', join: '加入', createRoom: '创建私人房间', codePh: '房间码', copyLink: '复制链接', begin: '开始',
+  roomRow: (n, h) => `${n.replace('Oda', '房间')} · ${h} 人`, roomLobby: w => (w === null ? '等待中' : `${w} 秒后开始`),
+  roomPlaying: (left, dropin) => (dropin ? '回合进行中 · 立即加入' : `回合进行中 · 约 ${left} 秒`), roomOver: '回合结束',
+  noRooms: '没有开放的房间——“在线游戏”会开一个新房间', roomsLoading: '正在加载房间…',
+  roomIdle: h => `房间里 ${h} 人 · 谁按“新回合”谁上场`, waitRound: (l, h) => `回合进行中 · 约 ${l} 秒后下一回合（房间里 ${h} 人）`,
+  roomCode: (c, r, h) => `私人房间 ${c} · ${h} 人在线，${r} 人已准备`, hostHint: '分享链接，准备好后按开始', waitHost: '由房主开始回合',
+  startingIn: w => `回合 ${w} 秒后开始`, joinRoomBtn: c => `加入房间 ${c}`, joinedMid: '你在回合中途加入，接替了一个机器人',
+  spectating: '观战中', 'err:noRoom': '没有这个房间', 'err:full': '房间已满', 'err:crash': '房间崩溃，请重试',
+  'tw:need': '需要频道名', 'tw:fail': '无法连接', 'tw:connecting': '连接中…', 'tw:on': c => `已连接：#${c}——在聊天中输入“!join”即可上场`,
+  'tw:error': '连接错误（平台可能禁止外部连接）', 'tw:closed': '连接已关闭',
+  'skin:Çini': '瓷砖', 'skin:Nar': '石榴', 'skin:Gece': '夜', 'skin:Lacivert': '藏青', 'skin:Zümrüt': '翡翠', 'skin:Mor Dağ': '紫山',
+  'skin:Kobra': '眼镜蛇', 'skin:Akrep': '蝎子', 'skin:Vaha': '绿洲', 'skin:Lale': '郁金香', 'skin:Bulut': '云', 'skin:Şafak': '黎明',
+  'skin:Çalıntı Altın': '偷来的金', 'skin:Kum Bulutu': '沙云', 'skin:Kaya': '岩石', 'skin:Yırtık': '破损', 'skin:Beyaz': '白', 'skin:Samanyolu': '银河',
+  'sp:sacer': '圣甲虫', 'sph:sacer': '玩一个回合', 'spf:sacer': '古埃及人把它看作推动太阳横越天空的神凯布利；大多数圣甲虫护身符都是这个物种。',
+  'sp:satyrus': '星光甲虫', 'sph:satyrus': '在黑夜变异中赢一回合', 'spf:satyrus': '2013 年的实验表明，没有月亮时它靠银河的光带保持直线滚动。',
+  'sp:taurus': '公牛甲虫', 'sph:taurus': '一回合淘汰 3 只甲虫', 'spf:taurus': '能拉动自身体重 1141 倍：按体重比例是已知最强壮的昆虫。',
+  'sp:dominus': '巨型蜣螂', 'sph:dominus': '质量达到 300', 'spf:dominus': '以大象粪便为生；该属的一些物种能做出网球大小的育幼球。',
+  'sp:vindex': '彩虹圣甲虫', 'sph:vindex': '等级 5', 'spf:vindex': '金属质感的绿、铜、蓝色外壳；雄虫长着一根长角。',
+  'sp:kheper': '抢球斗士', 'sph:kheper': '抢 10 个粪球', 'spf:kheper': '非洲草原上的大型滚球手；球一做好，邻居就来抢。打架是家常便饭。',
+  'sp:sisyphus': '西西弗斯甲虫', 'sph:sisyphus': '从最后一口气回来 5 次', 'spf:sisyphus': '以推石上山的西西弗斯命名；成对合力逆着斜坡滚球。',
+  'sp:canthon': '翻滚虫', 'sph:canthon': '用发射的粪球淘汰 3 只甲虫', 'spf:canthon': '北美叫它 tumblebug；它用后腿倒着推球。',
+  'sp:circellium': '不会飞的圣甲虫', 'sph:circellium': '五次进入前 3', 'spf:circellium': '不会飞；在南非阿多大象公园受保护，路牌要求汽车给甲虫让路。',
+  'sp:valgum': '猎手甲虫', 'sph:valgum': '经历“逆袭”时刻', 'spf:valgum': '不吃粪便：捕食马陆，斩首后吃掉内脏。已知为数不多的肉食性蜣螂之一。',
+  'sp:gazella': '羚羊甲虫', 'sph:gazella': '玩 20 个回合', 'spf:gazella': '20 世纪 60 年代被引入澳大利亚清理牛粪；明显减少了苍蝇数量。',
+  'sp:molossus': '独角巨人', 'sph:molossus': '一回合淘汰 5 只甲虫', 'spf:molossus': '东南亚的大型物种；雄虫用头上的独角在洞口争斗。',
+  'sp:zambesianus': '月光甲虫', 'sph:zambesianus': '在黑夜变异中玩 3 个回合', 'spf:zambesianus': '2003 年成为第一种被证明靠月光偏振导航的动物：接近满月的夜晚它滚得笔直。',
+  'sp:lamarcki': '跳舞甲虫', 'sph:lamarcki': '经历“千钧一发”时刻', 'spf:lamarcki': '沙子烫脚时它爬上粪球“跳舞”：在较凉的球上给腿降温，然后继续。',
+  'sp:pachysoma': '拖行者', 'sph:pachysoma': '发射 10 次', 'spf:pachysoma': '生活在纳米布沙漠，不会飞也不滚球：用前腿把干粪粒向前拖。',
+  'sp:copris': '西班牙粪蜣', 'sph:copris': '玩 50 个回合', 'spf:copris': '法布尔观察过的物种：母虫守着梨形育幼球数月，清除霉菌直到幼虫出来。',
+  'sp:geotrupes': '掘洞者', 'sph:geotrupes': '钻地 10 次', 'spf:geotrupes': '在粪便下挖垂直洞穴并把粪运下去；小螨虫趴在它背上从一堆粪搬到另一堆。',
+  'sp:lancifer': '亚马逊巨人', 'sph:lancifer': '赢 3 个回合', 'spf:lancifer': '亚马逊最大的蜣螂；金属蓝紫色，雌雄都有角。它埋的是腐肉而不是粪便。',
+  'sp:typhaeus': '牛头人甲虫', 'sph:typhaeus': '复仇 3 次', 'spf:typhaeus': '雄虫有三只角；为兔和羊的粪便挖深达 1.5 米的洞。',
+  'sp:cyanellus': '蓝色滚球手', 'sph:cyanellus': '十五次进入前 3', 'spf:cyanellus': '来自墨西哥的金属蓝绿色物种；滚腐肉球，父母双方都留在巢中照料育幼球。',
+  'sp:acuminatus': '偷偷摸摸的雄虫', 'sph:acuminatus': '抢 25 个粪球', 'spf:acuminatus': '有的雄虫生来有角，有的没有：有角的守洞口，没角的从侧洞溜进去。',
+  'sp:stercorosus': '森林甲虫', 'sph:stercorosus': '玩 100 个回合', 'spf:stercorosus': '欧洲森林里最常见的蜣螂；闪亮的蓝黑色外壳在林间小路上很常见。',
+  'sp:fimetarius': '红翅', 'sph:fimetarius': '从最后一口气回来 15 次', 'spf:fimetarius': '不做球也不挖洞：就住在粪便里。这种红翅小甲虫几乎遍布全球。',
+  'sp:sagittarius': '有角的雌虫', 'sph:sagittarius': '质量达到 500', 'spf:sagittarius': '罕见的例外：雌虫也有角，而且比雄虫的大，并为争夺洞穴互相打斗。',
+  'ach:hirsiz': '小偷', 'achh:hirsiz': '一回合抢 3 个粪球', 'ach:nefes': '最后一口气大师', 'achh:nefes': '从最后一口气回来 5 次',
+  'ach:cifte': '双杀', 'achh:cifte': '一次发射淘汰 2 只甲虫', 'ach:pacavra': '逆袭者', 'achh:pacavra': '以最小体型进入最后三只并获胜',
+  'ach:pasifist': '和平主义者', 'achh:pasifist': '不淘汰任何人赢一回合', 'ach:samanyolu': '银河', 'achh:samanyolu': '在黑夜变异中获胜',
+  'ach:odesme10': '复仇 ×10', 'achh:odesme10': '复仇 10 次',
+},
 };
 
 const Lang = {
   code: 'tr',
-  CODES: ['tr', 'en', 'ar'],           // düğme bu sırayla döner; ar sağdan sola (dir=rtl)
+  CODES: ['tr', 'en', 'ar', 'es', 'zh'],   // seçim kutusu sırası; ar sağdan sola (dir=rtl)
+  NAMES: { tr: 'Türkçe', en: 'English', ar: 'العربية', es: 'Español', zh: '中文' },
   init() {
     let saved = null;
     try { saved = localStorage.getItem('kumul-lang'); } catch {}
     const nav = String(navigator.language || 'tr').toLowerCase();
-    this.code = this.CODES.includes(saved) ? saved : nav.startsWith('tr') ? 'tr' : nav.startsWith('ar') ? 'ar' : 'en';
+    this.code = this.CODES.includes(saved) ? saved : this.CODES.find(c => c !== 'en' && nav.startsWith(c)) || 'en';
     this.applyDom();
   },
   t(key, ...a) {
@@ -1169,6 +1434,11 @@ const Lang = {
     if (typeof document === 'undefined') return;
     document.documentElement.lang = this.code;
     document.documentElement.dir = this.rtl ? 'rtl' : 'ltr';
+    const sel = document.getElementById('langBtn');   // dil seçim kutusu: seçenekler bir kez kurulur, değer eşitlenir
+    if (sel && sel.tagName === 'SELECT') {
+      if (!sel.options.length) for (const c of this.CODES) { const o = document.createElement('option'); o.value = c; o.textContent = this.NAMES[c]; sel.appendChild(o); }
+      sel.value = this.code;
+    }
     for (const el of document.querySelectorAll('[data-t]')) el.textContent = this.t(el.dataset.t);
     for (const el of document.querySelectorAll('[data-t-ph]')) el.placeholder = this.t(el.dataset.tPh);
     for (const el of document.querySelectorAll('[data-t-aria]')) el.setAttribute('aria-label', this.t(el.dataset.tAria));
@@ -2783,7 +3053,7 @@ class ArenaRenderer extends RenderBase {
   }
   label(text, x, y, align = 'left', color = KUMUL.muted) {
     const ctx = this.ctx, code = typeof Lang !== 'undefined' ? Lang.code : 'tr';
-    ctx.save(); ctx.textAlign = align; ctx.fillStyle = color; ctx.font = `700 ${code === 'ar' ? 11 : 10}px ${KUMUL.font}`;
+    ctx.save(); ctx.textAlign = align; ctx.fillStyle = color; ctx.font = `700 ${code === 'ar' || code === 'zh' ? 11 : 10}px ${KUMUL.font}`;
     try { ctx.letterSpacing = code === 'ar' ? '0px' : '1.2px'; } catch {}   // Arapça harfler bitişik: aralık verilmez
     ctx.fillText(String(text).toLocaleUpperCase(code), x, y); ctx.restore();
   }
@@ -3746,7 +4016,7 @@ if ($('resumeBtn')) $('resumeBtn').addEventListener('click', () => setPaused(fal
 const useStream = !!GAME.streamer && typeof Twitch !== 'undefined' && Twitch.supported() && !Ads.detect();
 function streamScore() { renderer.scoreLine = ''; }
 // Dil düğmesi: metinleri yeniden yaz, menüyü tazele
-if ($('langBtn')) $('langBtn').addEventListener('click', () => { Lang.toggle(); showMute(); refreshMenu(); drawSkinPreview(); });
+if ($('langBtn')) $('langBtn').addEventListener('change', e => { Lang.set(e.target.value); showMute(); refreshMenu(); Tutor.renderHelp(); drawSkinPreview(); });
 const skinLocked = i => useProgress && Progress.skinLocked(i);
 
 let savedSkin = Math.min(KUMUL_SKINS.length - 1, Math.max(0, store.get(GAME.key + '-skin', 0) | 0));   // son seçilen AÇIK görünüm
