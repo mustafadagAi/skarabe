@@ -57,15 +57,11 @@
              font-family: inherit; font-size: 28px; font-weight: 800; cursor: pointer; display: grid; place-items: center; }
   .cardBtn.open { background: var(--paper); color: var(--ink); font-size: 13px; padding: 6px; }
   .cardBtn.pick { outline: 3px solid var(--amber); }
-  #streamBox { max-width: 420px; text-align: center; font-size: 13px; color: var(--muted); }
-  #streamBox summary { cursor: pointer; font-weight: 700; color: var(--ink); }
-  #streamBox[hidden] { display: none; }
   #moreBox { max-width: 460px; text-align: center; font-size: 13px; color: var(--muted); }
   #moreBox > summary { cursor: pointer; font-weight: 700; color: var(--ink); }
   #moreBox[hidden] { display: none; }
   .moreInner { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 10px; }
   .field.mini { padding: 6px 10px; font-size: 13px; width: 150px; }
-  #streamBox label { display: inline-flex; align-items: center; gap: 4px; }
   .clipCard { padding: 16px 20px; gap: 10px; }
   .clipCard h2 { font-size: 22px; }
   #clipCanvas { display: block; height: 56vh; width: auto; max-width: 90vw; border: 2px solid var(--ink); border-radius: 10px; background: #000; }
@@ -183,12 +179,48 @@
   .daily .moreInner { align-items: stretch; }
   .rowBtn { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .rowBtn .small { flex: 1; }
-  .daily #streamBox { max-width: none; text-align: left; }
   @media (max-width: 920px) {
     .lobbyGrid { grid-template-columns: minmax(0, 420px); }
     .panel.center { order: -1; }
     .lobby { gap: 14px; }
   }
+  /* ---- Bilgi kartları: görev (etiket + başlık + çubuk + ödül), haftalık mutasyon, tuş kapakları ---- */
+  .mLabel { font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .infoCard { width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 3px; padding: 10px 14px; border-radius: 12px;
+              background: rgba(232, 213, 169, 0.42); border: 1.5px solid rgba(42, 31, 20, 0.22); text-align: left; }
+  .infoCard b { font-size: 14px; }
+  .mDesc { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+  .infoCard[hidden] { display: none; }
+  .daily #mission { max-width: none; display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; text-align: left; border-radius: 12px;
+                    background: rgba(242, 161, 4, 0.12); border: 1.5px solid rgba(242, 161, 4, 0.7); }
+  #mission[hidden] { display: none; }
+  .mTop { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .mReward { font-size: 12px; font-weight: 800; color: var(--paper); background: var(--amber); border-radius: 999px; padding: 2px 9px; }
+  #mission b { font-size: 14px; line-height: 1.3; }
+  .bar.mini { height: 7px; border-width: 1.5px; }
+  .mProg { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .keys { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 12px; }
+  .keys:empty { display: none; }
+  .key { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .key kbd { font: 700 11px 'Rubik', system-ui, sans-serif; color: var(--ink); background: var(--paper); border: 1.5px solid rgba(42, 31, 20, 0.5);
+             border-bottom-width: 3px; border-radius: 6px; padding: 2px 7px; white-space: nowrap; }
+
+  /* ---- Sonuç kartı: lobi paneliyle aynı dil; büyük "Yeni tur", istatistik kutucukları ---- */
+  .resultCard { width: min(440px, 92vw); padding: 24px 24px 18px; gap: 14px; }
+  .resultHead { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .resultHead h2 { font-family: 'Rammetto One', 'Rubik', system-ui, sans-serif; font-weight: 400; font-size: 30px; margin: 0; text-align: center; text-wrap: balance; }
+  .statRow.tiles div { background: rgba(232, 213, 169, 0.42); border: 1.5px solid rgba(42, 31, 20, 0.22); border-radius: 12px; padding: 10px 6px 8px; }
+  .statRow.tiles b { font-size: 28px; line-height: 1.05; }
+  .resultCard #xpBox .row { font-size: 12.5px; }
+  .resultCard #xpGain { font-size: 15px; }
+  .resultCard .pill { align-self: center; }
+  .resultCard #newLine { color: var(--amber); font-weight: 700; }
+  .resultCard #challengeResult { font-weight: 600; color: var(--ink); }
+  .resultActions { width: 100%; flex-direction: column; gap: 8px; }
+  .resultActions .btn.big { width: 100%; padding: 14px 20px; font-size: 19px; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 12px; }
+  .resultActions .btn.big.ghost { font-size: 15px; padding: 10px 20px; text-transform: none; letter-spacing: 0; }
+  .resultShare { width: 100%; justify-content: center; gap: 10px; }
+  .resultShare #roundCode { font-size: 12px; }
   @media (max-width: 600px) {
     /* Dar ekranda sabit düğmeler logoyu ve metni örtmesin: alt köşeler, menüye alt boşluk */
     #langBtn { top: auto; bottom: 12px; left: 12px; right: auto; }
@@ -249,14 +281,23 @@
           <button id="joinCodeBtn" class="btn ghost mini" data-t="join">Katıl</button>
         </div>
       </div>
-      <p id="mutationLine" class="pill"></p>
+      <div id="mutationBox" class="infoCard" hidden>
+        <span class="mLabel" data-t="weekLabel">Bu haftanın mutasyonu</span>
+        <b id="mutationName"></b>
+        <span id="mutationLine" class="mDesc"></span>
+      </div>
       <p id="challengeLine" class="pill"></p>
-      <p id="helpText" class="small help"></p>
+      <div id="helpText" class="keys"></div>
     </section>
     <!-- Sağ: bugün (görev, rakip, sezon, defter) -->
     <aside class="panel daily">
       <div class="panelTitle" data-t="panelToday">Bugün</div>
-      <div id="mission"><span id="missionLine"></span></div>
+      <div id="mission" hidden>
+        <div class="mTop"><span class="mLabel" data-t="missionLabel">Günlük görev</span><span id="missionReward" class="mReward"></span></div>
+        <b id="missionTitle"></b>
+        <div class="bar mini"><i id="missionBar"></i></div>
+        <span id="missionLine" class="mProg"></span>
+      </div>
       <p id="nemesisLine" class="small"></p>
       <!-- Kademeli öğretme: derinlik seviye 3 / 5. turdan sonra "Daha fazla" altında -->
       <details id="moreBox" open hidden>
@@ -264,15 +305,6 @@
         <div class="moreInner">
           <div class="rowBtn"><span id="seasonLine" class="small"></span><button id="seasonBtn" class="btn ghost mini" data-t="season">Sezon</button></div>
           <div class="rowBtn"><span id="defterLine" class="small"></span><button id="defterBtn" class="btn ghost mini" data-t="book">Defter</button></div>
-          <details id="streamBox">
-            <summary data-t="streamTools">Yayıncı araçları</summary>
-            <div class="share">
-              <input id="twitchChannel" class="field mini" data-t-ph="channelPh" placeholder="Twitch kanalı" maxlength="25" autocomplete="off">
-              <button id="twitchBtn" class="btn ghost mini" data-t="connect">Bağlan</button>
-              <label class="small"><input type="checkbox" id="streamerMode"> <span data-t="streamerMode">Yayıncı kipi</span></label>
-            </div>
-            <p id="twitchStatus" class="small" data-t="twitchIntro">Sohbete "!katıl" yazan izleyiciler botların adını alır; sen onları fırtınaya itersin. Salt okunur, giriş gerekmez.</p>
-          </details>
         </div>
       </details>
     </aside>
@@ -281,30 +313,32 @@
 </div>
 
 <div id="result" class="overlay" hidden>
-  <div class="card">
-    <h2 id="resultTitle"></h2>
-    <p id="resultSub" class="small"></p>
-    <div class="statRow">
+  <div class="panel resultCard">
+    <div class="resultHead">
+      <h2 id="resultTitle"></h2>
+      <p id="resultSub" class="small"></p>
+    </div>
+    <div class="statRow tiles">
       <div><b id="statPlace"></b><span data-t="place">Sıra</span></div>
       <div><b id="statKills"></b><span data-t="kills">İtiş</span></div>
       <div><b id="statMass"></b><span data-t="mass">Ağırlık</span></div>
     </div>
-    <p id="highlightLine" class="small"></p>
-    <p id="challengeResult" class="small"></p>
-    <p id="yarimLine" class="small"></p>
-    <p id="newLine" class="small"></p>
     <div id="xpBox" hidden>
       <div class="row"><span id="xpGain"></span><span id="xpNote"></span></div>
       <div class="bar"><i id="xpBar"></i></div>
     </div>
-    <div class="actions">
-      <button id="reviveBtn" class="btn ghost" data-t="revive">Bir kez diril</button>
-      <button id="againBtn" class="btn" data-t="again">Yeni tur</button>
+    <p id="highlightLine" class="pill"></p>
+    <p id="newLine" class="small"></p>
+    <p id="challengeResult" class="small"></p>
+    <p id="yarimLine" class="small"></p>
+    <div class="actions resultActions">
+      <button id="againBtn" class="btn big" data-t="again">Yeni tur</button>
+      <button id="reviveBtn" class="btn big ghost" data-t="revive">Bir kez diril</button>
     </div>
-    <div class="share">
-      <span id="roundCode" class="small"></span>
+    <div class="share resultShare">
       <button id="shareBtn" class="btn ghost mini" data-t="challengeBtn">Meydan oku</button>
       <button id="clipBtn" class="btn mini" data-t="clipBtn" hidden>Klibi paylaş</button>
+      <span id="roundCode" class="small"></span>
     </div>
     <textarea id="shareBox" hidden readonly rows="3"></textarea>
   </div>
@@ -623,6 +657,9 @@ tr: {
   tagline: 'İt, fırtınaya düşür, ayakta kalan son böcek ol.',
   namePh: 'Takma ad', prevSkin: 'Önceki görünüm', nextSkin: 'Sonraki görünüm', unlockNow: 'Beklemeden aç', play: 'Oyna',
   practice: 'Botlarla pratik', panelPlayer: 'Oyuncu', panelToday: 'Bugün', onlineNow: n => `● ${n} oyuncu çevrimiçi`,
+  missionLabel: 'Günlük görev', missionDoneShort: 'Tamamlandı', reward: r => `+${r}`, weekLabel: 'Bu haftanın mutasyonu',
+  kMouse: 'Fare', kClick: 'Tık / Boşluk', kStick: 'Sol çubuk', kBtn: 'Sağ düğme', kHold: 'Basılı tut', kX: 'X / Sağ tık', kDigBtn: 'KAZ',
+  aSteer: 'yön', aDash: 'atılma', aLaunch: 'topu fırlat', aDig: 'kazı (liderin yarısından küçükken)',
   more: 'Daha fazla', season: 'Sezon', book: 'Defter', streamTools: 'Yayıncı araçları', channelPh: 'Twitch kanalı',
   connect: 'Bağlan', disconnect: 'Kes', streamerMode: 'Yayıncı kipi',
   twitchIntro: 'Sohbete "!katıl" yazan izleyiciler botların adını alır; sen onları fırtınaya itersin. Salt okunur, giriş gerekmez.',
@@ -729,6 +766,9 @@ en: {
   tagline: 'Push, drop them into the storm, be the last beetle standing.',
   namePh: 'Nickname', prevSkin: 'Previous skin', nextSkin: 'Next skin', unlockNow: 'Unlock now', play: 'Play',
   practice: 'Practice vs bots', panelPlayer: 'Player', panelToday: 'Today', onlineNow: n => `● ${n} player${n === 1 ? '' : 's'} online`,
+  missionLabel: 'Daily mission', missionDoneShort: 'Done', reward: r => `+${r}`, weekLabel: "This week's mutation",
+  kMouse: 'Mouse', kClick: 'Click / Space', kStick: 'Left stick', kBtn: 'Right button', kHold: 'Hold', kX: 'X / Right click', kDigBtn: 'DIG',
+  aSteer: 'steer', aDash: 'dash', aLaunch: 'launch ball', aDig: 'dig (under half the leader)',
   more: 'More', season: 'Season', book: 'Beetle Book', streamTools: 'Streamer tools', channelPh: 'Twitch channel',
   connect: 'Connect', disconnect: 'Disconnect', streamerMode: 'Streamer mode',
   twitchIntro: 'Viewers who type "!join" in chat become the bots; you push them into the storm. Read-only, no login.',
@@ -3271,68 +3311,6 @@ const Clip = {
 
 </script>
 <script>
-// =====================================================================
-// kumul-yayin.js — Yayıncı araçları: Twitch sohbetinden bot isimleri.
-// Twitch IRC'ye WebSocket ile anonim (justinfan) ve salt okunur bağlanır; OAuth yok, hiçbir şey yazmaz.
-// "!katıl" yazan izleyiciler sıraya girer; tur başında botlar sıradaki isimleri alır (kullanılanlar
-// sıranın sonuna döner). Portal kısıtı: dış bağlantıya izin vermeyen portallarda bu kutu gizlenir.
-// =====================================================================
-
-const Twitch = {
-  URL: 'wss://irc-ws.chat.twitch.tv:443',
-  MAX_QUEUE: 60, NAME_LEN: 12,
-  ws: null, channel: '', status: 'twitchOff', statusArg: null, queue: [], joined: 0, onChange: null,
-  supported() { return typeof WebSocket !== 'undefined' && /^https?:/.test(location.href); },
-
-  connect(channel) {
-    this.disconnect();
-    channel = String(channel || '').trim().replace(/^#/, '').toLowerCase().replace(/[^a-z0-9_]/g, '');
-    if (!channel) { this.set('tw:need'); return; }
-    this.channel = channel;
-    let ws;
-    try { ws = new WebSocket(this.URL); } catch { this.set('tw:fail'); return; }
-    this.ws = ws; this.set('tw:connecting');
-    ws.onopen = () => {
-      ws.send('NICK justinfan' + (10000 + Math.floor(Math.random() * 89999)));
-      ws.send('JOIN #' + channel);
-      this.set('tw:on', channel);
-    };
-    ws.onmessage = e => { for (const line of String(e.data).split('\r\n')) if (line) this.handle(line); };
-    ws.onerror = () => this.set('tw:error');
-    ws.onclose = () => { if (this.ws === ws) { this.ws = null; this.set('tw:closed'); } };
-  },
-  disconnect() { if (this.ws) { try { this.ws.close(); } catch {} } this.ws = null; },
-  // Durum bir dil anahtarıdır (kumul-dil.js); metin gösterim anında çevrilir
-  set(status, arg = null) { this.status = status; this.statusArg = arg; if (this.onChange) this.onChange(); },
-  statusText() { return typeof T === 'function' ? T(this.status, this.statusArg) : this.status; },
-
-  handle(line) {
-    if (line.startsWith('PING')) { this.ws && this.ws.send('PONG :tmi.twitch.tv'); return; }
-    const m = line.match(/^:(\w+)!\S+ PRIVMSG #\w+ :(.*)$/);
-    if (!m) return;
-    const text = m[2].trim().toLowerCase();
-    if (!/^!(katıl|katil|join)\b/.test(text)) return;
-    this.add(m[1]);
-  },
-  // Sıraya al: benzersiz, temiz, en çok NAME_LEN karakter
-  add(login) {
-    const name = String(login).replace(/[^A-Za-z0-9_]/g, '').slice(0, this.NAME_LEN);
-    if (!name || this.queue.includes(name)) return;
-    if (this.queue.length >= this.MAX_QUEUE) this.queue.shift();
-    this.queue.push(name); this.joined++;
-    if (this.onChange) this.onChange();
-  },
-  // Tur için n isim: sıranın başından alınır, alınanlar sona döner (herkes sırayla oynar)
-  take(n) {
-    if (!this.queue.length) return [];
-    const names = this.queue.slice(0, n);
-    this.queue = [...this.queue.slice(names.length), ...names];
-    return names;
-  },
-};
-
-</script>
-<script>
 // Oyuna özgü ayarlar: ortak akış (kumul-main.js) bunları okur
 const GAME = {
   key: 'skarabe',
@@ -3341,7 +3319,6 @@ const GAME = {
   highlights: new HighlightDetector(),
   collection: Collection,            // Böcek Defteri ve gizli başarımlar
   mutations: Mutation,               // haftalık mutasyon
-  streamer: true,                    // yayıncı araçları (kumul-yayin.js): Twitch sohbetinden bot isimleri
   season: true,                      // sezon ödül hattı (kumul-ilerleme.js Season)
   tutor: true,                       // kademeli öğretme: FIRLAT 3. turdan, KAZI ve menü derinliği 5. turdan
   reviveTop: 8,                      // diriliş teklifi yalnız bu sıra ve üstünde (portal kuralı: her ölümde teklif yok)
@@ -3420,11 +3397,18 @@ const Tutor = {
   stage() { const lvl = useProgress ? Progress.levelInfo().level : 1; return stats.rounds >= 5 || lvl >= 3 ? 2 : stats.rounds >= 2 ? 1 : 0; },
   canLaunch() { return this.stage() >= 1 || !GAME.tutor; },
   canDig() { return this.stage() >= 2 || !GAME.tutor; },
-  helpText() {
+  // Menüdeki tuş kapakları: [tuş, eylem]; evre ilerledikçe satır eklenir
+  helpItems() {
     const t = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);   // touch nesnesi daha sonra tanımlanır
-    const base = T(t ? 'helpTouch' : 'helpMouse');
-    if (!GAME.tutor || this.stage() === 0) return base;
-    return base + T('helpLaunch') + (this.stage() >= 2 ? T(t ? 'helpDigTouch' : 'helpDigMouse') + T('helpFinal') : '');
+    const items = [[T(t ? 'kStick' : 'kMouse'), T('aSteer')], [T(t ? 'kBtn' : 'kClick'), T('aDash')]];
+    if (GAME.tutor && this.stage() === 0) return items;
+    items.push([T('kHold'), T('aLaunch')]);
+    if (!GAME.tutor || this.stage() >= 2) items.push([T(t ? 'kDigBtn' : 'kX'), T('aDig')]);
+    return items;
+  },
+  renderHelp() {
+    const box = $('helpText'); if (!box) return;
+    box.innerHTML = this.helpItems().map(([k, a]) => `<span class="key"><kbd>${k}</kbd>${a}</span>`).join('');
   },
   // Her karede: oyun içi ipuçları
   tick() {
@@ -3441,7 +3425,7 @@ const Tutor = {
   reset() { this.launchShown = false; this.digShown = false; },
 };
 function syncTutorMenu() {
-  setText('helpText', Tutor.helpText());
+  Tutor.renderHelp();
   setHidden('moreBox', GAME.tutor ? Tutor.stage() < 2 : false);
 }
 
@@ -3457,7 +3441,7 @@ function setPaused(on) {
 }
 Ads.onAdStart = () => { adPlaying = true; mutedBeforeAd = Sfx.muted; Sfx.setMuted(true); };
 Ads.onAdEnd = () => { adPlaying = false; Sfx.setMuted(mutedBeforeAd); last = performance.now(); acc = 0; };
-Ads.init().then(() => { Ads.loadingFinished(); if (Ads.portal) setHidden('streamBox', true); });
+Ads.init().then(() => { Ads.loadingFinished(); });
 // Analitik (kumul-analitik.js): uç nokta verilmişse olaylar beacon ile gider; Poki'de dış istek kapalı
 const useAnalytics = !!GAME.analytics && typeof Analytics !== 'undefined';
 if (useAnalytics) Analytics.init(GAME.key, { endpoint: GAME.analytics.endpoint, blocked: Ads.detect() === 'poki', portal: Ads.detect() || '' });
@@ -3466,29 +3450,12 @@ window.addEventListener('keydown', e => { if ((e.code === 'Escape' || e.code ===
 document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'playing') setPaused(true); });
 if ($('resumeBtn')) $('resumeBtn').addEventListener('click', () => setPaused(false));
 
-// Yayıncı araçları (kumul-yayin.js): Twitch sohbetinden bot isimleri, yayıncı kipi HUD'u. Portalda kapalı (dış bağlantı yasağı).
+// Yayıncı araçları (kumul-yayin.js) menüden kaldırıldı (11 Ekim, kullanıcı kararı); GAME.streamer verilirse ve betik yüklüyse
+// yalnız sohbet kuyruğu kullanılır, arayüz yok. renderer.streamer hep kapalı.
 const useStream = !!GAME.streamer && typeof Twitch !== 'undefined' && Twitch.supported() && !Ads.detect();
-setHidden('streamBox', !useStream);
-if (useStream) {
-  const showTwitch = () => setText('twitchStatus', `${Twitch.statusText()}${Twitch.queue.length ? T('twitchQueue', Twitch.queue.length) : ''}`);
-  Twitch.onChange = showTwitch;
-  $('twitchChannel').value = store.get(GAME.key + '-twitch', '');
-  $('twitchBtn').addEventListener('click', () => {
-    if (Twitch.ws) { Twitch.disconnect(); Twitch.set('twitchOff'); $('twitchBtn').textContent = T('connect'); return; }
-    const ch = $('twitchChannel').value.trim(); store.set(GAME.key + '-twitch', ch);
-    Twitch.connect(ch); $('twitchBtn').textContent = T('disconnect');
-  });
-  const modeBox = $('streamerMode');
-  modeBox.checked = !!store.get(GAME.key + '-streamer', false);
-  renderer.streamer = modeBox.checked;
-  modeBox.addEventListener('change', () => { renderer.streamer = modeBox.checked; store.set(GAME.key + '-streamer', modeBox.checked); });
-}
-function streamScore() {
-  if (!useStream || !renderer.streamer) { renderer.scoreLine = ''; return; }
-  renderer.scoreLine = T('chatScore', stats.chatWins || 0, stats.streamerWins || 0);
-}
+function streamScore() { renderer.scoreLine = ''; }
 // Dil düğmesi: metinleri yeniden yaz, menüyü tazele
-if ($('langBtn')) $('langBtn').addEventListener('click', () => { Lang.toggle(); showMute(); refreshMenu(); drawSkinPreview(); streamScore(); if (useStream && Twitch.onChange) Twitch.onChange(); });
+if ($('langBtn')) $('langBtn').addEventListener('click', () => { Lang.toggle(); showMute(); refreshMenu(); drawSkinPreview(); });
 const skinLocked = i => useProgress && Progress.skinLocked(i);
 
 let savedSkin = Math.min(KUMUL_SKINS.length - 1, Math.max(0, store.get(GAME.key + '-skin', 0) | 0));   // son seçilen AÇIK görünüm
@@ -3509,12 +3476,19 @@ function refreshMenu() {
   if ($('levelBar')) $('levelBar').style.width = Math.round(li.into / li.need * 100) + '%';
   setText('levelNext', T('levelNext', li.into, li.need));
   const m = Progress.todayMission();
-  setText('missionLine', m ? (m.done ? T('missionDone', missionText(m)) : T('mission', missionText(m), m.progress, m.target, Progress.MISSION_REWARD)) : '');
+  setHidden('mission', !m);
+  if (m) {   // görev kartı: başlık, ilerleme çubuğu, ödül rozeti (cümle değil)
+    setText('missionTitle', missionText(m));
+    setText('missionReward', m.done ? T('missionDoneShort') : T('reward', Progress.MISSION_REWARD));
+    setText('missionLine', m.done ? T('missionDoneShort') : `${m.progress} / ${m.target}`);
+    if ($('missionBar')) $('missionBar').style.width = Math.round(Math.min(1, (m.done ? m.target : m.progress) / m.target) * 100) + '%';
+  }
   const n = Nemesis.get();
   setText('nemesisLine', n ? T('nemesisLine', n.name, n.kills) : '');
   const sd = Streak.data, left = Streak.TRAIL_DAYS - sd.days;
   setText('streakLine', !sd.days ? '' : Streak.hasTrail() ? T('streakTrail', sd.days, Streak.trailHoursLeft()) : left > 0 ? T('streakLeft', sd.days, left) : T('streak', sd.days));
-  if (weekMutation) setText('mutationLine', T('mutationLine', T('mut:' + weekMutation.key), T('mutt:' + weekMutation.key)));
+  setHidden('mutationBox', !weekMutation);
+  if (weekMutation) { setText('mutationName', T('mut:' + weekMutation.key)); setText('mutationLine', T('mutt:' + weekMutation.key)); }
   if (useDefter) setText('defterLine', GAME.collection.summary());
   syncTutorMenu();
   if (useSeason) {

@@ -1146,6 +1146,9 @@ tr: {
   tagline: 'İt, fırtınaya düşür, ayakta kalan son böcek ol.',
   namePh: 'Takma ad', prevSkin: 'Önceki görünüm', nextSkin: 'Sonraki görünüm', unlockNow: 'Beklemeden aç', play: 'Oyna',
   practice: 'Botlarla pratik', panelPlayer: 'Oyuncu', panelToday: 'Bugün', onlineNow: n => `● ${n} oyuncu çevrimiçi`,
+  missionLabel: 'Günlük görev', missionDoneShort: 'Tamamlandı', reward: r => `+${r}`, weekLabel: 'Bu haftanın mutasyonu',
+  kMouse: 'Fare', kClick: 'Tık / Boşluk', kStick: 'Sol çubuk', kBtn: 'Sağ düğme', kHold: 'Basılı tut', kX: 'X / Sağ tık', kDigBtn: 'KAZ',
+  aSteer: 'yön', aDash: 'atılma', aLaunch: 'topu fırlat', aDig: 'kazı (liderin yarısından küçükken)',
   more: 'Daha fazla', season: 'Sezon', book: 'Defter', streamTools: 'Yayıncı araçları', channelPh: 'Twitch kanalı',
   connect: 'Bağlan', disconnect: 'Kes', streamerMode: 'Yayıncı kipi',
   twitchIntro: 'Sohbete "!katıl" yazan izleyiciler botların adını alır; sen onları fırtınaya itersin. Salt okunur, giriş gerekmez.',
@@ -1252,6 +1255,9 @@ en: {
   tagline: 'Push, drop them into the storm, be the last beetle standing.',
   namePh: 'Nickname', prevSkin: 'Previous skin', nextSkin: 'Next skin', unlockNow: 'Unlock now', play: 'Play',
   practice: 'Practice vs bots', panelPlayer: 'Player', panelToday: 'Today', onlineNow: n => `● ${n} player${n === 1 ? '' : 's'} online`,
+  missionLabel: 'Daily mission', missionDoneShort: 'Done', reward: r => `+${r}`, weekLabel: "This week's mutation",
+  kMouse: 'Mouse', kClick: 'Click / Space', kStick: 'Left stick', kBtn: 'Right button', kHold: 'Hold', kX: 'X / Right click', kDigBtn: 'DIG',
+  aSteer: 'steer', aDash: 'dash', aLaunch: 'launch ball', aDig: 'dig (under half the leader)',
   more: 'More', season: 'Season', book: 'Beetle Book', streamTools: 'Streamer tools', channelPh: 'Twitch channel',
   connect: 'Connect', disconnect: 'Disconnect', streamerMode: 'Streamer mode',
   twitchIntro: 'Viewers who type "!join" in chat become the bots; you push them into the storm. Read-only, no login.',
@@ -2273,11 +2279,18 @@ const Tutor = {
   stage() { const lvl = useProgress ? Progress.levelInfo().level : 1; return stats.rounds >= 5 || lvl >= 3 ? 2 : stats.rounds >= 2 ? 1 : 0; },
   canLaunch() { return this.stage() >= 1 || !GAME.tutor; },
   canDig() { return this.stage() >= 2 || !GAME.tutor; },
-  helpText() {
+  // Menüdeki tuş kapakları: [tuş, eylem]; evre ilerledikçe satır eklenir
+  helpItems() {
     const t = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);   // touch nesnesi daha sonra tanımlanır
-    const base = T(t ? 'helpTouch' : 'helpMouse');
-    if (!GAME.tutor || this.stage() === 0) return base;
-    return base + T('helpLaunch') + (this.stage() >= 2 ? T(t ? 'helpDigTouch' : 'helpDigMouse') + T('helpFinal') : '');
+    const items = [[T(t ? 'kStick' : 'kMouse'), T('aSteer')], [T(t ? 'kBtn' : 'kClick'), T('aDash')]];
+    if (GAME.tutor && this.stage() === 0) return items;
+    items.push([T('kHold'), T('aLaunch')]);
+    if (!GAME.tutor || this.stage() >= 2) items.push([T(t ? 'kDigBtn' : 'kX'), T('aDig')]);
+    return items;
+  },
+  renderHelp() {
+    const box = $('helpText'); if (!box) return;
+    box.innerHTML = this.helpItems().map(([k, a]) => `<span class="key"><kbd>${k}</kbd>${a}</span>`).join('');
   },
   // Her karede: oyun içi ipuçları
   tick() {
@@ -2294,7 +2307,7 @@ const Tutor = {
   reset() { this.launchShown = false; this.digShown = false; },
 };
 function syncTutorMenu() {
-  setText('helpText', Tutor.helpText());
+  Tutor.renderHelp();
   setHidden('moreBox', GAME.tutor ? Tutor.stage() < 2 : false);
 }
 
@@ -2310,7 +2323,7 @@ function setPaused(on) {
 }
 Ads.onAdStart = () => { adPlaying = true; mutedBeforeAd = Sfx.muted; Sfx.setMuted(true); };
 Ads.onAdEnd = () => { adPlaying = false; Sfx.setMuted(mutedBeforeAd); last = performance.now(); acc = 0; };
-Ads.init().then(() => { Ads.loadingFinished(); if (Ads.portal) setHidden('streamBox', true); });
+Ads.init().then(() => { Ads.loadingFinished(); });
 // Analitik (kumul-analitik.js): uç nokta verilmişse olaylar beacon ile gider; Poki'de dış istek kapalı
 const useAnalytics = !!GAME.analytics && typeof Analytics !== 'undefined';
 if (useAnalytics) Analytics.init(GAME.key, { endpoint: GAME.analytics.endpoint, blocked: Ads.detect() === 'poki', portal: Ads.detect() || '' });
@@ -2319,29 +2332,12 @@ window.addEventListener('keydown', e => { if ((e.code === 'Escape' || e.code ===
 document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'playing') setPaused(true); });
 if ($('resumeBtn')) $('resumeBtn').addEventListener('click', () => setPaused(false));
 
-// Yayıncı araçları (kumul-yayin.js): Twitch sohbetinden bot isimleri, yayıncı kipi HUD'u. Portalda kapalı (dış bağlantı yasağı).
+// Yayıncı araçları (kumul-yayin.js) menüden kaldırıldı (11 Ekim, kullanıcı kararı); GAME.streamer verilirse ve betik yüklüyse
+// yalnız sohbet kuyruğu kullanılır, arayüz yok. renderer.streamer hep kapalı.
 const useStream = !!GAME.streamer && typeof Twitch !== 'undefined' && Twitch.supported() && !Ads.detect();
-setHidden('streamBox', !useStream);
-if (useStream) {
-  const showTwitch = () => setText('twitchStatus', `${Twitch.statusText()}${Twitch.queue.length ? T('twitchQueue', Twitch.queue.length) : ''}`);
-  Twitch.onChange = showTwitch;
-  $('twitchChannel').value = store.get(GAME.key + '-twitch', '');
-  $('twitchBtn').addEventListener('click', () => {
-    if (Twitch.ws) { Twitch.disconnect(); Twitch.set('twitchOff'); $('twitchBtn').textContent = T('connect'); return; }
-    const ch = $('twitchChannel').value.trim(); store.set(GAME.key + '-twitch', ch);
-    Twitch.connect(ch); $('twitchBtn').textContent = T('disconnect');
-  });
-  const modeBox = $('streamerMode');
-  modeBox.checked = !!store.get(GAME.key + '-streamer', false);
-  renderer.streamer = modeBox.checked;
-  modeBox.addEventListener('change', () => { renderer.streamer = modeBox.checked; store.set(GAME.key + '-streamer', modeBox.checked); });
-}
-function streamScore() {
-  if (!useStream || !renderer.streamer) { renderer.scoreLine = ''; return; }
-  renderer.scoreLine = T('chatScore', stats.chatWins || 0, stats.streamerWins || 0);
-}
+function streamScore() { renderer.scoreLine = ''; }
 // Dil düğmesi: metinleri yeniden yaz, menüyü tazele
-if ($('langBtn')) $('langBtn').addEventListener('click', () => { Lang.toggle(); showMute(); refreshMenu(); drawSkinPreview(); streamScore(); if (useStream && Twitch.onChange) Twitch.onChange(); });
+if ($('langBtn')) $('langBtn').addEventListener('click', () => { Lang.toggle(); showMute(); refreshMenu(); drawSkinPreview(); });
 const skinLocked = i => useProgress && Progress.skinLocked(i);
 
 let savedSkin = Math.min(KUMUL_SKINS.length - 1, Math.max(0, store.get(GAME.key + '-skin', 0) | 0));   // son seçilen AÇIK görünüm
@@ -2362,12 +2358,19 @@ function refreshMenu() {
   if ($('levelBar')) $('levelBar').style.width = Math.round(li.into / li.need * 100) + '%';
   setText('levelNext', T('levelNext', li.into, li.need));
   const m = Progress.todayMission();
-  setText('missionLine', m ? (m.done ? T('missionDone', missionText(m)) : T('mission', missionText(m), m.progress, m.target, Progress.MISSION_REWARD)) : '');
+  setHidden('mission', !m);
+  if (m) {   // görev kartı: başlık, ilerleme çubuğu, ödül rozeti (cümle değil)
+    setText('missionTitle', missionText(m));
+    setText('missionReward', m.done ? T('missionDoneShort') : T('reward', Progress.MISSION_REWARD));
+    setText('missionLine', m.done ? T('missionDoneShort') : `${m.progress} / ${m.target}`);
+    if ($('missionBar')) $('missionBar').style.width = Math.round(Math.min(1, (m.done ? m.target : m.progress) / m.target) * 100) + '%';
+  }
   const n = Nemesis.get();
   setText('nemesisLine', n ? T('nemesisLine', n.name, n.kills) : '');
   const sd = Streak.data, left = Streak.TRAIL_DAYS - sd.days;
   setText('streakLine', !sd.days ? '' : Streak.hasTrail() ? T('streakTrail', sd.days, Streak.trailHoursLeft()) : left > 0 ? T('streakLeft', sd.days, left) : T('streak', sd.days));
-  if (weekMutation) setText('mutationLine', T('mutationLine', T('mut:' + weekMutation.key), T('mutt:' + weekMutation.key)));
+  setHidden('mutationBox', !weekMutation);
+  if (weekMutation) { setText('mutationName', T('mut:' + weekMutation.key)); setText('mutationLine', T('mutt:' + weekMutation.key)); }
   if (useDefter) setText('defterLine', GAME.collection.summary());
   syncTutorMenu();
   if (useSeason) {
