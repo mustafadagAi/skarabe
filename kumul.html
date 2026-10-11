@@ -1133,7 +1133,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610111227';
+const DIL_SURUM = '202610111236';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1242,6 +1242,7 @@ tr: {
   'tier:Larva': 'Larva', 'tier:Böcek': 'Böcek', 'tier:Yuvarlayıcı': 'Yuvarlayıcı', 'tier:Şampiyon': 'Şampiyon', 'tier:Kutsal Skarabe': 'Kutsal Skarabe',
   'reward:yildiz': 'Yıldız izi', 'reward:alev': 'Kor izi', 'reward:yaprak': 'Yaprak izi', 'reward:yuvarlayici': 'Yuvarlayıcı', 'reward:firtina': 'Fırtına Ustası', 'reward:hirsiz': 'Top Hırsızı', 'reward:xp': n => `+${n} puan`,
   // duraklatma
+  nextRound: 'Sıradaki tur', toMenu: 'Menüye dön',
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
   // çevrimiçi
   online: 'Çevrimiçi oyna', connecting: 'Sunucuya bağlanılıyor…', matching: (w, h) => `Eşleşiyor: ${w} sn · ${h} oyuncu (kalan yerler bot)`,
@@ -1343,6 +1344,7 @@ en: {
   'mut:miknatis': 'Magnet Day', 'mutt:miknatis': 'magnets pull twice as far, powers everywhere', 'mut:cilgin': 'Dash Frenzy', 'mutt:cilgin': 'dash every 0.8 seconds',
   'tier:Larva': 'Larva', 'tier:Böcek': 'Beetle', 'tier:Yuvarlayıcı': 'Roller', 'tier:Şampiyon': 'Champion', 'tier:Kutsal Skarabe': 'Sacred Scarab',
   'reward:yildiz': 'Star trail', 'reward:alev': 'Ember trail', 'reward:yaprak': 'Leaf trail', 'reward:yuvarlayici': 'Roller', 'reward:firtina': 'Storm Master', 'reward:hirsiz': 'Ball Thief', 'reward:xp': n => `+${n} points`,
+  nextRound: 'Next round', toMenu: 'Back to menu',
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
   online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
   onlineLost: 'Connection lost', onlineFail: 'Could not reach the server',
@@ -2901,7 +2903,10 @@ function netStatus(text, ctl = null) {
   const menuOpen = !$('menu').hidden;
   setText('onlineLine', ctl && menuOpen ? '' : (text || ''));   // özel oda denetimleri şeritte; menüde metni iki kez yazma
   setText('netText', text || '');
-  setHidden('netBanner', !text || (menuOpen && !ctl));
+  // Tur bitti ve sonuç kartı kapalıysa (Yeni tur denmiş) eski sahnede küçük şerit yerine bekleme kartı; ev sahibi denetimleri şeritte kalır
+  const waiting = !!text && !menuOpen && $('result').hidden && (state === 'dead' || state === 'over') && !(ctl && ctl.code);
+  setText('waitText', text || ''); setHidden('waitCard', !waiting);
+  setHidden('netBanner', !text || (menuOpen && !ctl) || waiting);
   setHidden('copyRoomBtn', !(ctl && ctl.code));
   setHidden('beginBtn', !(ctl && ctl.canBegin));
   if (ctl && ctl.code) $('copyRoomBtn').dataset.code = ctl.code;
@@ -2998,6 +3003,15 @@ if ($('createRoomBtn')) $('createRoomBtn').addEventListener('click', () => start
 if ($('joinCodeBtn')) $('joinCodeBtn').addEventListener('click', () => { const c = $('roomCodeInput').value.trim().toUpperCase(); if (c) startOnline({ code: c }); });
 if ($('roomCodeInput')) $('roomCodeInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('joinCodeBtn').click(); });
 if ($('beginBtn')) $('beginBtn').addEventListener('click', () => { if (net && net.connected) net.send({ t: 'begin' }); });
+// Bekleme kartından menüye dön: odadan ayrıl, yerel tanıtım turu
+function leaveOnline() {
+  if (net && net.connected) net.send({ t: 'leave' });
+  onlineMode = false; state = 'menu'; round = new Round(); player = null;
+  $('result').hidden = true; $('menu').hidden = false; setHidden('waitCard', true); netStatus('');
+  if ($('onlineBtn')) $('onlineBtn').disabled = false;
+  syncTouchUi(); refreshMenu();
+}
+if ($('leaveBtn')) $('leaveBtn').addEventListener('click', leaveOnline);
 if ($('copyRoomBtn')) $('copyRoomBtn').addEventListener('click', async () => {
   const btn = $('copyRoomBtn'), link = `${location.origin}${location.pathname}?oda=${btn.dataset.code || ''}`;
   try { await navigator.clipboard.writeText(link); btn.textContent = T('copied'); setTimeout(() => { btn.textContent = T('copyLink'); }, 1600); }

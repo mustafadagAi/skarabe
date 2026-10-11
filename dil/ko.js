@@ -83,6 +83,7 @@ DIL.ko = {
   'mut:miknatis': '자석의 날', 'mutt:miknatis': '자석 범위 2배, 파워 가득', 'mut:cilgin': '돌진 광란', 'mutt:cilgin': '0.8초마다 돌진',
   'tier:Larva': '애벌레', 'tier:Böcek': '딱정벌레', 'tier:Yuvarlayıcı': '굴림꾼', 'tier:Şampiyon': '챔피언', 'tier:Kutsal Skarabe': '신성한 스카라베',
   'reward:yildiz': '별 흔적', 'reward:alev': '불씨 흔적', 'reward:yaprak': '나뭇잎 흔적', 'reward:yuvarlayici': '굴림꾼', 'reward:firtina': '폭풍의 달인', 'reward:hirsiz': '공 도둑', 'reward:xp': n => `+${n}점`,
+  nextRound: '다음 라운드', toMenu: '메뉴로 돌아가기',
   paused: '일시정지', resume: '계속', pauseHint: 'Esc 또는 P: 일시정지',
   online: '온라인 플레이', connecting: '서버에 연결 중…', matching: (w, h) => `매칭 중: ${w}초 · ${h}명 (나머지는 봇)`,
   onlineLost: '연결 끊김', onlineFail: '서버에 연결할 수 없음',

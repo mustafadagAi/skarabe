@@ -83,6 +83,7 @@ DIL.zh = {
   'mut:miknatis': '磁铁日', 'mutt:miknatis': '磁铁吸引距离翻倍，能量遍地', 'mut:cilgin': '狂冲', 'mutt:cilgin': '每 0.8 秒可冲刺一次',
   'tier:Larva': '幼虫', 'tier:Böcek': '甲虫', 'tier:Yuvarlayıcı': '滚球手', 'tier:Şampiyon': '冠军', 'tier:Kutsal Skarabe': '圣甲虫',
   'reward:yildiz': '星光拖尾', 'reward:alev': '余烬拖尾', 'reward:yaprak': '树叶拖尾', 'reward:yuvarlayici': '滚球手', 'reward:firtina': '风暴大师', 'reward:hirsiz': '偷球贼', 'reward:xp': n => `+${n} 分`,
+  nextRound: '下一回合', toMenu: '返回菜单',
   paused: '已暂停', resume: '继续', pauseHint: 'Esc 或 P：暂停',
   online: '在线游戏', connecting: '正在连接服务器…', matching: (w, h) => `匹配中：${w} 秒 · ${h} 名玩家（其余由机器人补足）`,
   onlineLost: '连接断开', onlineFail: '无法连接服务器',

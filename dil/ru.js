@@ -83,6 +83,7 @@ DIL.ru = {
   'mut:miknatis': 'День магнита', 'mutt:miknatis': 'магниты тянут вдвое дальше, усиления повсюду', 'mut:cilgin': 'Безумный рывок', 'mutt:cilgin': 'рывок каждые 0,8 с',
   'tier:Larva': 'Личинка', 'tier:Böcek': 'Жук', 'tier:Yuvarlayıcı': 'Катальщик', 'tier:Şampiyon': 'Чемпион', 'tier:Kutsal Skarabe': 'Священный скарабей',
   'reward:yildiz': 'Звёздный след', 'reward:alev': 'След из углей', 'reward:yaprak': 'Лиственный след', 'reward:yuvarlayici': 'Катальщик', 'reward:firtina': 'Повелитель бури', 'reward:hirsiz': 'Похититель шаров', 'reward:xp': n => `+${n} очков`,
+  nextRound: 'Следующий раунд', toMenu: 'В меню',
   paused: 'Пауза', resume: 'Продолжить', pauseHint: 'Esc или P: пауза',
   online: 'Играть онлайн', connecting: 'Подключение к серверу…', matching: (w, h) => `Подбор: ${w} с · ${h} игр. (остальные — боты)`,
   onlineLost: 'Соединение потеряно', onlineFail: 'Сервер недоступен',

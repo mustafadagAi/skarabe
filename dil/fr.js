@@ -83,6 +83,7 @@ DIL.fr = {
   'mut:miknatis': 'Jour de l\'aimant', 'mutt:miknatis': 'les aimants attirent deux fois plus loin, pouvoirs partout', 'mut:cilgin': 'Frénésie de dash', 'mutt:cilgin': 'foncer toutes les 0,8 secondes',
   'tier:Larva': 'Larve', 'tier:Böcek': 'Scarabée', 'tier:Yuvarlayıcı': 'Rouleur', 'tier:Şampiyon': 'Champion', 'tier:Kutsal Skarabe': 'Scarabée sacré',
   'reward:yildiz': 'Traînée d\'étoiles', 'reward:alev': 'Traînée de braises', 'reward:yaprak': 'Traînée de feuilles', 'reward:yuvarlayici': 'Rouleur', 'reward:firtina': 'Maître de la tempête', 'reward:hirsiz': 'Voleur de boules', 'reward:xp': n => `+${n} points`,
+  nextRound: 'Manche suivante', toMenu: 'Retour au menu',
   paused: 'Pause', resume: 'Reprendre', pauseHint: 'Échap ou P : pause',
   online: 'Jouer en ligne', connecting: 'Connexion au serveur…', matching: (w, h) => `Recherche : ${w} s · ${h} joueur${h === 1 ? '' : 's'} (les bots complètent)`,
   onlineLost: 'Connexion perdue', onlineFail: 'Serveur injoignable',

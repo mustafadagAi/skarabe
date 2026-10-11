@@ -83,6 +83,7 @@ DIL.id = {
   'mut:miknatis': 'Hari magnet', 'mutt:miknatis': 'magnet menarik dua kali lebih jauh, kekuatan di mana-mana', 'mut:cilgin': 'Sprint gila', 'mutt:cilgin': 'sprint tiap 0,8 detik',
   'tier:Larva': 'Larva', 'tier:Böcek': 'Kumbang', 'tier:Yuvarlayıcı': 'Penggulung', 'tier:Şampiyon': 'Juara', 'tier:Kutsal Skarabe': 'Skarabe Suci',
   'reward:yildiz': 'Jejak bintang', 'reward:alev': 'Jejak bara', 'reward:yaprak': 'Jejak daun', 'reward:yuvarlayici': 'Penggulung', 'reward:firtina': 'Penguasa badai', 'reward:hirsiz': 'Pencuri bola', 'reward:xp': n => `+${n} poin`,
+  nextRound: 'Ronde berikutnya', toMenu: 'Kembali ke menu',
   paused: 'Dijeda', resume: 'Lanjutkan', pauseHint: 'Esc atau P: jeda',
   online: 'Main online', connecting: 'Menghubungkan ke server…', matching: (w, h) => `Mencocokkan: ${w} dtk · ${h} pemain (sisanya bot)`,
   onlineLost: 'Koneksi terputus', onlineFail: 'Server tidak dapat dihubungi',

@@ -83,6 +83,7 @@ DIL.pt = {
   'mut:miknatis': 'Dia do ímã', 'mutt:miknatis': 'ímãs puxam o dobro da distância, poderes por toda parte', 'mut:cilgin': 'Frenesi de investidas', 'mutt:cilgin': 'investida a cada 0,8 segundo',
   'tier:Larva': 'Larva', 'tier:Böcek': 'Besouro', 'tier:Yuvarlayıcı': 'Rolador', 'tier:Şampiyon': 'Campeão', 'tier:Kutsal Skarabe': 'Escaravelho sagrado',
   'reward:yildiz': 'Rastro de estrelas', 'reward:alev': 'Rastro de brasas', 'reward:yaprak': 'Rastro de folhas', 'reward:yuvarlayici': 'Rolador', 'reward:firtina': 'Mestre da tempestade', 'reward:hirsiz': 'Ladrão de bolas', 'reward:xp': n => `+${n} pontos`,
+  nextRound: 'Próxima rodada', toMenu: 'Voltar ao menu',
   paused: 'Pausado', resume: 'Continuar', pauseHint: 'Esc ou P: pausar',
   online: 'Jogar online', connecting: 'Conectando ao servidor…', matching: (w, h) => `Procurando: ${w} s · ${h} jogador${h === 1 ? '' : 'es'} (bots completam o resto)`,
   onlineLost: 'Conexão perdida', onlineFail: 'Não foi possível conectar ao servidor',

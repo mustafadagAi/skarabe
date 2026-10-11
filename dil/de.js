@@ -83,6 +83,7 @@ DIL.de = {
   'mut:miknatis': 'Magnettag', 'mutt:miknatis': 'Magnete ziehen doppelt so weit, Kräfte überall', 'mut:cilgin': 'Sprint-Rausch', 'mutt:cilgin': 'alle 0,8 Sekunden ein Sprint',
   'tier:Larva': 'Larve', 'tier:Böcek': 'Käfer', 'tier:Yuvarlayıcı': 'Roller', 'tier:Şampiyon': 'Champion', 'tier:Kutsal Skarabe': 'Heiliger Skarabäus',
   'reward:yildiz': 'Sternenspur', 'reward:alev': 'Glutspur', 'reward:yaprak': 'Blätterspur', 'reward:yuvarlayici': 'Roller', 'reward:firtina': 'Sturmmeister', 'reward:hirsiz': 'Kugeldieb', 'reward:xp': n => `+${n} Punkte`,
+  nextRound: 'Nächste Runde', toMenu: 'Zurück zum Menü',
   paused: 'Pause', resume: 'Weiter', pauseHint: 'Esc oder P: Pause',
   online: 'Online spielen', connecting: 'Verbinde mit Server…', matching: (w, h) => `Suche: ${w} s · ${h} Spieler (Bots füllen auf)`,
   onlineLost: 'Verbindung verloren', onlineFail: 'Server nicht erreichbar',

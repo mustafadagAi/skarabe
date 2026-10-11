@@ -83,6 +83,7 @@ DIL.hi = {
   'mut:miknatis': 'चुंबक दिवस', 'mutt:miknatis': 'चुंबक दोगुनी दूरी से खींचते हैं, शक्तियाँ हर जगह', 'mut:cilgin': 'झपट उन्माद', 'mutt:cilgin': 'हर 0.8 सेकंड में झपट',
   'tier:Larva': 'लार्वा', 'tier:Böcek': 'भृंग', 'tier:Yuvarlayıcı': 'लुढ़काने वाला', 'tier:Şampiyon': 'चैंपियन', 'tier:Kutsal Skarabe': 'पवित्र स्कारब',
   'reward:yildiz': 'तारों की लकीर', 'reward:alev': 'अंगारों की लकीर', 'reward:yaprak': 'पत्तों की लकीर', 'reward:yuvarlayici': 'लुढ़काने वाला', 'reward:firtina': 'तूफ़ान का उस्ताद', 'reward:hirsiz': 'गेंद चोर', 'reward:xp': n => `+${n} अंक`,
+  nextRound: 'अगला राउंड', toMenu: 'मेनू पर लौटें',
   paused: 'रुका हुआ', resume: 'जारी रखें', pauseHint: 'Esc या P: रोकें',
   online: 'ऑनलाइन खेलें', connecting: 'सर्वर से जुड़ रहे हैं…', matching: (w, h) => `मिलान: ${w} से. · ${h} खिलाड़ी (बाकी बॉट)`,
   onlineLost: 'कनेक्शन टूट गया', onlineFail: 'सर्वर तक नहीं पहुँच सके',
