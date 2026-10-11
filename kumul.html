@@ -1133,7 +1133,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610111259';
+const DIL_SURUM = '202610111320';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1244,7 +1244,6 @@ tr: {
   // duraklatma
   nextRound: 'Sıradaki tur', toMenu: 'Menüye dön',
   watch: 'İzle', backToResult: 'Sonuç kartı',
-  watchNext: 'tıkla: değiştir',
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
   // çevrimiçi
   online: 'Çevrimiçi oyna', connecting: 'Sunucuya bağlanılıyor…', matching: (w, h) => `Eşleşiyor: ${w} sn · ${h} oyuncu (kalan yerler bot)`,
@@ -1348,7 +1347,6 @@ en: {
   'reward:yildiz': 'Star trail', 'reward:alev': 'Ember trail', 'reward:yaprak': 'Leaf trail', 'reward:yuvarlayici': 'Roller', 'reward:firtina': 'Storm Master', 'reward:hirsiz': 'Ball Thief', 'reward:xp': n => `+${n} points`,
   nextRound: 'Next round', toMenu: 'Back to menu',
   watch: 'Watch', backToResult: 'Results',
-  watchNext: 'click: switch',
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
   online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
   onlineLost: 'Connection lost', onlineFail: 'Could not reach the server',
@@ -2235,7 +2233,7 @@ class ArenaRenderer extends RenderBase {
 
     if (spectating) {
       ctx.font = `600 12px ${KUMUL.font}`;
-      const text = `${T('watching', spectating.name)} · ${T('watchNext')}`, w = ctx.measureText(text).width + 32;
+      const text = T('watching', spectating.name), w = ctx.measureText(text).width + 32;
       this.panel(W / 2 - w / 2, noteY - 2, w, 28, 14);
       ctx.textAlign = 'center'; ctx.fillStyle = KUMUL.ink; ctx.fillText(text, W / 2, noteY + 17);
     }
@@ -3101,7 +3099,7 @@ function showResult(title, sub, allowRevive) {
 function setWatching(on) {
   watching = on;
   $('result').hidden = on; setHidden('backBtn', !on);
-  if (on) { const t = cameraTarget(); if (t && t !== player) renderer.showToast(`${T('watching', t.name)} · ${T('watchNext')}`); track('watch'); }
+  if (on) { const t = cameraTarget(); if (t && t !== player) renderer.showToast(T('watching', t.name)); track('watch'); }
   syncTouchUi();
 }
 $('watchBtn').addEventListener('click', () => setWatching(true));

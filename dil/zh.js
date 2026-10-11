@@ -85,7 +85,6 @@ DIL.zh = {
   'reward:yildiz': '星光拖尾', 'reward:alev': '余烬拖尾', 'reward:yaprak': '树叶拖尾', 'reward:yuvarlayici': '滚球手', 'reward:firtina': '风暴大师', 'reward:hirsiz': '偷球贼', 'reward:xp': n => `+${n} 分`,
   nextRound: '下一回合', toMenu: '返回菜单',
   watch: '观战', backToResult: '结果',
-  watchNext: '点击切换',
   paused: '已暂停', resume: '继续', pauseHint: 'Esc 或 P：暂停',
   online: '在线游戏', connecting: '正在连接服务器…', matching: (w, h) => `匹配中：${w} 秒 · ${h} 名玩家（其余由机器人补足）`,
   onlineLost: '连接断开', onlineFail: '无法连接服务器',

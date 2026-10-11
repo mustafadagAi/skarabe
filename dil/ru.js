@@ -85,7 +85,6 @@ DIL.ru = {
   'reward:yildiz': 'Звёздный след', 'reward:alev': 'След из углей', 'reward:yaprak': 'Лиственный след', 'reward:yuvarlayici': 'Катальщик', 'reward:firtina': 'Повелитель бури', 'reward:hirsiz': 'Похититель шаров', 'reward:xp': n => `+${n} очков`,
   nextRound: 'Следующий раунд', toMenu: 'В меню',
   watch: 'Смотреть', backToResult: 'Результаты',
-  watchNext: 'клик: сменить',
   paused: 'Пауза', resume: 'Продолжить', pauseHint: 'Esc или P: пауза',
   online: 'Играть онлайн', connecting: 'Подключение к серверу…', matching: (w, h) => `Подбор: ${w} с · ${h} игр. (остальные — боты)`,
   onlineLost: 'Соединение потеряно', onlineFail: 'Сервер недоступен',

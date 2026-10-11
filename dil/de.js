@@ -85,7 +85,6 @@ DIL.de = {
   'reward:yildiz': 'Sternenspur', 'reward:alev': 'Glutspur', 'reward:yaprak': 'Blätterspur', 'reward:yuvarlayici': 'Roller', 'reward:firtina': 'Sturmmeister', 'reward:hirsiz': 'Kugeldieb', 'reward:xp': n => `+${n} Punkte`,
   nextRound: 'Nächste Runde', toMenu: 'Zurück zum Menü',
   watch: 'Zuschauen', backToResult: 'Ergebnis',
-  watchNext: 'Klick: wechseln',
   paused: 'Pause', resume: 'Weiter', pauseHint: 'Esc oder P: Pause',
   online: 'Online spielen', connecting: 'Verbinde mit Server…', matching: (w, h) => `Suche: ${w} s · ${h} Spieler (Bots füllen auf)`,
   onlineLost: 'Verbindung verloren', onlineFail: 'Server nicht erreichbar',

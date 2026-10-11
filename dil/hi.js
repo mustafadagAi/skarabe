@@ -85,7 +85,6 @@ DIL.hi = {
   'reward:yildiz': 'तारों की लकीर', 'reward:alev': 'अंगारों की लकीर', 'reward:yaprak': 'पत्तों की लकीर', 'reward:yuvarlayici': 'लुढ़काने वाला', 'reward:firtina': 'तूफ़ान का उस्ताद', 'reward:hirsiz': 'गेंद चोर', 'reward:xp': n => `+${n} अंक`,
   nextRound: 'अगला राउंड', toMenu: 'मेनू पर लौटें',
   watch: 'देखें', backToResult: 'परिणाम',
-  watchNext: 'क्लिक: बदलें',
   paused: 'रुका हुआ', resume: 'जारी रखें', pauseHint: 'Esc या P: रोकें',
   online: 'ऑनलाइन खेलें', connecting: 'सर्वर से जुड़ रहे हैं…', matching: (w, h) => `मिलान: ${w} से. · ${h} खिलाड़ी (बाकी बॉट)`,
   onlineLost: 'कनेक्शन टूट गया', onlineFail: 'सर्वर तक नहीं पहुँच सके',

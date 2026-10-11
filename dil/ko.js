@@ -85,7 +85,6 @@ DIL.ko = {
   'reward:yildiz': '별 흔적', 'reward:alev': '불씨 흔적', 'reward:yaprak': '나뭇잎 흔적', 'reward:yuvarlayici': '굴림꾼', 'reward:firtina': '폭풍의 달인', 'reward:hirsiz': '공 도둑', 'reward:xp': n => `+${n}점`,
   nextRound: '다음 라운드', toMenu: '메뉴로 돌아가기',
   watch: '관전', backToResult: '결과',
-  watchNext: '클릭: 전환',
   paused: '일시정지', resume: '계속', pauseHint: 'Esc 또는 P: 일시정지',
   online: '온라인 플레이', connecting: '서버에 연결 중…', matching: (w, h) => `매칭 중: ${w}초 · ${h}명 (나머지는 봇)`,
   onlineLost: '연결 끊김', onlineFail: '서버에 연결할 수 없음',

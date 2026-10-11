@@ -85,7 +85,6 @@ DIL.ar = {
   'reward:yildiz': 'أثر النجوم', 'reward:alev': 'أثر الجمر', 'reward:yaprak': 'أثر الأوراق', 'reward:yuvarlayici': 'المدحرج', 'reward:firtina': 'سيد العاصفة', 'reward:hirsiz': 'سارق الكرات', 'reward:xp': n => `+${n} نقطة`,
   nextRound: 'الجولة التالية', toMenu: 'العودة إلى القائمة',
   watch: 'شاهد', backToResult: 'النتائج',
-  watchNext: 'انقر: تبديل',
   paused: 'متوقف مؤقتًا', resume: 'استئناف', pauseHint: 'Esc أو P: إيقاف مؤقت',
   online: 'العب عبر الإنترنت', connecting: 'جارٍ الاتصال بالخادم…', matching: (w, h) => `المطابقة: ${w} ث · ${h} لاعب (الروبوتات تملأ الباقي)`,
   onlineLost: 'انقطع الاتصال', onlineFail: 'تعذر الوصول إلى الخادم',
