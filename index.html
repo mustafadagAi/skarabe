@@ -62,9 +62,13 @@
   #moreBox[hidden] { display: none; }
   .moreInner { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 10px; }
   .field.mini { padding: 6px 10px; font-size: 13px; width: 150px; }
-  .clipCard { padding: 16px 20px; gap: 10px; }
-  .clipCard h2 { font-size: 22px; }
-  #clipCanvas { display: block; height: 56vh; width: auto; max-width: 90vw; border: 2px solid var(--ink); border-radius: 10px; background: #000; }
+  .clipCard { width: min(420px, 94vw); padding: 20px 22px 18px; gap: 12px; }
+  .clipCard .resultHead h2 { font-family: 'Rammetto One', 'Rubik', system-ui, sans-serif; font-weight: 400; font-size: 28px; margin: 0; }
+  .clipFrame { padding: 6px; border-radius: 16px; background: rgba(232, 213, 169, 0.42); border: 1.5px solid rgba(42, 31, 20, 0.22); }
+  #clipCanvas { display: block; height: 50vh; max-height: 560px; width: auto; max-width: 84vw; border: 2px solid var(--ink); border-radius: 12px; background: #000; }
+  .clipMeta { width: 100%; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+  .clipMeta .bar.mini { width: 100%; }
+  .clipMeta .bar.mini.done i { background: var(--teal); }
 
   .logo { font-family: 'Rammetto One', 'Rubik', system-ui, sans-serif; font-weight: 400; margin: 0; line-height: 0.95;
           font-size: clamp(44px, 11vw, 108px); letter-spacing: 0.03em; color: var(--ink); text-shadow: 4px 5px 0 var(--storm); }
@@ -455,13 +459,19 @@
 </div>
 
 <div id="clipModal" class="overlay" hidden>
-  <div class="card clipCard">
-    <h2 data-t="clip">Klip</h2>
-    <canvas id="clipCanvas" width="720" height="1280"></canvas>
-    <p id="clipStatus" class="small"></p>
-    <div class="actions">
-      <button id="clipShareBtn" class="btn" hidden>Paylaş</button>
-      <button id="clipCloseBtn" class="btn ghost" data-t="close">Kapat</button>
+  <div class="panel clipCard">
+    <div class="resultHead">
+      <span class="mLabel" data-t="clipLabel">Vurgu klibi</span>
+      <h2 data-t="clip">Klip</h2>
+    </div>
+    <div class="clipFrame"><canvas id="clipCanvas" width="720" height="1280"></canvas></div>
+    <div class="clipMeta">
+      <div class="bar mini"><i id="clipBar"></i></div>
+      <span id="clipStatus" class="mProg"></span>
+    </div>
+    <div class="actions resultActions">
+      <button id="clipShareBtn" class="btn big" hidden>Paylaş</button>
+      <button id="clipCloseBtn" class="btn big ghost" data-t="close">Kapat</button>
     </div>
   </div>
 </div>
@@ -799,6 +809,7 @@ tr: {
   newPrefix: s => `Yeni: ${s}`, masteryNew: (n, stars) => `Ustalık: ${n} ${stars}`, bookNew: n => `Defter: ${n}`, achNew: (n, s) => `Başarım: ${n}${s ? ' (' + s + ')' : ''}`,
   highlightLine: (st, sub) => `Bu turun anı: ${st} — ${sub}`,
   // klip
+  clipLabel: 'Vurgu klibi · 9:16',
   clip: 'Klip', clipPrep: p => `Klip hazırlanıyor, izle: %${p}`, clipReady: (st, kb) => `Hazır: ${st} · ${kb} KB`, share: 'Paylaş', download: 'İndir',
   clipFail: e => `Klip alınamadı: ${e}`, watermark: c => `tur #${c} · sen kaçıncı olursun?`, game: 'Oyun',
   // HUD
@@ -902,6 +913,7 @@ en: {
   xpGain: g => `+${g} points`, levelUp: l => `Level up: ${l}`, newSkins: s => `New skin: ${s}`, missionReward: r => `Daily mission done, +${r}`,
   newPrefix: s => `New: ${s}`, masteryNew: (n, stars) => `Mastery: ${n} ${stars}`, bookNew: n => `Book: ${n}`, achNew: (n, s) => `Achievement: ${n}${s ? ' (' + s + ')' : ''}`,
   highlightLine: (st, sub) => `Moment of the round: ${st} — ${sub}`,
+  clipLabel: 'Highlight clip · 9:16',
   clip: 'Clip', clipPrep: p => `Rendering clip, watch: ${p}%`, clipReady: (st, kb) => `Ready: ${st} · ${kb} KB`, share: 'Share', download: 'Download',
   clipFail: e => `Clip failed: ${e}`, watermark: c => `round #${c} · where would you finish?`, game: 'Game',
   left: 'LEFT', biggest: 'BIGGEST', watching: n => `Watching: ${n}`,
@@ -4279,8 +4291,11 @@ async function makeClip() {
   const modal = $('clipModal'); if (!modal) return;
   modal.hidden = false; clipFile = null;
   setHidden('clipShareBtn', true); setText('clipStatus', T('clipPrep', 0));
+  const bar = $('clipBar'), setBar = p => { if (bar) { bar.style.width = Math.round(p * 100) + '%'; bar.parentElement.classList.toggle('done', p >= 1); } };
+  setBar(0);
   try {
-    const { blob, ext } = await Clip.export(Clip.last, $('clipCanvas'), GAME.Renderer, GAME.title || T('game'), p => setText('clipStatus', T('clipPrep', Math.round(p * 100))));
+    const { blob, ext } = await Clip.export(Clip.last, $('clipCanvas'), GAME.Renderer, GAME.title || T('game'), p => { setText('clipStatus', T('clipPrep', Math.round(p * 100))); setBar(p); });
+    setBar(1);
     const slug = Clip.last.stamp.toLowerCase().replace(/[çğıöşüi̇]/g, c => ({ 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'i̇': 'i' })[c] || c).replace(/[^a-z]/g, '');
     clipFile = new File([blob], `${(GAME.key || 'klip')}-${Clip.last.code}-${slug}.${ext}`, { type: blob.type });
     const canShare = navigator.canShare && navigator.canShare({ files: [clipFile] });

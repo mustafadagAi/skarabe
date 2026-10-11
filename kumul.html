@@ -1210,6 +1210,7 @@ tr: {
   newPrefix: s => `Yeni: ${s}`, masteryNew: (n, stars) => `Ustalık: ${n} ${stars}`, bookNew: n => `Defter: ${n}`, achNew: (n, s) => `Başarım: ${n}${s ? ' (' + s + ')' : ''}`,
   highlightLine: (st, sub) => `Bu turun anı: ${st} — ${sub}`,
   // klip
+  clipLabel: 'Vurgu klibi · 9:16',
   clip: 'Klip', clipPrep: p => `Klip hazırlanıyor, izle: %${p}`, clipReady: (st, kb) => `Hazır: ${st} · ${kb} KB`, share: 'Paylaş', download: 'İndir',
   clipFail: e => `Klip alınamadı: ${e}`, watermark: c => `tur #${c} · sen kaçıncı olursun?`, game: 'Oyun',
   // HUD
@@ -1313,6 +1314,7 @@ en: {
   xpGain: g => `+${g} points`, levelUp: l => `Level up: ${l}`, newSkins: s => `New skin: ${s}`, missionReward: r => `Daily mission done, +${r}`,
   newPrefix: s => `New: ${s}`, masteryNew: (n, stars) => `Mastery: ${n} ${stars}`, bookNew: n => `Book: ${n}`, achNew: (n, s) => `Achievement: ${n}${s ? ' (' + s + ')' : ''}`,
   highlightLine: (st, sub) => `Moment of the round: ${st} — ${sub}`,
+  clipLabel: 'Highlight clip · 9:16',
   clip: 'Clip', clipPrep: p => `Rendering clip, watch: ${p}%`, clipReady: (st, kb) => `Ready: ${st} · ${kb} KB`, share: 'Share', download: 'Download',
   clipFail: e => `Clip failed: ${e}`, watermark: c => `round #${c} · where would you finish?`, game: 'Game',
   left: 'LEFT', biggest: 'BIGGEST', watching: n => `Watching: ${n}`,
@@ -3083,8 +3085,11 @@ async function makeClip() {
   const modal = $('clipModal'); if (!modal) return;
   modal.hidden = false; clipFile = null;
   setHidden('clipShareBtn', true); setText('clipStatus', T('clipPrep', 0));
+  const bar = $('clipBar'), setBar = p => { if (bar) { bar.style.width = Math.round(p * 100) + '%'; bar.parentElement.classList.toggle('done', p >= 1); } };
+  setBar(0);
   try {
-    const { blob, ext } = await Clip.export(Clip.last, $('clipCanvas'), GAME.Renderer, GAME.title || T('game'), p => setText('clipStatus', T('clipPrep', Math.round(p * 100))));
+    const { blob, ext } = await Clip.export(Clip.last, $('clipCanvas'), GAME.Renderer, GAME.title || T('game'), p => { setText('clipStatus', T('clipPrep', Math.round(p * 100))); setBar(p); });
+    setBar(1);
     const slug = Clip.last.stamp.toLowerCase().replace(/[çğıöşüi̇]/g, c => ({ 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'i̇': 'i' })[c] || c).replace(/[^a-z]/g, '');
     clipFile = new File([blob], `${(GAME.key || 'klip')}-${Clip.last.code}-${slug}.${ext}`, { type: blob.type });
     const canShare = navigator.canShare && navigator.canShare({ files: [clipFile] });
