@@ -84,6 +84,7 @@ DIL.fr = {
   'tier:Larva': 'Larve', 'tier:Böcek': 'Scarabée', 'tier:Yuvarlayıcı': 'Rouleur', 'tier:Şampiyon': 'Champion', 'tier:Kutsal Skarabe': 'Scarabée sacré',
   'reward:yildiz': 'Traînée d\'étoiles', 'reward:alev': 'Traînée de braises', 'reward:yaprak': 'Traînée de feuilles', 'reward:yuvarlayici': 'Rouleur', 'reward:firtina': 'Maître de la tempête', 'reward:hirsiz': 'Voleur de boules', 'reward:xp': n => `+${n} points`,
   nextRound: 'Manche suivante', toMenu: 'Retour au menu',
+  watch: 'Regarder', backToResult: 'Résultats',
   watchNext: 'clic : changer',
   paused: 'Pause', resume: 'Reprendre', pauseHint: 'Échap ou P : pause',
   online: 'Jouer en ligne', connecting: 'Connexion au serveur…', matching: (w, h) => `Recherche : ${w} s · ${h} joueur${h === 1 ? '' : 's'} (les bots complètent)`,

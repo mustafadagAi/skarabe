@@ -84,6 +84,7 @@ DIL.es = {
   'tier:Larva': 'Larva', 'tier:Böcek': 'Escarabajo', 'tier:Yuvarlayıcı': 'Rodador', 'tier:Şampiyon': 'Campeón', 'tier:Kutsal Skarabe': 'Escarabajo sagrado',
   'reward:yildiz': 'Estela de estrellas', 'reward:alev': 'Estela de brasas', 'reward:yaprak': 'Estela de hojas', 'reward:yuvarlayici': 'Rodador', 'reward:firtina': 'Amo de la tormenta', 'reward:hirsiz': 'Ladrón de bolas', 'reward:xp': n => `+${n} puntos`,
   nextRound: 'Siguiente ronda', toMenu: 'Volver al menú',
+  watch: 'Ver', backToResult: 'Resultados',
   watchNext: 'clic: cambiar',
   paused: 'En pausa', resume: 'Continuar', pauseHint: 'Esc o P: pausa',
   online: 'Jugar en línea', connecting: 'Conectando con el servidor…', matching: (w, h) => `Emparejando: ${w} s · ${h} jugador${h === 1 ? '' : 'es'} (los bots llenan el resto)`,

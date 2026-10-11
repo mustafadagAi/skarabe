@@ -1133,7 +1133,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610111239';
+const DIL_SURUM = '202610111259';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1243,6 +1243,7 @@ tr: {
   'reward:yildiz': 'Yıldız izi', 'reward:alev': 'Kor izi', 'reward:yaprak': 'Yaprak izi', 'reward:yuvarlayici': 'Yuvarlayıcı', 'reward:firtina': 'Fırtına Ustası', 'reward:hirsiz': 'Top Hırsızı', 'reward:xp': n => `+${n} puan`,
   // duraklatma
   nextRound: 'Sıradaki tur', toMenu: 'Menüye dön',
+  watch: 'İzle', backToResult: 'Sonuç kartı',
   watchNext: 'tıkla: değiştir',
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
   // çevrimiçi
@@ -1346,6 +1347,7 @@ en: {
   'tier:Larva': 'Larva', 'tier:Böcek': 'Beetle', 'tier:Yuvarlayıcı': 'Roller', 'tier:Şampiyon': 'Champion', 'tier:Kutsal Skarabe': 'Sacred Scarab',
   'reward:yildiz': 'Star trail', 'reward:alev': 'Ember trail', 'reward:yaprak': 'Leaf trail', 'reward:yuvarlayici': 'Roller', 'reward:firtina': 'Storm Master', 'reward:hirsiz': 'Ball Thief', 'reward:xp': n => `+${n} points`,
   nextRound: 'Next round', toMenu: 'Back to menu',
+  watch: 'Watch', backToResult: 'Results',
   watchNext: 'click: switch',
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
   online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
@@ -2334,6 +2336,7 @@ let state    = 'menu';
 let revived  = false;                // tur başına bir diriliş
 let awarded  = null;                 // bu turda şimdiye kadar yazılan sonuç (diriliş sonrası fark eklenir)
 let overShown = false;
+let watching = false;          // "İzle" denmiş: sonuç kartı kapalı, sahne izleniyor (tur bitince kart geri gelir)
 let attractTimer = 0;
 
 // ---------------------------------------------------------------------
@@ -2873,7 +2876,7 @@ function enterRound() {
   player.mastery = useProgress ? Progress.masteryOf(savedSkin) : 0;
   player.crowned = useDefter && GAME.collection.crowned();
   player.revenge = false; if (!onlineMode) player.ballKills = 0;
-  revived = false; awarded = null; overShown = false; spectateId = null;
+  revived = false; awarded = null; overShown = false; spectateId = null; watching = false; setHidden('backBtn', true);
   state = 'playing'; paused = false; setHidden('pauseModal', true);
   renderer.camX = player.x; renderer.camY = player.y; renderer.zoom = 1;
   $('menu').hidden = true; $('result').hidden = true;
@@ -3017,7 +3020,7 @@ if ($('beginBtn')) $('beginBtn').addEventListener('click', () => { if (net && ne
 // Bekleme kartından menüye dön: odadan ayrıl, yerel tanıtım turu
 function leaveOnline() {
   if (net && net.connected) net.send({ t: 'leave' });
-  onlineMode = false; state = 'menu'; round = new Round(); player = null;
+  onlineMode = false; state = 'menu'; round = new Round(); player = null; watching = false; setHidden('backBtn', true);
   $('result').hidden = true; $('menu').hidden = false; setHidden('waitCard', true); netStatus('');
   if ($('onlineBtn')) $('onlineBtn').disabled = false;
   syncTouchUi(); refreshMenu();
@@ -3090,9 +3093,19 @@ function showResult(title, sub, allowRevive) {
   store.set(GAME.key + '-stats', stats);
   track('round_end', { place, total: round.total, kills: player.kills || 0, mass: Math.round(player.score), dur: Math.round(round.time), win: place === 1, moment: lastHighlight ? lastHighlight.key : '', challenge: challengeRound, mut: round.mutation || '' });
   $('reviveBtn').hidden = !allowRevive;
+  $('watchBtn').hidden = !(state === 'dead' && !round.over);   // tur sürüyorsa izlemeyi seç
   $('result').hidden = false;
   syncTouchUi();
 }
+// İzle: kart kapanır, sahne (tıkla → oyuncu değiştir) görünür; "Sonuç kartı" ile geri dönülür, tur bitince kart kendiliğinden döner
+function setWatching(on) {
+  watching = on;
+  $('result').hidden = on; setHidden('backBtn', !on);
+  if (on) { const t = cameraTarget(); if (t && t !== player) renderer.showToast(`${T('watching', t.name)} · ${T('watchNext')}`); track('watch'); }
+  syncTouchUi();
+}
+$('watchBtn').addEventListener('click', () => setWatching(true));
+$('backBtn').addEventListener('click', () => setWatching(false));
 // showProgress ilerlemeyi yazdıktan sonra çağrılır: görev/seviye sayıları güncel olsun
 function showNearestGoal() { setText('yarimLine', nearestGoal()); }
 
@@ -3128,6 +3141,8 @@ function onWin() {
 
 function onRoundOverWhileDead() {
   overShown = true;
+  $('watchBtn').hidden = true;
+  if (watching) setWatching(false);   // izlerken tur bitti: sonuç kartı geri gelir
   $('resultSub').textContent = round.winner ? T('roundWonBy', round.winner.name) : T('roundOver');
   $('reviveBtn').hidden = true;
 }
@@ -3137,6 +3152,7 @@ $('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key
 $('againBtn').addEventListener('click', async () => {
   stats.again = (stats.again || 0) + 1; store.set(GAME.key + '-stats', stats); track('again');
   await Ads.interstitial();            // tur arası reklam yeri
+  watching = false; setHidden('backBtn', true);
   if (onlineMode && net && net.connected) {
     $('result').hidden = true;
     // Tur hâlâ sürüyorsa odada kal ve izle (sunucu seni bot yerine sokar ya da sıradaki tura alır); bittiyse menüye dön
