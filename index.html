@@ -324,6 +324,18 @@
     #menu { padding-bottom: 72px; }
     #netBanner, #backBtn { bottom: 56px; }
   }
+  /* Rapor düzeltmeleri (12 Ekim) */
+  #waitCard { background: transparent; justify-content: flex-end; padding-bottom: 72px; pointer-events: none; }   /* sahne görünsün, kart altta küçük */
+  #waitCard .pauseCard { pointer-events: auto; padding: 14px 18px; gap: 10px; width: min(340px, 92vw); }
+  #waitCard .pauseCard .resultHead h2 { font-size: 22px; }
+  #waitCard .resultActions .btn.big { padding: 9px 16px; font-size: 14px; }
+  body:has(#seasonModal:not([hidden])) #muteBtn, body:has(#defterModal:not([hidden])) #muteBtn, body:has(#clipModal:not([hidden])) #muteBtn,
+  body:has(#seasonModal:not([hidden])) #langBtn, body:has(#defterModal:not([hidden])) #langBtn { display: none; }   /* düğmeler modalın üstüne binmesin */
+  #menu { padding-bottom: 64px; }                                   /* ses düğmesi sağ panelin son düğmesini örtmesin */
+  body.menuScrolled #langBtn { opacity: 0; pointer-events: none; } /* menü kaydırılınca dil seçici panel başlığını örtmesin */
+  .overlay, #netBanner, #backBtn { user-select: none; -webkit-user-select: none; }
+  input, textarea { user-select: text; -webkit-user-select: text; }
+  .seasonCard .step i { display: block; font-style: normal; font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -333,7 +345,7 @@
 <button id="muteBtn">Ses açık</button>
 <select id="langBtn" class="btn ghost mini" aria-label="Dil / Language" title="Dil / Language"></select>
 <button id="backBtn" class="btn ghost mini" data-t="backToResult" hidden>Sonuç kartı</button>
-<div id="netBanner" hidden><span id="netText"></span><button id="copyRoomBtn" class="btn ghost mini" data-t="copyLink" hidden>Bağlantıyı kopyala</button><button id="beginBtn" class="btn mini" data-t="begin" hidden>Başlat</button></div>
+<div id="netBanner" hidden><span id="netText"></span><button id="copyRoomBtn" class="btn ghost mini" data-t="copyLink" hidden>Bağlantıyı kopyala</button><button id="beginBtn" class="btn mini" data-t="begin" hidden>Başlat</button><button id="leaveRoomBtn" class="btn ghost mini" data-t="leaveRoom" hidden>Odadan çık</button></div>
 
 <div id="menu" class="overlay">
  <div class="lobby">
@@ -452,6 +464,7 @@
       <button id="shareBtn" class="btn ghost mini" data-t="challengeBtn">Meydan oku</button>
       <button id="clipBtn" class="btn mini" data-t="clipBtn" hidden>Klibi paylaş</button>
       <span id="roundCode" class="small"></span>
+      <button id="menuBtn" class="btn ghost mini" data-t="toMenu">Menüye dön</button>
     </div>
     <!-- Paylaşım tepsisi: popüler uygulamalar (web paylaşım bağlantıları); Instagram'ın web bağlantısı yok → telefonda sistem paylaşımı, masaüstünde kopyala -->
     <div id="shareTray" class="shareTray" hidden>
@@ -805,7 +818,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610111345';
+const DIL_SURUM = '202610120557';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -916,6 +929,7 @@ tr: {
   // duraklatma
   nextRound: 'Sıradaki tur', toMenu: 'Menüye dön',
   leaderLabel: 'Liderlik', today: 'Bugün', thisWeek: 'Bu hafta', onlineOnly: 'Yalnız çevrimiçi turlar', leaderEmpty: 'Henüz sonuç yok', yourRank: (d, w) => `Bugün ${d}. · bu hafta ${w}.`,
+  leaveRoom: 'Odadan çık', yourRoom: c => `Özel odan: ${c} · bağlantıyı paylaş`, 'powerGot:magnet': 'Mıknatıs: topaklar sana gelir', 'powerGot:anchor': 'Ağırlık: zor itilirsin', 'powerGot:turbo': 'Turbo: atılma çabuk dolar',
   watch: 'İzle', backToResult: 'Sonuç kartı',
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
   // çevrimiçi
@@ -925,7 +939,7 @@ tr: {
   rooms: 'Odalar', join: 'Katıl', createRoom: 'Özel oda kur', codePh: 'Oda kodu', copyLink: 'Bağlantıyı kopyala', begin: 'Başlat',
   roomRow: (n, h) => `${n} · ${h} oyuncu`, roomLobby: w => (w === null ? 'bekliyor' : `${w} sn sonra başlar`),
   roomPlaying: (left, dropin) => (dropin ? 'tur sürüyor · hemen girersin' : `tur sürüyor · ~${left} sn`), roomOver: 'tur bitti',
-  noRooms: 'Açık oda yok — "Çevrimiçi oyna" yeni oda açar', roomsLoading: 'odalar alınıyor…',
+  noRooms: p => `Açık oda yok — "${p}" yeni oda açar`, roomsLoading: 'odalar alınıyor…',
   roomIdle: h => `Odada ${h} kişi · "Yeni tur"a basan oynar`, waitRound: (l, h) => `Tur sürüyor · ~${l} sn sonra yeni tur (${h} kişi odada)`,
   roomCode: (c, r, h) => `Özel oda ${c} · ${h} kişi, ${r} hazır`, hostHint: 'bağlantıyı paylaş, hazır olunca Başlat', waitHost: 'ev sahibi başlatınca tur açılır',
   startingIn: w => `tur ${w} sn sonra başlıyor`, joinRoomBtn: c => `${c} odasına katıl`, joinedMid: 'Tura ortasından girdin: bir botun yerini aldın',
@@ -1020,6 +1034,7 @@ en: {
   'reward:yildiz': 'Star trail', 'reward:alev': 'Ember trail', 'reward:yaprak': 'Leaf trail', 'reward:yuvarlayici': 'Roller', 'reward:firtina': 'Storm Master', 'reward:hirsiz': 'Ball Thief', 'reward:xp': n => `+${n} points`,
   nextRound: 'Next round', toMenu: 'Back to menu',
   leaderLabel: 'Leaderboard', today: 'Today', thisWeek: 'This week', onlineOnly: 'Online rounds only', leaderEmpty: 'No results yet', yourRank: (d, w) => `Today #${d} · this week #${w}`,
+  leaveRoom: 'Leave room', yourRoom: c => `Your private room: ${c} · share the link`, 'powerGot:magnet': 'Magnet: pellets come to you', 'powerGot:anchor': 'Anchor: hard to push', 'powerGot:turbo': 'Turbo: dash recharges fast',
   watch: 'Watch', backToResult: 'Results',
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
   online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
@@ -1027,7 +1042,7 @@ en: {
   rooms: 'Rooms', join: 'Join', createRoom: 'Create private room', codePh: 'Room code', copyLink: 'Copy link', begin: 'Start',
   roomRow: (n, h) => `${n.replace('Oda', 'Room')} · ${h} player${h === 1 ? '' : 's'}`, roomLobby: w => (w === null ? 'waiting' : `starts in ${w} s`),
   roomPlaying: (left, dropin) => (dropin ? 'round running · join now' : `round running · ~${left} s`), roomOver: 'round over',
-  noRooms: 'No open rooms — "Play online" opens a new one', roomsLoading: 'loading rooms…',
+  noRooms: p => `No open rooms — "${p}" opens a new one`, roomsLoading: 'loading rooms…',
   roomIdle: h => `${h} in the room · whoever presses "New round" plays`, waitRound: (l, h) => `Round running · next round in ~${l} s (${h} in the room)`,
   roomCode: (c, r, h) => `Private room ${c} · ${h} here, ${r} ready`, hostHint: 'share the link, press Start when ready', waitHost: 'the host starts the round',
   startingIn: w => `round starts in ${w} s`, joinRoomBtn: c => `Join room ${c}`, joinedMid: 'You joined mid-round, taking over a bot',
@@ -1885,13 +1900,14 @@ class PushWorld {
   addBeetle(name, skin, brain) {
     const { x, y } = this.safeSpot();
     const s = new Beetle(this.nextId++, name, skin, x, y, brain);
+    if (!brain) { const b = this.bounds; s.angle = Math.atan2((b.y0 + b.y1) / 2 - y, (b.x0 + b.x1) / 2 - x); s.input.targetAngle = s.angle; }   // insan: yüzü merkeze
     this.snakes.push(s);
     return s;
   }
 
   // Kenardan ve diğerlerinden uzak başlangıç noktası
   safeSpot() {
-    const side = this.bounds.x1 - this.bounds.x0, margin = Math.min(260, side * 0.2);
+    const side = this.bounds.x1 - this.bounds.x0, margin = Math.min(380, side * 0.3);   // kenardan uzak doğ (boşta kalan oyuncu 3 sn'de fırtınaya düşmesin)
     for (let tries = 0; tries < 60; tries++) {
       const p = this.randomPoint(margin);
       if (this.snakes.every(s => !s.alive || Math.hypot(s.x - p.x, s.y - p.y) > 220)) return p;
@@ -3257,6 +3273,17 @@ class BeetleRenderer extends ArenaRenderer {
   // Son Nefes: oyuncu fırtınanın altında görünmez; karar penceresi ekranın ortasında büyük yazıyla
   drawArenaHud(world, player, round, spectating) {
     super.drawArenaHud(world, player, round, spectating);
+    // Fırtına kenarı uyarısı: kenara 170 birimden yakınsa o taraftaki ekran kenarı kızarır
+    if (player && player.alive && !spectating && world.bounds) {
+      const ctx = this.ctx, b = world.bounds, R = 170, W = window.innerWidth, H = window.innerHeight;
+      for (const [d, side] of [[player.x - b.x0, 'l'], [b.x1 - player.x, 'r'], [player.y - b.y0, 't'], [b.y1 - player.y, 'b']]) {
+        if (d >= R) continue;
+        const a = (1 - Math.max(0, d) / R) * 0.6;
+        const g = side === 'l' ? ctx.createLinearGradient(0, 0, 170, 0) : side === 'r' ? ctx.createLinearGradient(W, 0, W - 170, 0) : side === 't' ? ctx.createLinearGradient(0, 0, 0, 170) : ctx.createLinearGradient(0, H, 0, H - 170);
+        g.addColorStop(0, `rgba(193,18,31,${a})`); g.addColorStop(1, 'rgba(193,18,31,0)');
+        ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      }
+    }
     if (!player || !player.alive || player.breath <= 0 || spectating) return;
     const ctx = this.ctx, W = window.innerWidth, H = window.innerHeight, left = player.breath / PHYS.breathTime;
     const flash = 0.5 + 0.5 * Math.sin(this.time * 18);
@@ -3750,7 +3777,27 @@ Ads.init().then(() => { Ads.loadingFinished(); });
 const useAnalytics = !!GAME.analytics && typeof Analytics !== 'undefined';
 if (useAnalytics) Analytics.init(GAME.key, { endpoint: GAME.analytics.endpoint, blocked: Ads.detect() === 'poki', portal: Ads.detect() || '' });
 const track = (e, d) => { if (useAnalytics) Analytics.track(e, d); };
-window.addEventListener('keydown', e => { if ((e.code === 'Escape' || e.code === 'KeyP') && e.target.tagName !== 'INPUT') { if (state === 'playing') setPaused(!paused); e.preventDefault(); } });
+window.addEventListener('keydown', e => {
+  if ((e.code !== 'Escape' && e.code !== 'KeyP') || e.target.tagName === 'INPUT') return;
+  if (state === 'playing') { setPaused(!paused); e.preventDefault(); return; }
+  if (e.code !== 'Escape') return;
+  for (const id of ['clipModal', 'seasonModal', 'defterModal']) {   // Esc açık sayfayı kapatır
+    const m = $(id); if (!m || m.hidden) continue;
+    const b = m.querySelector('button[data-t="close"]'); if (b) b.click(); else m.hidden = true;
+    e.preventDefault(); return;
+  }
+  if ((state === 'dead' || state === 'over') && !$('result').hidden) { toMenu(); e.preventDefault(); }   // sonuç kartından menüye
+});
+// Sonuç kartından menüye dönüş (çevrimiçiyse odadan çıkar)
+function toMenu() {
+  if (onlineMode) return leaveOnline();
+  watching = false; setHidden('backBtn', true);
+  state = 'menu'; round = new Round(); player = null; attractTimer = 0;
+  $('result').hidden = true; $('menu').hidden = false; setHidden('waitCard', true);
+  syncTouchUi(); refreshMenu(); pollLider();
+}
+if ($('menuBtn')) $('menuBtn').addEventListener('click', toMenu);
+if ($('menu')) $('menu').addEventListener('scroll', () => document.body.classList.toggle('menuScrolled', $('menu').scrollTop > 30), { passive: true });
 document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'playing') setPaused(true); });
 if ($('resumeBtn')) $('resumeBtn').addEventListener('click', () => setPaused(false));
 
@@ -3824,7 +3871,7 @@ function renderSeason() {
   const can = Season.claimable();
   track.innerHTML = Array.from({ length: Season.STEPS }, (_, i) => {
     const k = i + 1, need = Season.stepNeed(k), done = Season.data.claimed.includes(k), ready = can.includes(k);
-    return `<div class="step ${done ? 'done' : ready ? 'ready' : ''}"><b>${k}</b>${done ? T('stepOpen') : ready ? `<button type="button" data-step="${k}">${T('box')}</button>` : T('stepNeed', need)}</div>`;
+    return `<div class="step ${done ? 'done' : ready ? 'ready' : ''}"><b>${k}</b>${done ? T('stepOpen') : ready ? `<button type="button" data-step="${k}">${T('box')}</button>` : `<i>${T('box')}</i>${T('stepNeed', need)}`}</div>`;
   }).join('');
   for (const b of track.querySelectorAll('button')) b.addEventListener('click', () => openBox(+b.dataset.step));
   setHidden('boxArea', true);
@@ -3932,7 +3979,8 @@ refreshMenu();
 // ---------------------------------------------------------------------
 const input = { px: 0, py: 0, boost: false, dig: false, active: false };
 const setPointer = e => { input.px = e.clientX; input.py = e.clientY; input.active = true; };
-canvas.addEventListener('mousemove', e => { setPointer(e); if (touch.enabled && !touch.coarse) setTouchMode(false); });
+let pointerMoved = false;   // tur başında fare oynamadan böcek durur (yeni oyuncu boşta fırtınaya yürümesin)
+canvas.addEventListener('mousemove', e => { setPointer(e); pointerMoved = true; if (touch.enabled && !touch.coarse) setTouchMode(false); });
 canvas.addEventListener('mousedown', e => { setPointer(e); if (e.button === 2) input.dig = true; else input.boost = true; if (state === 'dead' && e.button === 0) pickSpectate(e.clientX, e.clientY); });
 // Sonuç kartının dışına tıklama / dokunma da izlenen oyuncuyu değiştirir (kart tüm ekranı kaplar)
 if ($('result')) $('result').addEventListener('mousedown', e => { if (e.target === $('result') && e.button === 0) pickSpectate(e.clientX, e.clientY); });
@@ -4035,7 +4083,7 @@ function applyInput() {
     if (digBtn) digBtn.hidden = !player.digEligible;
     return;
   }
-  player.input.throttle = 1;
+  player.input.throttle = pointerMoved ? 1 : 0;
   player.input.dig = input.dig;
   if (!input.active) return;
   const head = renderer.worldToScreen(player.x, player.y);     // kamera kenara kilitliyken oyuncu merkezde olmaz
@@ -4069,7 +4117,7 @@ function handleEvents() {
     } else if (e.type === 'pellet') {
       Sfx.pellet();
     } else if (e.type === 'power') {
-      if (e.who === player) Sfx.power();
+      if (e.who === player) { Sfx.power(); if (e.power && renderer.showToast) renderer.showToast(T('powerGot:' + e.power)); }
       if (e.who && renderer.addBurst) renderer.addBurst(e.who.x, e.who.y, (POWER_LOOK[e.power] || {}).color);
     } else if (e.type === 'out' && e.who !== player) {
       if (renderer.streamer) renderer.pushFeed(`${e.killer ? e.killer.name + ' → ' : ''}${e.who.name}`);
@@ -4200,7 +4248,7 @@ function enterRound() {
   roundHighlights = new Set();
   if (useProgress) {
     const st = Streak.touch();
-    if (st.extended) setTimeout(() => renderer.showToast(st.broken ? T('streakBroken', st.best) : st.days >= Streak.TRAIL_DAYS ? T('streakTrailOn', st.days) : T('streakDay', st.days)), 600);
+    if (st.extended && (st.broken || st.days >= 2)) setTimeout(() => renderer.showToast(st.broken ? T('streakBroken', st.best) : st.days >= Streak.TRAIL_DAYS ? T('streakTrailOn', st.days) : T('streakDay', st.days)), 600);
   }
   track('round_start', { n: stats.rounds + 1, challenge: challengeRound, online: onlineMode, stage: Tutor.stage() });
   if ($('shareBox')) $('shareBox').hidden = true;
@@ -4217,7 +4265,7 @@ function enterRound() {
   state = 'playing'; paused = false; setHidden('pauseModal', true);
   renderer.camX = player.x; renderer.camY = player.y; renderer.zoom = 1;
   $('menu').hidden = true; $('result').hidden = true;
-  touch.used = false; syncTouchUi();
+  touch.used = false; pointerMoved = false; syncTouchUi();
   Ads.gameplayStart();
 }
 
@@ -4264,37 +4312,50 @@ async function initOnline() {
   pollOnlineCount(); pollLider();
 }
 // Menüde "● N oyuncu çevrimiçi" (sağlık ucu; 0 ise satır boş)
+let onlineTimer = null;
 async function pollOnlineCount() {
+  clearTimeout(onlineTimer);
   if (!onlineUrl || GAME.online.url === '' && !location.host) return;
   try {
     const r = await fetch(onlineUrl.replace(/^ws/, 'http') + '/__net', { cache: 'no-store' });
     const j = await r.json(); setText('onlineCount', j.humans > 0 ? T('onlineNow', j.humans) : '');
   } catch { setText('onlineCount', ''); }
-  if (state === 'menu') setTimeout(pollOnlineCount, 10000); else setTimeout(pollOnlineCount, 30000);
+  onlineTimer = setTimeout(pollOnlineCount, state === 'menu' ? 10000 : 30000);
 }
 // Durum metni: menüde onlineLine, oyun içinde (ya da özel oda denetimleri gerekince) üstteki şerit
+let waitTimer = null, waitInfo = null;   // bekleme kartı sayacı (sunucu 'wait'i bir kez gönderir)
+function stopWaitTick() { clearInterval(waitTimer); waitTimer = null; waitInfo = null; }
+let lastNetText = '', lastNetCtl = null;
+function refreshNet() { netStatus(lastNetText, lastNetCtl); }   // kart açılıp kapanınca şerit/bekleme kartı yeniden değerlendirilir
 function netStatus(text, ctl = null) {
+  lastNetText = text || ''; lastNetCtl = ctl;
   const menuOpen = !$('menu').hidden;
   setText('onlineLine', ctl && menuOpen ? '' : (text || ''));   // özel oda denetimleri şeritte; menüde metni iki kez yazma
   setText('netText', text || '');
   // Tur bitti ve sonuç kartı kapalıysa (Yeni tur denmiş) eski sahnede küçük şerit yerine bekleme kartı; ev sahibi denetimleri şeritte kalır
   const waiting = !!text && !menuOpen && $('result').hidden && (state === 'dead' || state === 'over') && !(ctl && ctl.code);
   setText('waitText', text || ''); setHidden('waitCard', !waiting);
-  setHidden('netBanner', !text || (menuOpen && !ctl) || waiting);
+  setHidden('netBanner', !text || (menuOpen && !ctl) || waiting || (!$('result').hidden && !(ctl && ctl.code)));
   setHidden('copyRoomBtn', !(ctl && ctl.code));
+  setHidden('leaveRoomBtn', !(ctl && ctl.code));
+  if (ctl) { myRoomCode = ctl.code || null; if (myRoomCode && $('roomList') && !$('roomBox').hidden) renderRooms([]); }
   setHidden('beginBtn', !(ctl && ctl.canBegin));
   if (ctl && ctl.code) $('copyRoomBtn').dataset.code = ctl.code;
 }
 function wireNet(n) {
   const btn = $('onlineBtn');
-  n.onLobby = m => {
+  n.onLobby = m => { stopWaitTick();
     if (m.code) {
       const hint = m.wait !== null ? T('startingIn', m.wait) : m.host ? T('hostHint') : T('waitHost');
       netStatus(`${T('roomCode', m.code, m.ready, m.humans)} · ${hint}`, { code: m.code, canBegin: m.host && m.wait === null && m.ready > 0 });
     } else netStatus(m.wait === null ? T('roomIdle', m.humans) : T('matching', m.wait, m.humans));
   };
-  n.onWait = m => netStatus(T('waitRound', m.left, m.humans));
-  n.onStart = r => { if (r.player) beginOnlineRound(r); else beginSpectate(r); };
+  n.onWait = m => {
+    stopWaitTick(); waitInfo = { left: m.left, humans: m.humans, at: Date.now() };
+    netStatus(T('waitRound', m.left, m.humans));
+    waitTimer = setInterval(() => { if (!waitInfo) return; const left = Math.max(0, waitInfo.left - Math.round((Date.now() - waitInfo.at) / 1000)); netStatus(T('waitRound', left, waitInfo.humans)); }, 1000);
+  };
+  n.onStart = r => { stopWaitTick(); if (r.player) beginOnlineRound(r); else beginSpectate(r); };
   n.onRooms = list => renderRooms(list);
   n.onServerError = m => { netStatus(T('err:' + m.msg)); if (btn) btn.disabled = false; };
   n.onClose = () => { if (net !== n) return; if (onlineMode && (state === 'playing' || state === 'dead')) renderer.showToast(T('onlineLost')); onlineMode = false; netStatus(''); if (btn) btn.disabled = false; };
@@ -4347,10 +4408,11 @@ function beginSpectate(r) {
   syncTouchUi();
 }
 // Açık oda listesi (menüde "Odalar"): 4 sn'de bir tazelenir
+let myRoomCode = null;   // kurulu özel oda (Odalar kutusunda gösterilir)
 function renderRooms(list) {
   const box = $('roomList'); if (!box) return;
   box.textContent = '';
-  if (!list.length) { const p = document.createElement('span'); p.className = 'small'; p.textContent = T('noRooms'); box.appendChild(p); return; }
+  if (!list.length) { const p = document.createElement('span'); p.className = 'small'; p.textContent = myRoomCode ? T('yourRoom', myRoomCode) : T('noRooms', T('play')); box.appendChild(p); return; }
   for (const r of list) {
     const row = document.createElement('div'); row.className = 'room';
     const s = document.createElement('span');
@@ -4380,12 +4442,13 @@ if ($('beginBtn')) $('beginBtn').addEventListener('click', () => { if (net && ne
 // Bekleme kartından menüye dön: odadan ayrıl, yerel tanıtım turu
 function leaveOnline() {
   if (net && net.connected) net.send({ t: 'leave' });
-  onlineMode = false; state = 'menu'; round = new Round(); player = null; watching = false; setHidden('backBtn', true);
+  onlineMode = false; state = 'menu'; round = new Round(); player = null; watching = false; setHidden('backBtn', true); myRoomCode = null; stopWaitTick();
   $('result').hidden = true; $('menu').hidden = false; setHidden('waitCard', true); netStatus('');
-  if ($('onlineBtn')) $('onlineBtn').disabled = false; pollLider();
+  if ($('onlineBtn')) $('onlineBtn').disabled = false; pollLider(); setTimeout(pollOnlineCount, 400);
   syncTouchUi(); refreshMenu();
 }
 if ($('leaveBtn')) $('leaveBtn').addEventListener('click', leaveOnline);
+if ($('leaveRoomBtn')) $('leaveRoomBtn').addEventListener('click', leaveOnline);
 if ($('copyRoomBtn')) $('copyRoomBtn').addEventListener('click', async () => {
   const btn = $('copyRoomBtn'), link = `${location.origin}${location.pathname}?oda=${btn.dataset.code || ''}`;
   try { await navigator.clipboard.writeText(link); btn.textContent = T('copied'); setTimeout(() => { btn.textContent = T('copyLink'); }, 1600); }
@@ -4456,12 +4519,12 @@ function showResult(title, sub, allowRevive) {
   $('reviveBtn').hidden = !allowRevive;
   $('watchBtn').hidden = !(state === 'dead' && !round.over);   // tur sürüyorsa izlemeyi seç
   $('result').hidden = false;
-  syncTouchUi();
+  syncTouchUi(); if (onlineMode) refreshNet();
 }
 // İzle: kart kapanır, sahne (tıkla → oyuncu değiştir) görünür; "Sonuç kartı" ile geri dönülür, tur bitince kart kendiliğinden döner
 function setWatching(on) {
   watching = on;
-  $('result').hidden = on; setHidden('backBtn', !on);
+  $('result').hidden = on; setHidden('backBtn', !on); if (onlineMode) refreshNet();
   if (on) { const t = cameraTarget(); if (t && t !== player) renderer.showToast(T('watching', t.name)); track('watch'); }
   syncTouchUi();
 }
@@ -4483,7 +4546,7 @@ function onDeath() {
   Sfx.lose();
   // Diriliş teklifi: tur başına bir kez, arena hâlâ genişken ve yalnız ilk GAME.reviveTop içinde (her ölümde teklif portal kurallarına aykırı)
   const place = round.placementOf(player);
-  showResult(T('died', place), GAME.deathText(player), !revived && round.canRevive() && place <= (GAME.reviveTop || 99));
+  showResult(T('died', place), GAME.deathText(player), !revived && round.canRevive() && (place <= (GAME.reviveTop || 99) || (stats.rounds || 0) < 5));
   showProgress(recordResult());
   showNearestGoal();
 }
