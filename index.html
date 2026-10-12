@@ -578,6 +578,7 @@ class RenderBase {
     this.zoom = 1;
     this.camX = 0; this.camY = 0;
     this.time = 0;
+    this.dprCap = 1.5;   // uyarlanır çözünürlük: yavaş makinede kumul-main düşürür (0,7'ye kadar), rahatlayınca geri yükselir
     this.resize();
     if (!this.fixed) window.addEventListener('resize', () => this.resize());
   }
@@ -587,7 +588,7 @@ class RenderBase {
   get viewH() { return this.fixed ? this.fixed.h : window.innerHeight; }
 
   resize() {
-    const dpr = this.fixed ? 1 : Math.min(devicePixelRatio || 1, 1.5);   // 3x telefon ekranında piksel sayısını sınırla
+    const dpr = this.fixed ? 1 : Math.min(devicePixelRatio || 1, this.dprCap ?? 1.5);   // 3x telefon ekranında piksel sayısını sınırla; dprCap < 1 olabilir
     this.dpr = dpr;
     this.canvas.width  = Math.max(1, this.viewW * dpr);
     this.canvas.height = Math.max(1, this.viewH * dpr);
@@ -818,7 +819,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610120557';
+const DIL_SURUM = '202610120657';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -2375,7 +2376,7 @@ class NetClient {
     this.url = url; this.ws = null; this.round = null; this.connected = false;
     this.onLobby = null; this.onStart = null; this.onDead = null; this.onOver = null; this.onClose = null; this.onError = null;
     this.onWait = null; this.onRooms = null; this.onServerError = null;
-    this.lastStateAt = 0; this.stateInterval = 50; this.lastSent = null; this.lastSendAt = 0; this.offset = null; this.jitter = 0; this.delay = 75;
+    this.lastStateAt = 0; this.stateInterval = 50; this.lastSent = null; this.lastSendAt = 0; this.offset = null; this.jitter = 0; this.delay = 75; this.gapMax = 0;
   }
   connect() {
     return new Promise((ok, fail) => {
@@ -2391,14 +2392,14 @@ class NetClient {
   join(opts) { this.send({ t: 'join', ...opts }); }
   handle(m) {
     if (m.t === 'lobby') { this.onLobby && this.onLobby(m); }
-    else if (m.t === 'start') { if (typeof Mutation !== 'undefined') Mutation.set(m.mutation); this.round = new NetRound(this, m); this.lastStateAt = 0; this.lastSent = null; this.offset = null; this.jitter = 0; this.onStart && this.onStart(this.round); }
+    else if (m.t === 'start') { if (typeof Mutation !== 'undefined') Mutation.set(m.mutation); this.round = new NetRound(this, m); this.lastStateAt = 0; this.lastSent = null; this.offset = null; this.jitter = 0; this.gapMax = 0; this.onStart && this.onStart(this.round); }
     else if (m.t === 'who' && this.round) { this.round.applyWho(m); }
     else if (m.t === 'wait') { this.onWait && this.onWait(m); }
     else if (m.t === 'rooms') { this.onRooms && this.onRooms(m.list || []); }
     else if (m.t === 'error') { this.onServerError && this.onServerError(m); }
     else if (m.t === 'state' && this.round) {
       const now = performance.now();
-      if (this.lastStateAt) this.stateInterval = this.stateInterval * 0.8 + (now - this.lastStateAt) * 0.2;
+      if (this.lastStateAt) { const gap = now - this.lastStateAt; this.stateInterval = this.stateInterval * 0.8 + gap * 0.2; if (gap > this.gapMax) this.gapMax = gap; }
       this.lastStateAt = now;
       // Sunucu saati: paket k. adımda üretildi (k·1000/hz ms). offset = en erken gelen paketin (yerel − sunucu) farkı; sunucu donup
       // yetişince yığın hâlinde gelen paketler yine doğru aralıkla sıralanır. Gecikme (now − tahmini) tepe değeri jitter'dır,
@@ -3778,6 +3779,7 @@ const useAnalytics = !!GAME.analytics && typeof Analytics !== 'undefined';
 if (useAnalytics) Analytics.init(GAME.key, { endpoint: GAME.analytics.endpoint, blocked: Ads.detect() === 'poki', portal: Ads.detect() || '' });
 const track = (e, d) => { if (useAnalytics) Analytics.track(e, d); };
 window.addEventListener('keydown', e => {
+  if (e.code === 'F2') { Perf.show = !Perf.show; e.preventDefault(); return; }
   if ((e.code !== 'Escape' && e.code !== 'KeyP') || e.target.tagName === 'INPUT') return;
   if (state === 'playing') { setPaused(!paused); e.preventDefault(); return; }
   if (e.code !== 'Escape') return;
@@ -4165,6 +4167,50 @@ function handleEvents() {
 // Paylaşım metni = kod + sonuç + oynanabilir link; her paylaşım bir davettir.
 // ---------------------------------------------------------------------
 const params = new URLSearchParams(location.search);
+// ---------------------------------------------------------------------
+// Başarım: kare süreleri 2 sn'lik pencerelerde; ortalama 25 ms'yi aşarsa çizim çözünürlüğü düşer (dprCap, 0,7'ye kadar),
+// 10 sn iyi giderse geri yükselir. F2 ya da ?perf=1 ekranda panel; tur sonunda özet sunucuya (/__perf) ve analitiğe gider.
+// ---------------------------------------------------------------------
+const Perf = {
+  show: params.get('perf') === '1', frames: 0, sum: 0, max: 0, slow: 0, t0: performance.now(), fps: 0, avg: 0, lastMax: 0, lastSlow: 0, good: 0, gpu: '', changes: 0,
+  roundFrames: 0, roundSum: 0, roundSlow: 0, roundMax: 0, roundStart: 0,
+  frame(ms) {
+    if (ms > 500 || document.hidden) { this.t0 = performance.now(); this.frames = 0; this.sum = 0; this.max = 0; this.slow = 0; return; }   // sekme gizliyken rAF durur: sayma
+    this.frames++; this.sum += ms; if (ms > this.max) this.max = ms; if (ms > 50) this.slow++;
+    const now = performance.now(); if (now - this.t0 < 2000) return;
+    this.fps = this.frames / ((now - this.t0) / 1000); this.avg = this.sum / this.frames; this.lastMax = this.max; this.lastSlow = this.slow;
+    this.roundFrames += this.frames; this.roundSum += this.sum; this.roundSlow += this.slow; if (this.max > this.roundMax) this.roundMax = this.max;
+    if (state === 'playing' || state === 'dead') {
+      if (this.avg > 25 && renderer.dprCap > 0.7) { renderer.dprCap = Math.max(0.7, +(renderer.dprCap - 0.25).toFixed(2)); renderer.resize(); this.changes++; this.good = 0; }
+      else if (this.avg < 12 && renderer.dprCap < 1.5 && ++this.good >= 5) { renderer.dprCap = Math.min(1.5, +(renderer.dprCap + 0.25).toFixed(2)); renderer.resize(); this.good = 0; }
+    }
+    this.frames = 0; this.sum = 0; this.max = 0; this.slow = 0; this.t0 = now;
+  },
+  roundReset() { this.roundFrames = 0; this.roundSum = 0; this.roundSlow = 0; this.roundMax = 0; this.roundStart = performance.now(); },
+  report() {
+    const secs = Math.max(1, (performance.now() - this.roundStart) / 1000), n = net && onlineMode ? net : null;
+    return { fps: +(this.roundFrames / secs).toFixed(1), avg: +(this.roundSum / Math.max(1, this.roundFrames)).toFixed(1), max: Math.round(this.roundMax), slow: this.roundSlow, secs: Math.round(secs),
+             dpr: renderer.dpr, cap: renderer.dprCap, w: renderer.canvas.width, h: renderer.canvas.height, gpu: this.gpu, online: onlineMode,
+             delay: n ? Math.round(n.delay) : null, jitter: n ? Math.round(n.jitter) : null, gap: n ? Math.round(n.gapMax) : null, interval: n ? Math.round(n.stateInterval) : null,
+             ua: navigator.userAgent.slice(0, 120), touch: touch.enabled };
+  },
+  send() {
+    const r = this.report(); track('perf', r);
+    if (onlineUrl) { try { fetch(onlineUrl.replace(/^ws/, 'http') + '/__perf', { method: 'POST', body: JSON.stringify({ pid, name: playerName(), ...r }), keepalive: true, headers: { 'Content-Type': 'text/plain' } }).catch(() => {}); } catch {} }
+  },
+  draw(ctx, dpr) {
+    const n = net && onlineMode ? net : null;
+    const lines = [`fps ${this.fps.toFixed(0)} · kare ort ${this.avg.toFixed(1)} ms · en uzun ${this.lastMax.toFixed(0)} ms · >50 ms: ${this.lastSlow}`,
+      `çizim ${renderer.canvas.width}×${renderer.canvas.height} @${renderer.dpr.toFixed(2)} (tavan ${renderer.dprCap}, ${this.changes} değişim)`,
+      `gpu: ${this.gpu}`,
+      n ? `ağ: gecikme ${n.delay | 0} ms · jitter ${n.jitter | 0} · aralık ${n.stateInterval | 0} · en uzun boşluk ${n.gapMax | 0} ms` : 'ağ: yerel tur'];
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.font = '12px monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    const y0 = innerHeight - 14 * lines.length - 16;
+    ctx.fillStyle = 'rgba(0,0,0,0.65)'; ctx.fillRect(8, y0 - 6, 560, 14 * lines.length + 12); ctx.fillStyle = '#fff';
+    lines.forEach((l, i) => ctx.fillText(l, 14, y0 + i * 14));
+  },
+};
+try { const gc = document.createElement('canvas'), gl = gc.getContext('webgl') || gc.getContext('experimental-webgl'); const ext = gl && gl.getExtension('WEBGL_debug_renderer_info'); Perf.gpu = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)).slice(0, 80) : gl ? 'webgl (ad gizli)' : 'webgl yok'; } catch { Perf.gpu = '?'; }
 let urlSeed = codeToSeed(params.get('s'));
 const urlMutation = params.get('m') || null;     // meydan okumanın mutasyonu (haftadan bağımsız)
 const challenge = urlSeed !== null
@@ -4244,6 +4290,7 @@ function startRound() {
 }
 // Tur başlangıcının ortak kısmı: yerel (startRound) ve çevrimiçi (beginOnlineRound) tur aynı yoldan girer
 function enterRound() {
+  Perf.roundReset();
   renderer.feed = []; streamScore();
   roundHighlights = new Set();
   if (useProgress) {
@@ -4520,6 +4567,7 @@ function showResult(title, sub, allowRevive) {
   $('watchBtn').hidden = !(state === 'dead' && !round.over);   // tur sürüyorsa izlemeyi seç
   $('result').hidden = false;
   syncTouchUi(); if (onlineMode) refreshNet();
+  Perf.send();
 }
 // İzle: kart kapanır, sahne (tıkla → oyuncu değiştir) görünür; "Sonuç kartı" ile geri dönülür, tur bitince kart kendiliğinden döner
 function setWatching(on) {
@@ -4703,6 +4751,7 @@ function cameraTarget() {
 const DT = 1 / 60;
 let last = performance.now(), acc = 0;
 function loop(now) {
+  Perf.frame(now - last);
   const real = Math.min(0.1, (now - last) / 1000); last = now;
   const slow = slowmo > 0 && state === 'playing';
   if (slowmo > 0) slowmo -= real;
@@ -4713,6 +4762,7 @@ function loop(now) {
   renderer.updateCamera(target, real);
   renderer.stick = touch.enabled && state === 'playing' ? stickView() : null;
   renderer.draw(round.world, state === 'menu' ? null : player, state === 'menu' ? null : round, state === 'dead' ? target : null);   // menüde HUD çizilmez (lobi temiz)
+  if (Perf.show) Perf.draw(renderer.ctx, renderer.dpr);
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
