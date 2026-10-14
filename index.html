@@ -822,7 +822,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610142009';
+const DIL_SURUM = '202610142040';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1252,8 +1252,22 @@ const Sfx = {
 // =====================================================================
 
 // Küçük kalıcı veri yardımcısı. Depolama kapalıysa oyun yine çalışır.
+// Okunan değer varsayılanın biçimine uydurulur (bozuk/eski kayıt oyunu kilitlemesin): nesnede eksik alanlar varsayılandan gelir,
+// tür uymayan alan varsayılana döner; varsayılan null/undefined ise değer olduğu gibi kabul edilir.
 const store = {
-  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : store.fit(JSON.parse(v), d); } catch { return d; } },
+  fit(v, d) {
+    if (d === null || d === undefined) return v;
+    if (Array.isArray(d)) return Array.isArray(v) ? v : d;
+    if (typeof d === 'object') {
+      if (!v || typeof v !== 'object' || Array.isArray(v)) return d;
+      const out = { ...d };
+      for (const key of Object.keys(v)) out[key] = key in d ? store.fit(v[key], d[key]) : v[key];
+      return out;
+    }
+    return typeof v === typeof d && !(typeof v === 'number' && !Number.isFinite(v)) ? v : d;
+  },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
 };
 
@@ -2256,7 +2270,8 @@ const AgKodek = {
   packBall(b) { const r1 = AgKodek.r1; return [b.id, r1(b.x), r1(b.y), r1(b.vx), r1(b.vy), r1(b.mass), b.owner ? b.owner.id : 0, r1(b.roll), b.kills || 0]; },
   packFood: f => [f.id, Math.round(f.x), Math.round(f.y), AgKodek.r1(f.value), f.edge ? 1 : 0],
   packPower: p => [p.id, Math.round(p.x), Math.round(p.y), p.type],
-  roster: s => ({ id: s.id, name: s.name, color: s.color, skin: s.skin, bot: !!s.brain, chatter: !!s.chatter, nemesis: !!s.nemesis, trait: s.trait || '' }),
+  roster: s => ({ id: s.id, name: s.name, color: s.color, skin: s.skin, bot: !!s.brain, chatter: !!s.chatter, nemesis: !!s.nemesis, trait: s.trait || '',
+                  x: Math.round(s.x), y: Math.round(s.y), a: Math.round(s.angle * 100) / 100, m: Math.round(s.mass), al: !!s.alive }),   // ilk durum paketine kadar doğru yer/ağırlık
   // Olay: nesne başvuruları kimliğe çevrilir; istemci geri çözer
   packEvent(e) {
     const r1 = AgKodek.r1, id = o => (o ? o.id : 0);
@@ -2275,8 +2290,8 @@ class RemoteBeetle {
   constructor(r) {
     this.id = r.id; this.name = r.name; this.color = r.color; this.skin = r.skin; this.brain = r.bot ? true : null;
     this.chatter = r.chatter; this.nemesis = r.nemesis; this.trait = r.trait;
-    this.x = 0; this.y = 0; this.vx = 0; this.vy = 0; this.angle = 0; this.mass = 0; this.roll = 0; this.charge = 0;
-    this.alive = true; this.dig = 0; this.breath = 0; this.charging = false; this.launching = false; this.dashFx = 0;
+    this.x = r.x ?? 0; this.y = r.y ?? 0; this.vx = 0; this.vy = 0; this.angle = r.a ?? 0; this.mass = r.m ?? (typeof PHYS !== 'undefined' ? PHYS.startMass : 20); this.roll = 0; this.charge = 0;
+    this.alive = r.al ?? true; this.dig = 0; this.breath = 0; this.charging = false; this.launching = false; this.dashFx = 0;
     this.protection = 0; this.anchor = 0; this.magnet = 0; this.turbo = 0; this.dashTimer = 0; this.digCooldown = 0; this.digEligible = false;
     this.kills = 0; this.score = 0; this.steals = 0; this.breaths = 0; this.launches = 0; this.digs = 0; this.ballKills = 0;
     this.input = { targetAngle: 0, throttle: 1, boost: false, dig: false };
@@ -2825,11 +2840,19 @@ class ArenaRenderer extends RenderBase {
     ctx.fillStyle = opts.fill || KUMUL.paper; ctx.strokeStyle = opts.stroke || KUMUL.ink; ctx.lineWidth = opts.line || 1.5;
     this.rrect(x, y, w, h, r); ctx.fill(); ctx.stroke();
   }
-  label(text, x, y, align = 'left', color = KUMUL.muted) {
+  // maxW verilirse sığdırılır: önce harf aralığı kalkar, sonra punto 8 px'e kadar küçülür, en son "…" ile kısalır (uzun dillerde taşmasın)
+  label(text, x, y, align = 'left', color = KUMUL.muted, maxW = 0) {
     const ctx = this.ctx, code = typeof Lang !== 'undefined' ? Lang.code : 'tr';
-    ctx.save(); ctx.textAlign = align; ctx.fillStyle = color; ctx.font = `700 ${['ar', 'zh', 'ja', 'ko', 'hi'].includes(code) ? 11 : 10}px ${KUMUL.font}`;
-    try { ctx.letterSpacing = code === 'ar' ? '0px' : '1.2px'; } catch {}   // Arapça harfler bitişik: aralık verilmez
-    ctx.fillText(String(text).toLocaleUpperCase(code), x, y); ctx.restore();
+    let size = ['ar', 'zh', 'ja', 'ko', 'hi'].includes(code) ? 11 : 10, spacing = code === 'ar' ? 0 : 1.2, s = String(text).toLocaleUpperCase(code);
+    ctx.save(); ctx.textAlign = align; ctx.fillStyle = color;
+    const setF = () => { ctx.font = `700 ${size}px ${KUMUL.font}`; try { ctx.letterSpacing = spacing + 'px'; } catch {} };   // Arapça harfler bitişik: aralık verilmez
+    setF();
+    if (maxW > 0 && ctx.measureText(s).width > maxW) {
+      spacing = 0; setF();
+      while (ctx.measureText(s).width > maxW && size > 8) { size -= 0.5; setF(); }
+      if (ctx.measureText(s).width > maxW) { while (s.length > 1 && ctx.measureText(s + '…').width > maxW) s = s.slice(0, -1); s += '…'; }
+    }
+    ctx.fillText(s, x, y); ctx.restore();
   }
   bar(x, y, w, h, frac, color) {
     const ctx = this.ctx;
@@ -2852,7 +2875,7 @@ class ArenaRenderer extends RenderBase {
     // Dar ekranda sol oyuncu paneli (10..154) ile çakışmasın: panel daralır, evre etiketi ikinci satıra iner
     const pw = narrow ? Math.max(150, Math.min(204, W - 174)) : 224, ptop = 10, px = narrow ? W - pw - 10 : W / 2 - pw / 2;
     this.panel(px, ptop, pw, 66);
-    this.label(T('left'), px + 14, ptop + 21);
+    this.label(T('left'), px + 14, ptop + 21, 'left', KUMUL.muted, narrow ? 50 : 76);   // dar ekranda ilerleme çubuğu px+70'te başlar
     ctx.textAlign = 'left'; ctx.fillStyle = KUMUL.ink; ctx.font = `800 26px ${KUMUL.font}`;
     const n = String(alive.length), nw = ctx.measureText(n).width; ctx.fillText(n, px + 14, ptop + 51);
     ctx.fillStyle = KUMUL.muted; ctx.font = `600 13px ${KUMUL.font}`;
@@ -2861,9 +2884,9 @@ class ArenaRenderer extends RenderBase {
     const label = ph.key === 'calm' ? T('phaseCalm', Math.ceil(ph.left)) : ph.key === 'shrink' ? T('phaseShrink') : ph.key === 'final3' ? T('phaseFinal3', Math.ceil(ph.left)) : ph.key === 'over' ? T('roundOver') : T('phaseFinal');
     if (narrow) {
       this.bar(px + 70, ptop + 15, pw - 84, 6, round.time / ARENA.finalEnd, phaseColor);
-      this.label(label, px + pw - 14, ptop + 51, 'right', phaseColor);
+      this.label(label, px + pw - 14, ptop + 51, 'right', phaseColor, pw - 28 - (14 + nw + 6 + ctx.measureText(`/ ${round.total}`).width) - 8);
     } else {
-      this.label(label, px + pw - 14, ptop + 21, 'right', phaseColor);
+      this.label(label, px + pw - 14, ptop + 21, 'right', phaseColor, pw - 28 - 60);
       this.bar(px + 96, ptop + 42, pw - 110, 6, round.time / ARENA.finalEnd, phaseColor);
     }
 
@@ -2871,7 +2894,7 @@ class ArenaRenderer extends RenderBase {
     if (player && player.alive) {
       const lw = 144;
       this.panel(10, 10, lw, 66);
-      this.label(this.hudText.size, 22, 31); this.label(this.hudText.kills, 94, 31);
+      this.label(this.hudText.size, 22, 31, 'left', KUMUL.muted, 56); this.label(this.hudText.kills, 94, 31, 'left', KUMUL.muted, 52);
       ctx.textAlign = 'left'; ctx.fillStyle = KUMUL.ink; ctx.font = `800 22px ${KUMUL.font}`;
       ctx.fillText(String(Math.round(player.mass)), 22, 59); ctx.fillText(String(player.kills || 0), 94, 59);
       ctx.fillStyle = 'rgba(42,31,20,0.15)'; ctx.fillRect(82, 22, 1.5, 42);
@@ -3763,11 +3786,17 @@ let attractTimer = 0;
 // ---------------------------------------------------------------------
 const stats = store.get(GAME.key + '-stats', { rounds: 0, wins: 0, best: null });
 const useProgress = !!GAME.progress;
-if (useProgress) { Progress.init(GAME.key, KUMUL_SKINS, GAME.missions); Nemesis.init(GAME.key); Streak.init(GAME.key); }
+// Güvenli açılış: bir modülün kaydı yine de bozuksa (beklenmeyen iç yapı) o kayıt silinip modül sıfırdan kurulur; oyun her durumda açılır
+function safeInit(keys, fn) { try { fn(); } catch (e) { console.warn('kayıt bozuk, sıfırlandı:', keys.join(','), e.message); for (const k of keys) store.del(k); try { fn(); } catch (e2) { console.error('modül açılamadı:', keys.join(','), e2.message); } } }
+if (useProgress) {
+  safeInit([GAME.key + '-progress'], () => Progress.init(GAME.key, KUMUL_SKINS, GAME.missions));
+  safeInit([GAME.key + '-nemesis'], () => Nemesis.init(GAME.key));
+  safeInit([GAME.key + '-streak'], () => Streak.init(GAME.key));
+}
 const useDefter = useProgress && !!GAME.collection;          // Böcek Defteri ve gizli başarımlar (skarabe-defter.js)
-if (useDefter) GAME.collection.init(GAME.key, KUMUL_SKINS);
+if (useDefter) safeInit([GAME.key + '-defter'], () => GAME.collection.init(GAME.key, KUMUL_SKINS));
 const useSeason = useProgress && !!GAME.season;              // sezon ödül hattı (kumul-ilerleme.js Season)
-if (useSeason) Season.init(GAME.key);
+if (useSeason) safeInit([GAME.key + '-season'], () => Season.init(GAME.key));
 
 const weekMutation = GAME.mutations ? GAME.mutations.thisWeek() : null;   // haftalık mutasyon (itis.js)
 
@@ -4726,7 +4755,9 @@ $('againBtn').addEventListener('click', async () => {
   if (onlineMode && net && net.connected) {
     $('result').hidden = true;
     // Tur hâlâ sürüyorsa odada kal ve izle (sunucu seni bot yerine sokar ya da sıradaki tura alır); bittiyse menüye dön
-    if (!net.round || net.round.over) { $('menu').hidden = false; state = 'menu'; round = new Round(); pollLider(); }
+    // Tur bittiyse de menüye atılmaz: sahne yerinde kalır, bekleme kartı "Eşleşiyor: N sn" gösterir (tur sürerkenki davranışla aynı)
+    if (!net.round) { $('menu').hidden = false; state = 'menu'; round = new Round(); pollLider(); }
+    else if (state === 'playing') state = 'dead';
     startOnline(lastJoin);
   } else startRound();
 });
