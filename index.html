@@ -820,7 +820,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610141842';
+const DIL_SURUM = '202610141904';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -4402,7 +4402,7 @@ async function pollOnlineCount() {
   try {
     const r = await fetch(onlineUrl.replace(/^ws/, 'http') + '/__net', { cache: 'no-store' });
     const j = await r.json(); setText('onlineCount', j.humans > 0 ? T('onlineNow', j.humans) : '');
-    setHidden('watchLiveBtn', !(j.list || []).some(x => x.state === 'playing' && x.humans > 0));   // süren tur varsa "Canlı izle"
+    setHidden('watchLiveBtn', !(j.list || []).some(x => x.state === 'playing' && (x.playing ?? x.humans) > 0));   // insan oynayan süren tur varsa "Canlı izle" (yalnız bot turu sayılmaz)
   } catch { setText('onlineCount', ''); setHidden('watchLiveBtn', true); }
   onlineTimer = setTimeout(pollOnlineCount, state === 'menu' ? 10000 : 30000);
 }
