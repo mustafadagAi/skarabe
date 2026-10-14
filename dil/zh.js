@@ -87,6 +87,7 @@ DIL.zh = {
   leaderLabel: '排行榜', today: '今天', thisWeek: '本周', onlineOnly: '仅在线对局', leaderEmpty: '暂无成绩', yourRank: (d, w) => `今天第${d} · 本周第${w}`,
   leaveRoom: '离开房间', yourRoom: c => `你的私人房间：${c} · 分享链接`, 'powerGot:magnet': '磁铁：颗粒会被吸向你', 'powerGot:anchor': '锚：不易被推动', 'powerGot:turbo': '涡轮：冲刺快速冷却',
   noPauseOnline: '在线对局无法暂停',
+  stormWarn: '风暴！回到中心',
   watch: '观战', backToResult: '结果',
   paused: '已暂停', resume: '继续', pauseHint: 'Esc 或 P：暂停',
   online: '在线游戏', connecting: '正在连接服务器…', matching: (w, h) => `匹配中：${w} 秒 · ${h} 名玩家（其余由机器人补足）`,

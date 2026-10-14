@@ -1079,7 +1079,7 @@ class RoundBase {
   zoneSide(t = this.time) {
     const A = ARENA;
     if (t <= A.calm) return A.size;
-    if (t <= A.shrinkEnd) return A.size + (A.midSize - A.size) * (t - A.calm) / (A.shrinkEnd - A.calm);
+    if (t <= A.shrinkEnd) { const p = (t - A.calm) / (A.shrinkEnd - A.calm); return A.size + (A.midSize - A.size) * Math.pow(p, 1.6); }   // başta yavaş, sonda hızlı: yeni oyuncu ilk 20 sn'de kenara yakalanmasın
     if (t <= A.finalEnd) return A.midSize * (1 - (t - A.shrinkEnd) / (A.finalEnd - A.shrinkEnd));
     return 0;
   }
@@ -1134,7 +1134,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610141817';
+const DIL_SURUM = '202610141820';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1247,6 +1247,7 @@ tr: {
   leaderLabel: 'Liderlik', today: 'Bugün', thisWeek: 'Bu hafta', onlineOnly: 'Yalnız çevrimiçi turlar', leaderEmpty: 'Henüz sonuç yok', yourRank: (d, w) => `Bugün ${d}. · bu hafta ${w}.`,
   leaveRoom: 'Odadan çık', yourRoom: c => `Özel odan: ${c} · bağlantıyı paylaş`, 'powerGot:magnet': 'Mıknatıs: topaklar sana gelir', 'powerGot:anchor': 'Ağırlık: zor itilirsin', 'powerGot:turbo': 'Turbo: atılma çabuk dolar',
   noPauseOnline: 'Çevrimiçi turda duraklatma yok',
+  stormWarn: 'Fırtına! Merkeze dön',
   watch: 'İzle', backToResult: 'Sonuç kartı',
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
   // çevrimiçi
@@ -1353,6 +1354,7 @@ en: {
   leaderLabel: 'Leaderboard', today: 'Today', thisWeek: 'This week', onlineOnly: 'Online rounds only', leaderEmpty: 'No results yet', yourRank: (d, w) => `Today #${d} · this week #${w}`,
   leaveRoom: 'Leave room', yourRoom: c => `Your private room: ${c} · share the link`, 'powerGot:magnet': 'Magnet: pellets come to you', 'powerGot:anchor': 'Anchor: hard to push', 'powerGot:turbo': 'Turbo: dash recharges fast',
   noPauseOnline: 'No pause in online rounds',
+  stormWarn: 'Storm! Head to the center',
   watch: 'Watch', backToResult: 'Results',
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
   online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
@@ -1529,6 +1531,7 @@ const Sfx = {
   dash(vol = 1)        { if (vol < 0.05 || !this.ready('dash', 0.12)) return;
                          this.noise(0.2, 0.16 * vol, 2200); this.tone(260, 640, 0.13, 'sine', 0.1 * vol); },
   pellet()             { if (this.ready('pellet', 0.05)) this.tone(900, 1350, 0.05, 'sine', 0.07); },
+  alarm()              { if (!this.ready('alarm', 3)) return; [0, 0.16].forEach(d => this.tone(740, 740, 0.1, 'square', 0.12, d)); },   // fırtına uyarısı
   power()              { this.tone(520, 1040, 0.16, 'square', 0.09); this.tone(780, 1560, 0.18, 'square', 0.08, 0.1); },
   out(vol = 1)         { if (vol < 0.05 || !this.ready('out', 0.25)) return;
                          this.tone(520, 90, 0.38, 'sawtooth', 0.14 * vol); },
@@ -2746,6 +2749,16 @@ function nearVolume(x, y) {
 // Olaylar bir kez işlenir ve liste boşaltılır. Tur bitince dünya adım atmaz, liste de kendiliğinden
 // temizlenmez; boşaltılmazsa son olay her karede yeniden çalınır (saniyede 60 kez: cızırtı).
 // Aynı karedeki çarpmalar tek sese indirilir: en güçlüsü çalınır.
+// Fırtına uyarısı: kenara 110 birimden yakınsa ya da daralma 1,5 sn içinde yetişecekse — bildirim + alarm + kenar nabzı (4 sn'de bir)
+let stormWarnAt = -10, prevSide = null;
+function stormWatch(dt) {
+  const b = round.world.bounds; if (!b || !player.alive) return;
+  const side = b.x1 - b.x0, rate = prevSide === null ? 0 : Math.max(0, (prevSide - side) / 2 / dt); prevSide = side;   // kenar başına yaklaşma hızı (birim/sn)
+  const d = Math.min(player.x - b.x0, b.x1 - player.x, player.y - b.y0, b.y1 - player.y) - player.radius;
+  if (d < 110 + rate * 1.5 && round.time - stormWarnAt > 4) {
+    stormWarnAt = round.time; renderer.showToast(T('stormWarn')); Sfx.alarm(); renderer.stormPulse = renderer.time;
+  }
+}
 function handleEvents() {
   const events = round.world.events;
   if (!events || !events.length) return;
@@ -2950,7 +2963,7 @@ function enterRound() {
   player.mastery = useProgress ? Progress.masteryOf(savedSkin) : 0;
   player.crowned = useDefter && GAME.collection.crowned();
   player.revenge = false; if (!onlineMode) player.ballKills = 0;
-  revived = false; awarded = null; overShown = false; spectateId = null; watching = false; setHidden('backBtn', true);
+  revived = false; awarded = null; overShown = false; spectateId = null; watching = false; setHidden('backBtn', true); stormWarnAt = -10; prevSide = null;
   state = 'playing'; paused = false; setHidden('pauseModal', true);
   renderer.camX = player.x; renderer.camY = player.y; renderer.zoom = 1;
   $('menu').hidden = true; $('result').hidden = true;
@@ -3355,6 +3368,7 @@ function tick(dt) {
     if (onlineMode) net.tick(); else round.step(dt);
     if (useClips) Clip.tick(round.world);
     Tutor.tick();
+    stormWatch(dt);
     detectHighlight();
     handleEvents();
     if (!player.alive) onDeath();

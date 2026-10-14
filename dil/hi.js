@@ -87,6 +87,7 @@ DIL.hi = {
   leaderLabel: 'लीडरबोर्ड', today: 'आज', thisWeek: 'इस हफ्ते', onlineOnly: 'केवल ऑनलाइन राउंड', leaderEmpty: 'अभी कोई नतीजा नहीं', yourRank: (d, w) => `आज #${d} · इस हफ्ते #${w}`,
   leaveRoom: 'कमरा छोड़ें', yourRoom: c => `आपका निजी कमरा: ${c} · लिंक साझा करें`, 'powerGot:magnet': 'चुंबक: गोलियाँ आपके पास आती हैं', 'powerGot:anchor': 'लंगर: धकेलना मुश्किल', 'powerGot:turbo': 'टर्बो: डैश जल्दी भरता है',
   noPauseOnline: 'ऑनलाइन राउंड में रोक नहीं',
+  stormWarn: 'तूफ़ान! बीच की ओर जाओ',
   watch: 'देखें', backToResult: 'परिणाम',
   paused: 'रुका हुआ', resume: 'जारी रखें', pauseHint: 'Esc या P: रोकें',
   online: 'ऑनलाइन खेलें', connecting: 'सर्वर से जुड़ रहे हैं…', matching: (w, h) => `मिलान: ${w} से. · ${h} खिलाड़ी (बाकी बॉट)`,
