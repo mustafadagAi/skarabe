@@ -91,6 +91,7 @@ DIL.es = {
   watchLive: 'Ver en vivo', watchingLive: n => `Espectador · ${n} jugadores`, noPlayersLeft: 'No quedan jugadores en línea',
   tipStartMouse: "Dirige con el ratón, clic para impulsarte. ¡Empuja a los rivales a la tormenta y quédate dentro!", tipStartTouch: "Dirige con el stick izquierdo, botón derecho para impulsarte. ¡Empuja a los rivales a la tormenta!",
   'err:busy': "Servidor ocupado, inténtalo en breve",
+  serverRestart: "El servidor se está actualizando, pulsa Jugar en unos segundos",
   watch: 'Ver', backToResult: 'Resultados',
   paused: 'En pausa', resume: 'Continuar', pauseHint: 'Esc o P: pausa',
   online: 'Jugar en línea', connecting: 'Conectando con el servidor…', matching: (w, h) => `Emparejando: ${w} s · ${h} jugador${h === 1 ? '' : 'es'} (los bots llenan el resto)`,

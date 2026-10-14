@@ -822,7 +822,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610142040';
+const DIL_SURUM = '202610142101';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -939,6 +939,7 @@ tr: {
   watchLive: 'Canlı izle', watchingLive: n => `İzliyorsun · ${n} oyuncu`, noPlayersLeft: 'Çevrimiçi oyuncu kalmadı',
   tipStartMouse: "Fareyle yönlendir, tıkla: atıl. Rakipleri fırtınaya it, sen içeride kal!", tipStartTouch: "Sol çubukla yönlendir, sağ düğme: atıl. Rakipleri fırtınaya it, sen içeride kal!",
   'err:busy': "Sunucu şu an çok dolu, birazdan dene",
+  serverRestart: "Sunucu güncelleniyor, birkaç saniye sonra tekrar Oyna'ya bas",
   watch: 'İzle', backToResult: 'Sonuç kartı',
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
   // çevrimiçi
@@ -1049,6 +1050,7 @@ en: {
   watchLive: 'Watch live', watchingLive: n => `Spectating · ${n} players`, noPlayersLeft: 'No online players left',
   tipStartMouse: "Steer with the mouse, click to dash. Push rivals into the storm, stay inside!", tipStartTouch: "Steer with the left stick, right button to dash. Push rivals into the storm, stay inside!",
   'err:busy': "Server is busy, try again shortly",
+  serverRestart: "Server is updating, press Play again in a few seconds",
   watch: 'Watch', backToResult: 'Results',
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
   online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
@@ -2412,7 +2414,7 @@ class NetClient {
       try { this.ws = new WebSocket(this.url); } catch (e) { return fail(e); }
       this.ws.onopen = () => { this.connected = true; ok(); };
       this.ws.onerror = () => { if (!this.connected) fail(new Error('bağlanamadı')); this.onError && this.onError(); };
-      this.ws.onclose = () => { this.connected = false; this.onClose && this.onClose(); };
+      this.ws.onclose = e => { this.connected = false; this.onClose && this.onClose(e && e.code); };   // 1012: sunucu yeniden başlıyor (güncelleme)
       this.ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch { return; } this.handle(m); };
     });
   }
@@ -4517,11 +4519,12 @@ function wireNet(n) {
   n.onRooms = list => renderRooms(list);
   n.onOver = () => { if (state !== 'playing') renderer.showStamp(net.round && net.round.winner ? T('roundWonBy', net.round.winner.name) : T('roundOver'), T('nextRound')); };   // izleyen/bekleyen: sahne donmadan önce büyük yazı
   n.onServerError = m => { netStatus(T('err:' + m.msg)); if (btn) btn.disabled = false; };
-  n.onClose = () => {
+  n.onClose = code => {
     if (net !== n) return;
-    const wasInGame = onlineMode && state !== 'menu';
+    const wasInGame = onlineMode && state !== 'menu', msg = T(code === 1012 ? 'serverRestart' : 'onlineLost');
     if (btn) btn.disabled = false;
-    if (wasInGame) { leaveOnline(); setText('onlineLine', T('onlineLost')); renderer.showToast(T('onlineLost')); }   // donuk sahnede kalma: menüye dön, Oyna ile yeniden bağlanılır
+    if (wasInGame) { leaveOnline(); setText('onlineLine', msg); renderer.showToast(msg); }
+    else if (code === 1012) setText('onlineLine', msg);   // donuk sahnede kalma: menüye dön, Oyna ile yeniden bağlanılır
     else { onlineMode = false; netStatus(''); if (spectateMode) leaveOnline(); }
     net = null;   // sonraki Oyna yeni bağlantı kurar
   };

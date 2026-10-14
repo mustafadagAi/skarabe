@@ -91,6 +91,7 @@ DIL.id = {
   watchLive: 'Tonton langsung', watchingLive: n => `Menonton · ${n} pemain`, noPlayersLeft: 'Tidak ada pemain online tersisa',
   tipStartMouse: "Arahkan dengan mouse, klik untuk melesat. Dorong lawan ke badai, tetap di dalam!", tipStartTouch: "Arahkan dengan stik kiri, tombol kanan untuk melesat. Dorong lawan ke badai!",
   'err:busy': "Server sibuk, coba lagi sebentar",
+  serverRestart: "Server sedang diperbarui, tekan Main lagi beberapa detik lagi",
   watch: 'Tonton', backToResult: 'Hasil',
   paused: 'Dijeda', resume: 'Lanjutkan', pauseHint: 'Esc atau P: jeda',
   online: 'Main online', connecting: 'Menghubungkan ke server…', matching: (w, h) => `Mencocokkan: ${w} dtk · ${h} pemain (sisanya bot)`,

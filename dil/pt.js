@@ -91,6 +91,7 @@ DIL.pt = {
   watchLive: 'Assistir ao vivo', watchingLive: n => `Assistindo · ${n} jogadores`, noPlayersLeft: 'Não há mais jogadores online',
   tipStartMouse: "Guie com o mouse, clique para avançar. Empurre os rivais para a tempestade e fique dentro!", tipStartTouch: "Guie com o direcional esquerdo, botão direito para avançar. Empurre os rivais para a tempestade!",
   'err:busy': "Servidor ocupado, tente em instantes",
+  serverRestart: "Servidor atualizando, toque em Jogar em alguns segundos",
   watch: 'Assistir', backToResult: 'Resultados',
   paused: 'Pausado', resume: 'Continuar', pauseHint: 'Esc ou P: pausar',
   online: 'Jogar online', connecting: 'Conectando ao servidor…', matching: (w, h) => `Procurando: ${w} s · ${h} jogador${h === 1 ? '' : 'es'} (bots completam o resto)`,
