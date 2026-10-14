@@ -89,6 +89,7 @@ DIL.zh = {
   noPauseOnline: '在线对局无法暂停',
   stormWarn: '风暴！回到中心',
   watchLive: '观看直播', watchingLive: n => `观战中 · ${n} 名玩家`, noPlayersLeft: '没有在线玩家了',
+  tipStartMouse: "用鼠标控制方向，点击冲刺。把对手推进风暴，自己留在里面！", tipStartTouch: "左摇杆控制方向，右键冲刺。把对手推进风暴，自己留在里面！",
   watch: '观战', backToResult: '结果',
   paused: '已暂停', resume: '继续', pauseHint: 'Esc 或 P：暂停',
   online: '在线游戏', connecting: '正在连接服务器…', matching: (w, h) => `匹配中：${w} 秒 · ${h} 名玩家（其余由机器人补足）`,

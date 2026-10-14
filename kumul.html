@@ -1134,7 +1134,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610141904';
+const DIL_SURUM = '202610141926';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1249,6 +1249,7 @@ tr: {
   noPauseOnline: 'Çevrimiçi turda duraklatma yok',
   stormWarn: 'Fırtına! Merkeze dön',
   watchLive: 'Canlı izle', watchingLive: n => `İzliyorsun · ${n} oyuncu`, noPlayersLeft: 'Çevrimiçi oyuncu kalmadı',
+  tipStartMouse: "Fareyle yönlendir, tıkla: atıl. Rakipleri fırtınaya it, sen içeride kal!", tipStartTouch: "Sol çubukla yönlendir, sağ düğme: atıl. Rakipleri fırtınaya it, sen içeride kal!",
   watch: 'İzle', backToResult: 'Sonuç kartı',
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
   // çevrimiçi
@@ -1357,6 +1358,7 @@ en: {
   noPauseOnline: 'No pause in online rounds',
   stormWarn: 'Storm! Head to the center',
   watchLive: 'Watch live', watchingLive: n => `Spectating · ${n} players`, noPlayersLeft: 'No online players left',
+  tipStartMouse: "Steer with the mouse, click to dash. Push rivals into the storm, stay inside!", tipStartTouch: "Steer with the left stick, right button to dash. Push rivals into the storm, stay inside!",
   watch: 'Watch', backToResult: 'Results',
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
   online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
@@ -2401,6 +2403,8 @@ const Tutor = {
     }
   },
   reset() { this.launchShown = false; this.digShown = false; },
+  // İlk iki tur: amaç ve temel kontrol (yeni oyuncu ne yapacağını bilsin)
+  start() { if (GAME.tutor && (stats.rounds || 0) < 2) setTimeout(() => { if (state === 'playing') renderer.showTip(T(touch.enabled ? 'tipStartTouch' : 'tipStartMouse'), 7); }, 400); },
 };
 function syncTutorMenu() {
   Tutor.renderHelp();
@@ -2522,12 +2526,13 @@ function renderSeason() {
     const k = i + 1, need = Season.stepNeed(k), done = Season.data.claimed.includes(k), ready = can.includes(k);
     return `<div class="step ${done ? 'done' : ready ? 'ready' : ''}"><b>${k}</b>${done ? T('stepOpen') : ready ? `<button type="button" data-step="${k}">${T('box')}</button>` : `<i>${T('box')}</i>${T('stepNeed', need)}`}</div>`;
   }).join('');
-  for (const b of track.querySelectorAll('button')) b.addEventListener('click', () => openBox(+b.dataset.step));
+  track.onclick = e => { const b = e.target.closest('button[data-step]'); if (b) openBox(+b.dataset.step); };   // tek dinleyici (yeniden çizimde çoğalmasın)
   setHidden('boxArea', true);
   function openBox(step) {
     const cards = Season.openBox(), area = $('boxCards');
     setHidden('boxArea', false); setText('boxText', T('boxPick'));
     area.innerHTML = cards.map((c, i) => `<button type="button" class="cardBtn" data-i="${i}">?</button>`).join('');
+    try { $('boxArea').scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch {}   // kısa ekranda kartlar görünür olsun
     let picked = false;
     for (const b of area.querySelectorAll('button')) b.addEventListener('click', () => {
       if (picked) return; picked = true;
@@ -2542,7 +2547,7 @@ function renderSeason() {
   function renderSeasonTrackOnly() {
     const can2 = Season.claimable();
     track.querySelectorAll('.step').forEach((el, i) => { const k = i + 1; if (Season.data.claimed.includes(k)) { el.className = 'step done'; el.innerHTML = `<b>${k}</b>${T('stepOpen')}`; } else if (can2.includes(k)) el.className = 'step ready'; });
-    for (const b of track.querySelectorAll('button')) b.addEventListener('click', () => openBox(+b.dataset.step));
+    setText('seasonSummary', T('trackProgress', Season.data.claimed.length, Season.STEPS));   // "N / 10 açıldı" tazelensin
   }
 }
 if ($('seasonBtn')) $('seasonBtn').addEventListener('click', () => { renderSeason(); $('seasonModal').hidden = false; });
@@ -2930,7 +2935,8 @@ async function shareNative() {
 if ($('shareBtn')) $('shareBtn').addEventListener('click', share);
 
 function playerName() {
-  const name = ($('nameInput').value.trim() || T('you')).slice(0, 12);
+  const clean = $('nameInput').value.replace(/[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff<>]/g, '').trim();
+  const name = Array.from(clean || T('you')).slice(0, 12).join('');   // emoji yarıdan bölünmesin
   store.set(GAME.key + '-name', $('nameInput').value.trim());
   return name;
 }
@@ -2939,7 +2945,7 @@ function startRound() {
   const name = playerName();
   // Rakip hafızası meydan okuma turuna karışmaz (aynı tohum herkeste aynı botları vermeli)
   const nemesis = useProgress && urlSeed === null ? Nemesis.get() : null;
-  const mutation = urlSeed !== null ? urlMutation : (weekMutation ? weekMutation.key : null);
+  const mutation = urlSeed !== null ? urlMutation : (weekMutation && (stats.rounds || 0) >= 3 ? weekMutation.key : null);   // ilk 3 pratik turu mutasyonsuz (yeni oyuncu temel kuralları öğrensin)
   const names = useStream && typeof ARENA !== 'undefined' ? Twitch.take(ARENA.players - 1) : null;   // sohbetten gelen izleyiciler
   onlineMode = false;
   round = new Round({ withPlayer: true, playerName: name, playerSkin: savedSkin, seed: urlSeed, nemesis, mutation, names });
@@ -2963,7 +2969,7 @@ function enterRound() {
   if (useClips) Clip.reset();
   lastHighlight = null; slowmo = 0; renderer.stamp = null;
   player = round.player;
-  player.canLaunch = Tutor.canLaunch(); player.canDig = Tutor.canDig(); Tutor.reset();
+  player.canLaunch = Tutor.canLaunch(); player.canDig = Tutor.canDig(); Tutor.reset(); Tutor.start();
   player.trail = useSeason && Season.data.trail ? Season.data.trail : (useProgress && Streak.hasTrail() ? 'kum' : false);
   player.mastery = useProgress ? Progress.masteryOf(savedSkin) : 0;
   player.crowned = useDefter && GAME.collection.crowned();
@@ -3075,7 +3081,14 @@ function wireNet(n) {
   n.onRooms = list => renderRooms(list);
   n.onOver = () => { if (state !== 'playing') renderer.showStamp(net.round && net.round.winner ? T('roundWonBy', net.round.winner.name) : T('roundOver'), T('nextRound')); };   // izleyen/bekleyen: sahne donmadan önce büyük yazı
   n.onServerError = m => { netStatus(T('err:' + m.msg)); if (btn) btn.disabled = false; };
-  n.onClose = () => { if (net !== n) return; if (onlineMode && (state === 'playing' || state === 'dead')) renderer.showToast(T('onlineLost')); onlineMode = false; netStatus(''); if (btn) btn.disabled = false; };
+  n.onClose = () => {
+    if (net !== n) return;
+    const wasInGame = onlineMode && state !== 'menu';
+    if (btn) btn.disabled = false;
+    if (wasInGame) { leaveOnline(); setText('onlineLine', T('onlineLost')); renderer.showToast(T('onlineLost')); }   // donuk sahnede kalma: menüye dön, Oyna ile yeniden bağlanılır
+    else { onlineMode = false; netStatus(''); if (spectateMode) leaveOnline(); }
+    net = null;   // sonraki Oyna yeni bağlantı kurar
+  };
 }
 // Bağlantı yoksa kur; sunucu uyuyorsa birkaç kez dene (toplam ~45 sn)
 async function ensureNet() {
@@ -3199,7 +3212,7 @@ function recordResult() {
                    ballKills: player.ballKills || 0, launches: player.launches || 0, digs: player.digs || 0,
                    revenge: now.revenge, mutation: round.mutation, highlights: roundHighlights, level: res.after.level };
     const got = GAME.collection.onRound(info);
-    res.newEntries = [...(res.newEntries || []), ...got.species.map(s => T('bookNew', GAME.collection.speciesName(s))), ...got.achievements.map(a => T('achNew', GAME.collection.achName(a), a.skin ? GAME.collection.skinLabel(a.skin) : ''))];
+    res.newEntries = [...(res.newEntries || []), ...got.species.map(s => T('bookNew', GAME.collection.speciesName(s))), ...got.achievements.map(a => { const n = GAME.collection.achName(a), sk = a.skin ? GAME.collection.skinLabel(a.skin) : ''; return T('achNew', n, sk && sk !== n ? sk : ''); })];
   }
   awarded = now;
   refreshMenu();
@@ -3217,7 +3230,7 @@ function showProgress(res) {
   if (res.newSkins.length) notes.push(T('newSkins', res.newSkins.map(n => skinName({ name: n })).join(', ')));
   if (res.missionDone) notes.push(T('missionReward', Progress.MISSION_REWARD));
   setText('xpNote', notes.join(' · '));
-  setText('newLine', res.newEntries && res.newEntries.length ? T('newPrefix', res.newEntries.join(' · ')) : '');
+  const nl = $('newLine'); if (nl) { nl.textContent = ''; for (const e of res.newEntries || []) { const sp = document.createElement('span'); sp.className = 'newChip'; sp.textContent = e; nl.appendChild(sp); } }   // her yenilik ayrı rozet
   if (res.leveledUp || (res.newEntries && res.newEntries.length)) Sfx.levelUp();
 }
 

@@ -89,6 +89,7 @@ DIL.ja = {
   noPauseOnline: 'オンライン対戦は一時停止不可',
   stormWarn: '嵐！中央へ',
   watchLive: 'ライブ観戦', watchingLive: n => `観戦中 · ${n}人`, noPlayersLeft: 'オンラインのプレイヤーがいません',
+  tipStartMouse: "マウスで操作、クリックでダッシュ。相手を嵐に押し出し、自分は内側に！", tipStartTouch: "左スティックで操作、右ボタンでダッシュ。相手を嵐に押し出そう！",
   watch: '観戦', backToResult: '結果',
   paused: '一時停止', resume: '再開', pauseHint: 'Esc か P：一時停止',
   online: 'オンラインで遊ぶ', connecting: 'サーバーに接続中…', matching: (w, h) => `マッチング：${w} 秒 · ${h} 人（残りはボット）`,

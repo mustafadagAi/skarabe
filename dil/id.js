@@ -89,6 +89,7 @@ DIL.id = {
   noPauseOnline: 'Tidak ada jeda saat online',
   stormWarn: 'Badai! Ke tengah',
   watchLive: 'Tonton langsung', watchingLive: n => `Menonton · ${n} pemain`, noPlayersLeft: 'Tidak ada pemain online tersisa',
+  tipStartMouse: "Arahkan dengan mouse, klik untuk melesat. Dorong lawan ke badai, tetap di dalam!", tipStartTouch: "Arahkan dengan stik kiri, tombol kanan untuk melesat. Dorong lawan ke badai!",
   watch: 'Tonton', backToResult: 'Hasil',
   paused: 'Dijeda', resume: 'Lanjutkan', pauseHint: 'Esc atau P: jeda',
   online: 'Main online', connecting: 'Menghubungkan ke server…', matching: (w, h) => `Mencocokkan: ${w} dtk · ${h} pemain (sisanya bot)`,

@@ -89,6 +89,7 @@ DIL.de = {
   noPauseOnline: 'Online keine Pause',
   stormWarn: 'Sturm! Zur Mitte',
   watchLive: 'Live zuschauen', watchingLive: n => `Zuschauer · ${n} Spieler`, noPlayersLeft: 'Keine Online-Spieler mehr',
+  tipStartMouse: "Mit der Maus steuern, Klick zum Sprinten. Schieb Gegner in den Sturm, bleib selbst drin!", tipStartTouch: "Linker Stick lenkt, rechter Knopf sprintet. Schieb Gegner in den Sturm!",
   watch: 'Zuschauen', backToResult: 'Ergebnis',
   paused: 'Pause', resume: 'Weiter', pauseHint: 'Esc oder P: Pause',
   online: 'Online spielen', connecting: 'Verbinde mit Server…', matching: (w, h) => `Suche: ${w} s · ${h} Spieler (Bots füllen auf)`,
