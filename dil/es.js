@@ -86,6 +86,7 @@ DIL.es = {
   nextRound: 'Siguiente ronda', toMenu: 'Volver al menú',
   leaderLabel: 'Clasificación', today: 'Hoy', thisWeek: 'Esta semana', onlineOnly: 'Solo partidas en línea', leaderEmpty: 'Aún no hay resultados', yourRank: (d, w) => `Hoy #${d} · esta semana #${w}`,
   leaveRoom: 'Salir de la sala', yourRoom: c => `Tu sala privada: ${c} · comparte el enlace`, 'powerGot:magnet': 'Imán: las bolitas vienen a ti', 'powerGot:anchor': 'Ancla: difícil de empujar', 'powerGot:turbo': 'Turbo: el impulso recarga rápido',
+  noPauseOnline: 'No se puede pausar en línea',
   watch: 'Ver', backToResult: 'Resultados',
   paused: 'En pausa', resume: 'Continuar', pauseHint: 'Esc o P: pausa',
   online: 'Jugar en línea', connecting: 'Conectando con el servidor…', matching: (w, h) => `Emparejando: ${w} s · ${h} jugador${h === 1 ? '' : 'es'} (los bots llenan el resto)`,

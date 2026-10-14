@@ -86,6 +86,7 @@ DIL.ar = {
   nextRound: 'الجولة التالية', toMenu: 'العودة إلى القائمة',
   leaderLabel: 'المتصدرون', today: 'اليوم', thisWeek: 'هذا الأسبوع', onlineOnly: 'الجولات عبر الإنترنت فقط', leaderEmpty: 'لا نتائج بعد', yourRank: (d, w) => `اليوم #${d} · هذا الأسبوع #${w}`,
   leaveRoom: 'غادر الغرفة', yourRoom: c => `غرفتك الخاصة: ${c} · شارك الرابط`, 'powerGot:magnet': 'مغناطيس: الكريات تأتي إليك', 'powerGot:anchor': 'مرساة: يصعب دفعك', 'powerGot:turbo': 'توربو: الاندفاع يُشحن بسرعة',
+  noPauseOnline: 'لا إيقاف مؤقت في الجولات عبر الإنترنت',
   watch: 'شاهد', backToResult: 'النتائج',
   paused: 'متوقف مؤقتًا', resume: 'استئناف', pauseHint: 'Esc أو P: إيقاف مؤقت',
   online: 'العب عبر الإنترنت', connecting: 'جارٍ الاتصال بالخادم…', matching: (w, h) => `المطابقة: ${w} ث · ${h} لاعب (الروبوتات تملأ الباقي)`,

@@ -1134,7 +1134,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610141605';
+const DIL_SURUM = '202610141817';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1246,6 +1246,7 @@ tr: {
   nextRound: 'Sıradaki tur', toMenu: 'Menüye dön',
   leaderLabel: 'Liderlik', today: 'Bugün', thisWeek: 'Bu hafta', onlineOnly: 'Yalnız çevrimiçi turlar', leaderEmpty: 'Henüz sonuç yok', yourRank: (d, w) => `Bugün ${d}. · bu hafta ${w}.`,
   leaveRoom: 'Odadan çık', yourRoom: c => `Özel odan: ${c} · bağlantıyı paylaş`, 'powerGot:magnet': 'Mıknatıs: topaklar sana gelir', 'powerGot:anchor': 'Ağırlık: zor itilirsin', 'powerGot:turbo': 'Turbo: atılma çabuk dolar',
+  noPauseOnline: 'Çevrimiçi turda duraklatma yok',
   watch: 'İzle', backToResult: 'Sonuç kartı',
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
   // çevrimiçi
@@ -1351,6 +1352,7 @@ en: {
   nextRound: 'Next round', toMenu: 'Back to menu',
   leaderLabel: 'Leaderboard', today: 'Today', thisWeek: 'This week', onlineOnly: 'Online rounds only', leaderEmpty: 'No results yet', yourRank: (d, w) => `Today #${d} · this week #${w}`,
   leaveRoom: 'Leave room', yourRoom: c => `Your private room: ${c} · share the link`, 'powerGot:magnet': 'Magnet: pellets come to you', 'powerGot:anchor': 'Anchor: hard to push', 'powerGot:turbo': 'Turbo: dash recharges fast',
+  noPauseOnline: 'No pause in online rounds',
   watch: 'Watch', backToResult: 'Results',
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
   online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
@@ -2152,7 +2154,7 @@ class ArenaRenderer extends RenderBase {
     ctx.textAlign = 'left'; ctx.fillStyle = KUMUL.ink; ctx.font = `800 26px ${KUMUL.font}`;
     const n = String(alive.length), nw = ctx.measureText(n).width; ctx.fillText(n, px + 14, ptop + 51);
     ctx.fillStyle = KUMUL.muted; ctx.font = `600 13px ${KUMUL.font}`;
-    ctx.fillText(`/ ${round.total}`, px + 14 + nw + 6, ptop + 51);
+    ctx.fillText(`‎/ ${round.total}`, px + 14 + nw + 6, ptop + 51);   // LRM: RTL dillerde '16 /' olmasın
     const phaseColor = ph.key === 'calm' ? KUMUL.muted : KUMUL.storm;
     const label = ph.key === 'calm' ? T('phaseCalm', Math.ceil(ph.left)) : ph.key === 'shrink' ? T('phaseShrink') : ph.key === 'final3' ? T('phaseFinal3', Math.ceil(ph.left)) : ph.key === 'over' ? T('roundOver') : T('phaseFinal');
     if (narrow) {
@@ -2407,6 +2409,7 @@ function syncTutorMenu() {
 let paused = false, adPlaying = false, mutedBeforeAd = false;
 function setPaused(on) {
   if ((state !== 'playing' && on) || !$('pauseModal')) return;   // duraklatma ekranı olmayan sayfada (Kumul) kapalı
+  if (on && onlineMode) { renderer.showToast(T('noPauseOnline')); return; }   // çevrimiçi tur sunucuda akar: yerel duraklatma yanıltır
   paused = on; setHidden('pauseModal', !on);
   if (on) Ads.gameplayStop(); else { last = performance.now(); acc = 0; Ads.gameplayStart(); }
 }
@@ -2439,7 +2442,7 @@ function toMenu() {
 }
 if ($('menuBtn')) $('menuBtn').addEventListener('click', toMenu);
 if ($('menu')) $('menu').addEventListener('scroll', () => document.body.classList.toggle('menuScrolled', $('menu').scrollTop > 30), { passive: true });
-document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'playing') setPaused(true); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'playing' && !onlineMode) setPaused(true); });
 if ($('resumeBtn')) $('resumeBtn').addEventListener('click', () => setPaused(false));
 
 // Yayıncı araçları (kumul-yayin.js) menüden kaldırıldı (11 Ekim, kullanıcı kararı); GAME.streamer verilirse ve betik yüklüyse
@@ -2448,7 +2451,7 @@ const useStream = !!GAME.streamer && typeof Twitch !== 'undefined' && Twitch.sup
 function streamScore() { renderer.scoreLine = ''; }
 // Dil düğmesi: metinleri yeniden yaz, menüyü tazele
 // Dil değişince (seçim ya da sonradan yüklenen dil dosyası) menüyü tazele
-Lang.onChange = () => { showMute(); refreshMenu(); Tutor.renderHelp(); drawSkinPreview(); };
+Lang.onChange = () => { showMute(); refreshMenu(); Tutor.renderHelp(); drawSkinPreview(); if (typeof pollOnlineCount === 'function') pollOnlineCount(); if (typeof renderLider === 'function') renderLider(); };
 if ($('langBtn')) $('langBtn').addEventListener('change', e => { Lang.set(e.target.value); });
 const skinLocked = i => useProgress && Progress.skinLocked(i);
 
@@ -3130,6 +3133,7 @@ if ($('beginBtn')) $('beginBtn').addEventListener('click', () => { if (net && ne
 function leaveOnline() {
   if (net && net.connected) net.send({ t: 'leave' });
   onlineMode = false; state = 'menu'; round = new Round(); player = null; watching = false; setHidden('backBtn', true); myRoomCode = null; stopWaitTick();
+  if (lastJoin && lastJoin.code) { lastJoin = {}; setText('onlineBtn', T('play')); if (params.has('oda')) history.replaceState(null, '', location.pathname); }   // linkle gelinen oda bitti: Oyna yine hızlı eşleşme
   $('result').hidden = true; $('menu').hidden = false; setHidden('waitCard', true); netStatus('');
   if ($('onlineBtn')) $('onlineBtn').disabled = false; pollLider(); setTimeout(pollOnlineCount, 400);
   syncTouchUi(); refreshMenu();
@@ -3205,6 +3209,7 @@ function showResult(title, sub, allowRevive) {
   track('round_end', { place, total: round.total, kills: player.kills || 0, mass: Math.round(player.score), dur: Math.round(round.time), win: place === 1, moment: lastHighlight ? lastHighlight.key : '', challenge: challengeRound, mut: round.mutation || '' });
   $('reviveBtn').hidden = !allowRevive;
   $('watchBtn').hidden = !(state === 'dead' && !round.over);   // tur sürüyorsa izlemeyi seç
+  if (challengeRound && urlSeed !== null) { urlSeed = null; if (params.has('s')) history.replaceState(null, '', location.pathname); }   // meydan okuma tek tur: sonraki tur normal tohum
   $('result').hidden = false;
   syncTouchUi(); if (onlineMode) refreshNet();
   Perf.send();

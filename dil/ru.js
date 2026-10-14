@@ -86,6 +86,7 @@ DIL.ru = {
   nextRound: 'Следующий раунд', toMenu: 'В меню',
   leaderLabel: 'Таблица лидеров', today: 'Сегодня', thisWeek: 'Неделя', onlineOnly: 'Только онлайн-раунды', leaderEmpty: 'Пока нет результатов', yourRank: (d, w) => `Сегодня #${d} · за неделю #${w}`,
   leaveRoom: 'Выйти из комнаты', yourRoom: c => `Ваша приватная комната: ${c} · поделитесь ссылкой`, 'powerGot:magnet': 'Магнит: шарики летят к тебе', 'powerGot:anchor': 'Якорь: тебя трудно сдвинуть', 'powerGot:turbo': 'Турбо: рывок быстро перезаряжается',
+  noPauseOnline: 'В онлайн-раунде паузы нет',
   watch: 'Смотреть', backToResult: 'Результаты',
   paused: 'Пауза', resume: 'Продолжить', pauseHint: 'Esc или P: пауза',
   online: 'Играть онлайн', connecting: 'Подключение к серверу…', matching: (w, h) => `Подбор: ${w} с · ${h} игр. (остальные — боты)`,

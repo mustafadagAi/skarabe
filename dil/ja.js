@@ -86,6 +86,7 @@ DIL.ja = {
   nextRound: '次のラウンド', toMenu: 'メニューへ戻る',
   leaderLabel: 'ランキング', today: '今日', thisWeek: '今週', onlineOnly: 'オンライン対戦のみ', leaderEmpty: 'まだ記録なし', yourRank: (d, w) => `今日${d}位 · 今週${w}位`,
   leaveRoom: 'ルームを出る', yourRoom: c => `あなたの個室：${c} · リンクを共有`, 'powerGot:magnet': '磁石：ペレットが引き寄せられる', 'powerGot:anchor': 'アンカー：押されにくい', 'powerGot:turbo': 'ターボ：ダッシュがすぐ回復',
+  noPauseOnline: 'オンライン対戦は一時停止不可',
   watch: '観戦', backToResult: '結果',
   paused: '一時停止', resume: '再開', pauseHint: 'Esc か P：一時停止',
   online: 'オンラインで遊ぶ', connecting: 'サーバーに接続中…', matching: (w, h) => `マッチング：${w} 秒 · ${h} 人（残りはボット）`,

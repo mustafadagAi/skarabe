@@ -86,6 +86,7 @@ DIL.ko = {
   nextRound: '다음 라운드', toMenu: '메뉴로 돌아가기',
   leaderLabel: '리더보드', today: '오늘', thisWeek: '이번 주', onlineOnly: '온라인 라운드만', leaderEmpty: '아직 기록 없음', yourRank: (d, w) => `오늘 ${d}위 · 이번 주 ${w}위`,
   leaveRoom: '방 나가기', yourRoom: c => `내 비공개 방: ${c} · 링크 공유`, 'powerGot:magnet': '자석: 알갱이가 끌려온다', 'powerGot:anchor': '닻: 잘 밀리지 않는다', 'powerGot:turbo': '터보: 대시가 빨리 충전',
+  noPauseOnline: '온라인 라운드는 일시정지 불가',
   watch: '관전', backToResult: '결과',
   paused: '일시정지', resume: '계속', pauseHint: 'Esc 또는 P: 일시정지',
   online: '온라인 플레이', connecting: '서버에 연결 중…', matching: (w, h) => `매칭 중: ${w}초 · ${h}명 (나머지는 봇)`,

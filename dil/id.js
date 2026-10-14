@@ -86,6 +86,7 @@ DIL.id = {
   nextRound: 'Ronde berikutnya', toMenu: 'Kembali ke menu',
   leaderLabel: 'Papan peringkat', today: 'Hari ini', thisWeek: 'Minggu ini', onlineOnly: 'Hanya ronde online', leaderEmpty: 'Belum ada hasil', yourRank: (d, w) => `Hari ini #${d} · minggu ini #${w}`,
   leaveRoom: 'Keluar ruang', yourRoom: c => `Ruang privatmu: ${c} · bagikan tautan`, 'powerGot:magnet': 'Magnet: pelet datang padamu', 'powerGot:anchor': 'Jangkar: sulit didorong', 'powerGot:turbo': 'Turbo: dash cepat terisi',
+  noPauseOnline: 'Tidak ada jeda saat online',
   watch: 'Tonton', backToResult: 'Hasil',
   paused: 'Dijeda', resume: 'Lanjutkan', pauseHint: 'Esc atau P: jeda',
   online: 'Main online', connecting: 'Menghubungkan ke server…', matching: (w, h) => `Mencocokkan: ${w} dtk · ${h} pemain (sisanya bot)`,
