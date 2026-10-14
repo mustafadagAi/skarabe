@@ -1134,7 +1134,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610120657';
+const DIL_SURUM = '202610141605';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -2154,7 +2154,7 @@ class ArenaRenderer extends RenderBase {
     ctx.fillStyle = KUMUL.muted; ctx.font = `600 13px ${KUMUL.font}`;
     ctx.fillText(`/ ${round.total}`, px + 14 + nw + 6, ptop + 51);
     const phaseColor = ph.key === 'calm' ? KUMUL.muted : KUMUL.storm;
-    const label = ph.key === 'calm' ? T('phaseCalm', Math.ceil(ph.left)) : ph.key === 'shrink' ? T('phaseShrink') : ph.key === 'final3' ? T('phaseFinal3', Math.ceil(ph.left)) : T('phaseFinal');
+    const label = ph.key === 'calm' ? T('phaseCalm', Math.ceil(ph.left)) : ph.key === 'shrink' ? T('phaseShrink') : ph.key === 'final3' ? T('phaseFinal3', Math.ceil(ph.left)) : ph.key === 'over' ? T('roundOver') : T('phaseFinal');
     if (narrow) {
       this.bar(px + 70, ptop + 15, pw - 84, 6, round.time / ARENA.finalEnd, phaseColor);
       this.label(label, px + pw - 14, ptop + 51, 'right', phaseColor);
@@ -3043,6 +3043,7 @@ function wireNet(n) {
   };
   n.onStart = r => { stopWaitTick(); if (r.player) beginOnlineRound(r); else beginSpectate(r); };
   n.onRooms = list => renderRooms(list);
+  n.onOver = () => { if (state !== 'playing') renderer.showStamp(net.round && net.round.winner ? T('roundWonBy', net.round.winner.name) : T('roundOver'), T('nextRound')); };   // izleyen/bekleyen: sahne donmadan önce büyük yazı
   n.onServerError = m => { netStatus(T('err:' + m.msg)); if (btn) btn.disabled = false; };
   n.onClose = () => { if (net !== n) return; if (onlineMode && (state === 'playing' || state === 'dead')) renderer.showToast(T('onlineLost')); onlineMode = false; netStatus(''); if (btn) btn.disabled = false; };
 }

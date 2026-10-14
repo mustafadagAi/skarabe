@@ -325,8 +325,8 @@
     #netBanner, #backBtn { bottom: 56px; }
   }
   /* Rapor düzeltmeleri (12 Ekim) */
-  #waitCard { background: transparent; justify-content: flex-end; padding-bottom: 72px; pointer-events: none; }   /* sahne görünsün, kart altta küçük */
-  #waitCard .pauseCard { pointer-events: auto; padding: 14px 18px; gap: 10px; width: min(340px, 92vw); }
+  #waitCard { background: transparent; pointer-events: none; overflow: hidden; }   /* sahne görünsün; kart altta küçük, mutlak konum (kaydırma/flex sapması olmasın) */
+  #waitCard .pauseCard { pointer-events: auto; position: absolute; left: 50%; bottom: 72px; transform: translateX(-50%); padding: 14px 18px; gap: 10px; width: min(340px, 92vw); }
   #waitCard .pauseCard .resultHead h2 { font-size: 22px; }
   #waitCard .resultActions .btn.big { padding: 9px 16px; font-size: 14px; }
   body:has(#seasonModal:not([hidden])) #muteBtn, body:has(#defterModal:not([hidden])) #muteBtn, body:has(#clipModal:not([hidden])) #muteBtn,
@@ -819,7 +819,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610120657';
+const DIL_SURUM = '202610141605';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -2420,7 +2420,7 @@ class NetClient {
       this.onDead && this.onDead(m);
     }
     else if (m.t === 'over' && this.round) {
-      this.round.over = true; this.round.winner = this.round.by(m.winner); this.round.rank = m.rank || null;
+      this.round.over = true; this.round.winner = this.round.by(m.winner); this.round.rank = m.rank || null; this.round.ph = { key: 'over', left: 0 };
       if (this.round.player) this.round.player.place = m.place || this.round.player.place;
       this.onOver && this.onOver(m);
     }
@@ -2432,7 +2432,16 @@ class NetClient {
       const want = Math.max(60, Math.min(260, this.stateInterval + this.jitter + 20));
       this.delay += (want - this.delay) * (want > this.delay ? 0.2 : 0.01);   // artış hızlı, azalış yavaş (zıplama olmasın)
       const renderT = performance.now() - this.delay;
-      for (const s of r.world.snakes) if (s.snaps.length) s.sample(renderT);
+      const lead = Math.min(this.delay, 140);   // kendi böceğin: çizim gecikmesi kadar ileri tahmin (girdi gecikmesi hissi azalır), yumuşatılmış
+      for (const s of r.world.snakes) {
+        if (!s.snaps.length) continue;
+        if (s === r.player && s.alive) {
+          s.sample(renderT + lead);
+          if (s.sx === undefined || Math.hypot(s.x - s.sx, s.y - s.sy) > 160) { s.sx = s.x; s.sy = s.y; }
+          else { s.sx += (s.x - s.sx) * 0.45; s.sy += (s.y - s.sy) * 0.45; }
+          s.x = s.sx; s.y = s.sy;
+        } else s.sample(renderT);
+      }
     }
     // Mıknatıs: sunucu topak konumu göndermez (yalnız ekle/sil); çekilme görüntüsü istemcide sunucuyla aynı kuralla taklit edilir
     for (const s of r.world.snakes) {
@@ -2828,7 +2837,7 @@ class ArenaRenderer extends RenderBase {
     ctx.fillStyle = KUMUL.muted; ctx.font = `600 13px ${KUMUL.font}`;
     ctx.fillText(`/ ${round.total}`, px + 14 + nw + 6, ptop + 51);
     const phaseColor = ph.key === 'calm' ? KUMUL.muted : KUMUL.storm;
-    const label = ph.key === 'calm' ? T('phaseCalm', Math.ceil(ph.left)) : ph.key === 'shrink' ? T('phaseShrink') : ph.key === 'final3' ? T('phaseFinal3', Math.ceil(ph.left)) : T('phaseFinal');
+    const label = ph.key === 'calm' ? T('phaseCalm', Math.ceil(ph.left)) : ph.key === 'shrink' ? T('phaseShrink') : ph.key === 'final3' ? T('phaseFinal3', Math.ceil(ph.left)) : ph.key === 'over' ? T('roundOver') : T('phaseFinal');
     if (narrow) {
       this.bar(px + 70, ptop + 15, pw - 84, 6, round.time / ARENA.finalEnd, phaseColor);
       this.label(label, px + pw - 14, ptop + 51, 'right', phaseColor);
@@ -4404,6 +4413,7 @@ function wireNet(n) {
   };
   n.onStart = r => { stopWaitTick(); if (r.player) beginOnlineRound(r); else beginSpectate(r); };
   n.onRooms = list => renderRooms(list);
+  n.onOver = () => { if (state !== 'playing') renderer.showStamp(net.round && net.round.winner ? T('roundWonBy', net.round.winner.name) : T('roundOver'), T('nextRound')); };   // izleyen/bekleyen: sahne donmadan önce büyük yazı
   n.onServerError = m => { netStatus(T('err:' + m.msg)); if (btn) btn.disabled = false; };
   n.onClose = () => { if (net !== n) return; if (onlineMode && (state === 'playing' || state === 'dead')) renderer.showToast(T('onlineLost')); onlineMode = false; netStatus(''); if (btn) btn.disabled = false; };
 }
