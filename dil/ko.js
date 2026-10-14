@@ -90,6 +90,7 @@ DIL.ko = {
   stormWarn: '폭풍! 중앙으로',
   watchLive: '실시간 관전', watchingLive: n => `관전 중 · ${n}명`, noPlayersLeft: '온라인 플레이어가 없습니다',
   tipStartMouse: "마우스로 조종, 클릭으로 돌진. 상대를 폭풍으로 밀어내고 안에 남으세요!", tipStartTouch: "왼쪽 스틱으로 조종, 오른쪽 버튼으로 돌진. 상대를 폭풍으로 밀어내세요!",
+  'err:busy': "서버가 혼잡합니다. 잠시 후 다시 시도",
   watch: '관전', backToResult: '결과',
   paused: '일시정지', resume: '계속', pauseHint: 'Esc 또는 P: 일시정지',
   online: '온라인 플레이', connecting: '서버에 연결 중…', matching: (w, h) => `매칭 중: ${w}초 · ${h}명 (나머지는 봇)`,

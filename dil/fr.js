@@ -90,6 +90,7 @@ DIL.fr = {
   stormWarn: 'Tempête ! Va au centre',
   watchLive: 'Regarder en direct', watchingLive: n => `Spectateur · ${n} joueurs`, noPlayersLeft: 'Plus de joueurs en ligne',
   tipStartMouse: "Dirige avec la souris, clic pour foncer. Pousse les rivaux dans la tempête, reste à l'intérieur !", tipStartTouch: "Dirige avec le stick gauche, bouton droit pour foncer. Pousse les rivaux dans la tempête !",
+  'err:busy': "Serveur occupé, réessaie bientôt",
   watch: 'Regarder', backToResult: 'Résultats',
   paused: 'Pause', resume: 'Reprendre', pauseHint: 'Échap ou P : pause',
   online: 'Jouer en ligne', connecting: 'Connexion au serveur…', matching: (w, h) => `Recherche : ${w} s · ${h} joueur${h === 1 ? '' : 's'} (les bots complètent)`,

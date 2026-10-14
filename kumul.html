@@ -1134,7 +1134,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610141926';
+const DIL_SURUM = '202610142009';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1250,6 +1250,7 @@ tr: {
   stormWarn: 'Fırtına! Merkeze dön',
   watchLive: 'Canlı izle', watchingLive: n => `İzliyorsun · ${n} oyuncu`, noPlayersLeft: 'Çevrimiçi oyuncu kalmadı',
   tipStartMouse: "Fareyle yönlendir, tıkla: atıl. Rakipleri fırtınaya it, sen içeride kal!", tipStartTouch: "Sol çubukla yönlendir, sağ düğme: atıl. Rakipleri fırtınaya it, sen içeride kal!",
+  'err:busy': "Sunucu şu an çok dolu, birazdan dene",
   watch: 'İzle', backToResult: 'Sonuç kartı',
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
   // çevrimiçi
@@ -1359,6 +1360,7 @@ en: {
   stormWarn: 'Storm! Head to the center',
   watchLive: 'Watch live', watchingLive: n => `Spectating · ${n} players`, noPlayersLeft: 'No online players left',
   tipStartMouse: "Steer with the mouse, click to dash. Push rivals into the storm, stay inside!", tipStartTouch: "Steer with the left stick, right button to dash. Push rivals into the storm, stay inside!",
+  'err:busy': "Server is busy, try again shortly",
   watch: 'Watch', backToResult: 'Results',
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
   online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
@@ -1841,12 +1843,19 @@ class ArenaRenderer extends RenderBase {
     if (age > tp.life) { this.tip = null; return; }
     const ctx = this.ctx, W = this.viewW, H = this.viewH, alpha = age < 0.25 ? age / 0.25 : age > tp.life - 0.4 ? (tp.life - age) / 0.4 : 1;
     ctx.save(); ctx.globalAlpha = alpha;
-    ctx.font = `700 15px ${KUMUL.font}`; ctx.textAlign = 'center';
-    const w = Math.min(W - 24, ctx.measureText(tp.text).width + 44), y = H - (this.touchLayout ? 150 : 96);
+    // Dar ekranda satırlara bölünür (ekrandan taşmasın); en çok 3 satır
+    const fs = W < 480 ? 13 : 15, lh = fs + 5, maxText = Math.min(W - 24, 640) - 44;
+    ctx.font = `700 ${fs}px ${KUMUL.font}`; ctx.textAlign = 'center';
+    const lines = []; let cur = '';
+    const spaced = tp.text.includes(' '), sep = spaced ? ' ' : '', toks = spaced ? tp.text.split(' ') : Array.from(tp.text);   // CJK: karakterle böl
+    for (const word of toks) { const t = cur ? cur + sep + word : word; if (ctx.measureText(t).width > maxText && cur) { lines.push(cur); cur = word; } else cur = t; }
+    if (cur) lines.push(cur); if (lines.length > 3) { lines.length = 3; lines[2] += '…'; }
+    const tw = Math.max(...lines.map(l => ctx.measureText(l).width)), w = Math.min(W - 24, tw + 44), h = 18 + lines.length * lh;
+    const y = H - (this.touchLayout ? 215 : 96) - (lines.length - 1) * lh;   // dokunmatikte çubuk ve atılma düğmesinin üstünde
     ctx.fillStyle = KUMUL.ink;
-    ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(W / 2 - w / 2, y, w, 40, 20); else ctx.rect(W / 2 - w / 2, y, w, 40); ctx.fill();
-    ctx.fillStyle = KUMUL.amber; ctx.beginPath(); ctx.arc(W / 2 - w / 2 + 20, y + 20, 6, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#fdf9ee'; ctx.fillText(tp.text, W / 2 + 10, y + 26);
+    ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(W / 2 - w / 2, y, w, h, Math.min(20, h / 2)); else ctx.rect(W / 2 - w / 2, y, w, h); ctx.fill();
+    ctx.fillStyle = KUMUL.amber; ctx.beginPath(); ctx.arc(W / 2 - w / 2 + 20, y + h / 2, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fdf9ee'; lines.forEach((l, i) => ctx.fillText(l, W / 2 + 10, y + 9 + fs + i * lh));
     ctx.restore();
   }
   pushFeed(text) { this.feed.push({ text, t: this.time }); if (this.feed.length > 5) this.feed.shift(); }
@@ -2194,6 +2203,27 @@ class ArenaRenderer extends RenderBase {
 
     // Sağ üst: EN BÜYÜK listesi (dar ekranda gizli): sıra, renk noktası, ad, ağırlık; kendi satırın amber bantlı
     let cornerY = 86;
+    if (narrow) {
+      // Dar ekran: liste yerine KALAN panelinin altında tek satır — kendi sıran (solda) ve lider (sağda)
+      const top = ptop + 66 + 6, h = 30, me = player && player.alive ? alive.indexOf(player) + 1 : 0, lead = alive[0];
+      this.panel(px, top, pw, h, 10);
+      ctx.textBaseline = 'alphabetic';
+      if (me) {
+        this.label(T('place'), px + 12, top + 19);
+        ctx.font = `800 14px ${KUMUL.font}`; ctx.fillStyle = me === 1 ? KUMUL.amber : KUMUL.ink; ctx.textAlign = 'left';
+        const lw0 = ctx.measureText(T('place').toUpperCase()).width;
+        ctx.fillText(`${me}.`, px + 18 + Math.min(70, lw0 + 6), top + 20);
+      }
+      if (lead && lead !== player) {
+        ctx.font = `600 11.5px ${KUMUL.font}`; ctx.textAlign = 'right'; ctx.fillStyle = KUMUL.muted;
+        const massTxt = String(Math.round(lead.mass)), mw = ctx.measureText(massTxt).width;
+        ctx.fillStyle = KUMUL.ink; ctx.font = `700 11.5px ${KUMUL.font}`; ctx.fillText(massTxt, px + pw - 12, top + 19);
+        ctx.font = `500 11.5px ${KUMUL.font}`; ctx.fillStyle = KUMUL.muted;
+        ctx.fillText(`1 ${this.clipName(lead.name, pw * 0.42)}`, px + pw - 18 - mw, top + 19);
+        ctx.fillStyle = lead.color; ctx.beginPath(); ctx.arc(px + pw - 22 - mw - ctx.measureText(`1 ${this.clipName(lead.name, pw * 0.42)}`).width - 6, top + 15, 3.5, 0, Math.PI * 2); ctx.fill();
+      }
+      cornerY = top + h + 10;
+    }
     if (!narrow) {
       const rows = alive.slice(0, 5), lw = 176, rh = 19, x = W - lw - 10, top = 10, h = 30 + rows.length * rh + 8;
       cornerY = top + h + 12;
@@ -2234,7 +2264,7 @@ class ArenaRenderer extends RenderBase {
 
     this.drawStreamerHud(touch ? cornerY + ms + 10 : cornerY);
 
-    const noteY = narrow ? 176 : this.streamer ? 116 : 86;      // bildirim ve izleme etiketi: dar ekranda panellerin altına iner
+    const noteY = narrow ? 196 : this.streamer ? 116 : 86;      // bildirim ve izleme etiketi: dar ekranda panellerin altına iner
     if (!spectating && this.toast && this.time - this.toast.t < 1.8) {
       const age = this.time - this.toast.t, alpha = age > 1.4 ? (1.8 - age) / 0.4 : 1;
       ctx.globalAlpha = alpha;
