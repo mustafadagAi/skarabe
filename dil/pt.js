@@ -88,6 +88,7 @@ DIL.pt = {
   leaveRoom: 'Sair da sala', yourRoom: c => `Sua sala privada: ${c} · compartilhe o link`, 'powerGot:magnet': 'Ímã: as bolinhas vêm até você', 'powerGot:anchor': 'Âncora: difícil de empurrar', 'powerGot:turbo': 'Turbo: o impulso recarrega rápido',
   noPauseOnline: 'Sem pausa em partidas online',
   stormWarn: 'Tempestade! Vá para o centro',
+  watchLive: 'Assistir ao vivo', watchingLive: n => `Assistindo · ${n} jogadores`, noPlayersLeft: 'Não há mais jogadores online',
   watch: 'Assistir', backToResult: 'Resultados',
   paused: 'Pausado', resume: 'Continuar', pauseHint: 'Esc ou P: pausar',
   online: 'Jogar online', connecting: 'Conectando ao servidor…', matching: (w, h) => `Procurando: ${w} s · ${h} jogador${h === 1 ? '' : 'es'} (bots completam o resto)`,

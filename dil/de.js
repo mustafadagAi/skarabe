@@ -88,6 +88,7 @@ DIL.de = {
   leaveRoom: 'Raum verlassen', yourRoom: c => `Dein privater Raum: ${c} · Link teilen`, 'powerGot:magnet': 'Magnet: Kügelchen kommen zu dir', 'powerGot:anchor': 'Anker: schwer wegzuschieben', 'powerGot:turbo': 'Turbo: Dash lädt schnell',
   noPauseOnline: 'Online keine Pause',
   stormWarn: 'Sturm! Zur Mitte',
+  watchLive: 'Live zuschauen', watchingLive: n => `Zuschauer · ${n} Spieler`, noPlayersLeft: 'Keine Online-Spieler mehr',
   watch: 'Zuschauen', backToResult: 'Ergebnis',
   paused: 'Pause', resume: 'Weiter', pauseHint: 'Esc oder P: Pause',
   online: 'Online spielen', connecting: 'Verbinde mit Server…', matching: (w, h) => `Suche: ${w} s · ${h} Spieler (Bots füllen auf)`,

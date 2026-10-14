@@ -88,6 +88,7 @@ DIL.ko = {
   leaveRoom: '방 나가기', yourRoom: c => `내 비공개 방: ${c} · 링크 공유`, 'powerGot:magnet': '자석: 알갱이가 끌려온다', 'powerGot:anchor': '닻: 잘 밀리지 않는다', 'powerGot:turbo': '터보: 대시가 빨리 충전',
   noPauseOnline: '온라인 라운드는 일시정지 불가',
   stormWarn: '폭풍! 중앙으로',
+  watchLive: '실시간 관전', watchingLive: n => `관전 중 · ${n}명`, noPlayersLeft: '온라인 플레이어가 없습니다',
   watch: '관전', backToResult: '결과',
   paused: '일시정지', resume: '계속', pauseHint: 'Esc 또는 P: 일시정지',
   online: '온라인 플레이', connecting: '서버에 연결 중…', matching: (w, h) => `매칭 중: ${w}초 · ${h}명 (나머지는 봇)`,

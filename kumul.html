@@ -1134,7 +1134,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610141826';
+const DIL_SURUM = '202610141842';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1248,6 +1248,7 @@ tr: {
   leaveRoom: 'Odadan çık', yourRoom: c => `Özel odan: ${c} · bağlantıyı paylaş`, 'powerGot:magnet': 'Mıknatıs: topaklar sana gelir', 'powerGot:anchor': 'Ağırlık: zor itilirsin', 'powerGot:turbo': 'Turbo: atılma çabuk dolar',
   noPauseOnline: 'Çevrimiçi turda duraklatma yok',
   stormWarn: 'Fırtına! Merkeze dön',
+  watchLive: 'Canlı izle', watchingLive: n => `İzliyorsun · ${n} oyuncu`, noPlayersLeft: 'Çevrimiçi oyuncu kalmadı',
   watch: 'İzle', backToResult: 'Sonuç kartı',
   paused: 'Duraklatıldı', resume: 'Devam et', pauseHint: 'Esc ya da P: duraklat',
   // çevrimiçi
@@ -1355,6 +1356,7 @@ en: {
   leaveRoom: 'Leave room', yourRoom: c => `Your private room: ${c} · share the link`, 'powerGot:magnet': 'Magnet: pellets come to you', 'powerGot:anchor': 'Anchor: hard to push', 'powerGot:turbo': 'Turbo: dash recharges fast',
   noPauseOnline: 'No pause in online rounds',
   stormWarn: 'Storm! Head to the center',
+  watchLive: 'Watch live', watchingLive: n => `Spectating · ${n} players`, noPlayersLeft: 'No online players left',
   watch: 'Watch', backToResult: 'Results',
   paused: 'Paused', resume: 'Resume', pauseHint: 'Esc or P: pause',
   online: 'Play online', connecting: 'Connecting to the server…', matching: (w, h) => `Matching: ${w} s · ${h} player${h === 1 ? '' : 's'} (bots fill the rest)`,
@@ -2982,6 +2984,7 @@ let onlineUrl = '', net = null, onlineMode = false, lastJoin = {}, roomsTimer = 
 // Liderlik kimliği: cihaz başına rastgele, kalıcı (sunucu kişi başı en iyi sonucu bununla tutar)
 const pid = store.get(GAME.key + '-pid') || (() => { const v = Math.random().toString(36).slice(2, 10) + Date.now().toString(36); store.set(GAME.key + '-pid', v); return v; })();
 let liderData = null, liderTab = 'day', liderTimer = null;
+let spectateMode = false;   // menüden "Canlı izle" ile girildi: hazır değil, bekleme kartı yok, şeritte Oyna / Odadan çık
 async function pollLider() {
   clearTimeout(liderTimer);
   if (!onlineUrl || $('menu').hidden) return;
@@ -3024,7 +3027,8 @@ async function pollOnlineCount() {
   try {
     const r = await fetch(onlineUrl.replace(/^ws/, 'http') + '/__net', { cache: 'no-store' });
     const j = await r.json(); setText('onlineCount', j.humans > 0 ? T('onlineNow', j.humans) : '');
-  } catch { setText('onlineCount', ''); }
+    setHidden('watchLiveBtn', !(j.list || []).some(x => x.state === 'playing' && x.humans > 0));   // süren tur varsa "Canlı izle"
+  } catch { setText('onlineCount', ''); setHidden('watchLiveBtn', true); }
   onlineTimer = setTimeout(pollOnlineCount, state === 'menu' ? 10000 : 30000);
 }
 // Durum metni: menüde onlineLine, oyun içinde (ya da özel oda denetimleri gerekince) üstteki şerit
@@ -3038,11 +3042,12 @@ function netStatus(text, ctl = null) {
   setText('onlineLine', ctl && menuOpen ? '' : (text || ''));   // özel oda denetimleri şeritte; menüde metni iki kez yazma
   setText('netText', text || '');
   // Tur bitti ve sonuç kartı kapalıysa (Yeni tur denmiş) eski sahnede küçük şerit yerine bekleme kartı; ev sahibi denetimleri şeritte kalır
-  const waiting = !!text && !menuOpen && $('result').hidden && (state === 'dead' || state === 'over') && !(ctl && ctl.code);
+  const waiting = !!text && !menuOpen && $('result').hidden && (state === 'dead' || state === 'over') && !(ctl && ctl.code) && !spectateMode;   // izleyiciye bekleme kartı yok
   setText('waitText', text || ''); setHidden('waitCard', !waiting);
   setHidden('netBanner', !text || (menuOpen && !ctl) || waiting || (!$('result').hidden && !(ctl && ctl.code)));
   setHidden('copyRoomBtn', !(ctl && ctl.code));
-  setHidden('leaveRoomBtn', !(ctl && ctl.code));
+  setHidden('leaveRoomBtn', !(ctl && (ctl.code || ctl.spectate)));
+  setHidden('joinLiveBtn', !(ctl && ctl.spectate));
   if (ctl) { myRoomCode = ctl.code || null; if (myRoomCode && $('roomList') && !$('roomBox').hidden) renderRooms([]); }
   setHidden('beginBtn', !(ctl && ctl.canBegin));
   if (ctl && ctl.code) $('copyRoomBtn').dataset.code = ctl.code;
@@ -3050,13 +3055,19 @@ function netStatus(text, ctl = null) {
 function wireNet(n) {
   const btn = $('onlineBtn');
   n.onLobby = m => { stopWaitTick();
+    if (spectateMode && state !== 'menu') {   // izleyici: turlar arası; oynayan kalmadıysa menüye
+      if (!m.ready) { leaveOnline(); renderer.showToast(T('noPlayersLeft')); return; }
+      netStatus(`${T('watchingLive', m.humans)} · ${T('matching', m.wait === null ? 0 : m.wait, m.ready)}`, { spectate: true }); return;
+    }
     if (m.code) {
       const hint = m.wait !== null ? T('startingIn', m.wait) : m.host ? T('hostHint') : T('waitHost');
       netStatus(`${T('roomCode', m.code, m.ready, m.humans)} · ${hint}`, { code: m.code, canBegin: m.host && m.wait === null && m.ready > 0 });
     } else netStatus(m.wait === null ? T('roomIdle', m.humans) : T('matching', m.wait, m.humans));
   };
   n.onWait = m => {
-    stopWaitTick(); waitInfo = { left: m.left, humans: m.humans, at: Date.now() };
+    stopWaitTick();
+    if (spectateMode) { netStatus(T('watchingLive', Math.max(1, m.humans - 1)), { spectate: true }); return; }   // izleyici: sayaç/kart yok (kendin hariç)
+    waitInfo = { left: m.left, humans: m.humans, at: Date.now() };
     netStatus(T('waitRound', m.left, m.humans));
     waitTimer = setInterval(() => { if (!waitInfo) return; const left = Math.max(0, waitInfo.left - Math.round((Date.now() - waitInfo.at) / 1000)); netStatus(T('waitRound', left, waitInfo.humans)); }, 1000);
   };
@@ -3091,11 +3102,13 @@ async function startOnline(opts = {}) {
   const name = playerName(), btn = $('onlineBtn');
   if (!(await ensureNet())) return;
   if (btn) btn.disabled = true;
-  lastJoin = opts.create ? {} : opts;      // kurulan odanın kodu lobby mesajıyla gelir; "Yeni tur" aynı odada kalır
+  spectateMode = !!opts.spectate;
+  lastJoin = opts.create || opts.spectate ? {} : opts;      // kurulan odanın kodu lobby mesajıyla gelir; "Yeni tur" aynı odada kalır
   track('online_join', { how: opts.code ? 'code' : opts.create ? 'create' : opts.room ? 'room' : 'quick' });
   net.join({ name, pid, skin: savedSkin, stage: Tutor.stage(), chat: useStream && Twitch.queue.length ? Twitch.take(15) : null, ...opts });
 }
 function beginOnlineRound(r) {
+  spectateMode = false;
   onlineMode = true; round = r; challengeRound = false; urlSeed = null;
   netStatus(''); if ($('onlineBtn')) $('onlineBtn').disabled = false;
   stopRoomsPoll();
@@ -3104,7 +3117,8 @@ function beginOnlineRound(r) {
 }
 // Tur ortasında geldin ya da hazır değilsin: oyuncu yok, odayı izlersin; sonuç kartı açıksa kart kalır
 function beginSpectate(r) {
-  if (state === 'menu') return;            // menüdeyken arkada dönen yerel tur kalsın; "Yeni tur"/"Çevrimiçi oyna" katılır
+  if (state === 'menu' && !spectateMode) return;            // menüdeyken arkada dönen yerel tur kalsın; "Yeni tur"/"Çevrimiçi oyna" katılır
+  if (spectateMode) { $('menu').hidden = true; $('result').hidden = true; stopRoomsPoll(); netStatus(T('watchingLive', r.total ? r.world.snakes.filter(s => !s.brain).length : 0), { spectate: true }); }
   onlineMode = true; round = r; challengeRound = false;
   const skin = KUMUL_SKINS[savedSkin % KUMUL_SKINS.length];
   player = new RemoteBeetle({ id: 0, name: playerName(), color: skin.colors[0], skin: skin.colors, bot: false, chatter: false, nemesis: false, trait: '' });
@@ -3148,7 +3162,7 @@ if ($('beginBtn')) $('beginBtn').addEventListener('click', () => { if (net && ne
 // Bekleme kartından menüye dön: odadan ayrıl, yerel tanıtım turu
 function leaveOnline() {
   if (net && net.connected) net.send({ t: 'leave' });
-  onlineMode = false; state = 'menu'; round = new Round(); player = null; watching = false; setHidden('backBtn', true); myRoomCode = null; stopWaitTick();
+  onlineMode = false; state = 'menu'; round = new Round(); player = null; watching = false; setHidden('backBtn', true); myRoomCode = null; stopWaitTick(); spectateMode = false;
   if (lastJoin && lastJoin.code) { lastJoin = {}; setText('onlineBtn', T('play')); if (params.has('oda')) history.replaceState(null, '', location.pathname); }   // linkle gelinen oda bitti: Oyna yine hızlı eşleşme
   $('result').hidden = true; $('menu').hidden = false; setHidden('waitCard', true); netStatus('');
   if ($('onlineBtn')) $('onlineBtn').disabled = false; pollLider(); setTimeout(pollOnlineCount, 400);
@@ -3156,6 +3170,8 @@ function leaveOnline() {
 }
 if ($('leaveBtn')) $('leaveBtn').addEventListener('click', leaveOnline);
 if ($('leaveRoomBtn')) $('leaveRoomBtn').addEventListener('click', leaveOnline);
+if ($('watchLiveBtn')) $('watchLiveBtn').addEventListener('click', () => startOnline({ spectate: true }));
+if ($('joinLiveBtn')) $('joinLiveBtn').addEventListener('click', () => { spectateMode = false; netStatus(''); startOnline({}); });   // izleyici → sıradaki tura hazır
 if ($('copyRoomBtn')) $('copyRoomBtn').addEventListener('click', async () => {
   const btn = $('copyRoomBtn'), link = `${location.origin}${location.pathname}?oda=${btn.dataset.code || ''}`;
   try { await navigator.clipboard.writeText(link); btn.textContent = T('copied'); setTimeout(() => { btn.textContent = T('copyLink'); }, 1600); }

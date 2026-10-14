@@ -88,6 +88,7 @@ DIL.hi = {
   leaveRoom: 'कमरा छोड़ें', yourRoom: c => `आपका निजी कमरा: ${c} · लिंक साझा करें`, 'powerGot:magnet': 'चुंबक: गोलियाँ आपके पास आती हैं', 'powerGot:anchor': 'लंगर: धकेलना मुश्किल', 'powerGot:turbo': 'टर्बो: डैश जल्दी भरता है',
   noPauseOnline: 'ऑनलाइन राउंड में रोक नहीं',
   stormWarn: 'तूफ़ान! बीच की ओर जाओ',
+  watchLive: 'लाइव देखें', watchingLive: n => `देख रहे हैं · ${n} खिलाड़ी`, noPlayersLeft: 'कोई ऑनलाइन खिलाड़ी नहीं बचा',
   watch: 'देखें', backToResult: 'परिणाम',
   paused: 'रुका हुआ', resume: 'जारी रखें', pauseHint: 'Esc या P: रोकें',
   online: 'ऑनलाइन खेलें', connecting: 'सर्वर से जुड़ रहे हैं…', matching: (w, h) => `मिलान: ${w} से. · ${h} खिलाड़ी (बाकी बॉट)`,

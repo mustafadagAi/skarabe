@@ -88,6 +88,7 @@ DIL.id = {
   leaveRoom: 'Keluar ruang', yourRoom: c => `Ruang privatmu: ${c} · bagikan tautan`, 'powerGot:magnet': 'Magnet: pelet datang padamu', 'powerGot:anchor': 'Jangkar: sulit didorong', 'powerGot:turbo': 'Turbo: dash cepat terisi',
   noPauseOnline: 'Tidak ada jeda saat online',
   stormWarn: 'Badai! Ke tengah',
+  watchLive: 'Tonton langsung', watchingLive: n => `Menonton · ${n} pemain`, noPlayersLeft: 'Tidak ada pemain online tersisa',
   watch: 'Tonton', backToResult: 'Hasil',
   paused: 'Dijeda', resume: 'Lanjutkan', pauseHint: 'Esc atau P: jeda',
   online: 'Main online', connecting: 'Menghubungkan ke server…', matching: (w, h) => `Mencocokkan: ${w} dtk · ${h} pemain (sisanya bot)`,
