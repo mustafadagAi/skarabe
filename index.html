@@ -822,7 +822,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610150912';
+const DIL_SURUM = '202610150927';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1699,7 +1699,7 @@ const ARENA = {
   botDifficulty: { decisionInterval: 6, noise: 0.18, thrustFactor: 0.92 },
   // Final Üçlüsü: son 3 oyuncu kalınca arena küçük bir halkaya iner, topak durur, 15 sn sumo;
   // kütleler ortalamanın %70–130 bandına çekilir (açık kural). Süre bitince halka 5 sn'de kapanır.
-  final3Players: 3, final3Time: 15, sumoSize: 420, sumoIn: 2, sumoOut: 5, final3Band: 0.3,
+  final3Players: 3, final3Time: 15, sumoSize: 620, sumoIn: 2, sumoOut: 5, final3Band: 0.3,
 };
 
 // Ortak çizim sınıfının beklediği dünya ölçüleri
@@ -2224,7 +2224,8 @@ class Round extends RoundBase {
   startFinal3(alive) {
     const side0 = this.zoneSide();
     // Halkaya iniş hızı sınırlı (kenar başına ≤125 birim/sn): erken başlayan finalde kenardakiler içeri koşabilsin
-    this.final3 = { t0: this.time, side0, players: alive.slice(), inTime: Math.max(ARENA.sumoIn, (side0 - Math.min(side0, ARENA.sumoSize)) / 250) };
+    // Ring ARENA.sumoSize'a gider: arena daha küçükse fırtına geri çekilir (halka açılır), büyükse daralır; hız ≤125 birim/sn kenar başına
+    this.final3 = { t0: this.time, side0, players: alive.slice(), inTime: Math.max(ARENA.sumoIn, Math.abs(side0 - ARENA.sumoSize) / 250) };
     const mean = alive.reduce((a, s) => a + s.mass, 0) / alive.length, lo = mean * (1 - ARENA.final3Band), hi = mean * (1 + ARENA.final3Band);
     const changes = alive.map(s => { const before = s.mass; s.mass = Math.min(hi, Math.max(lo, s.mass)); return { who: s, before, after: s.mass }; });
     this.world.clearFoods(); this.world.noFood = true;
@@ -2232,7 +2233,7 @@ class Round extends RoundBase {
   }
   zoneSide(t = this.time) {
     const f = this.final3; if (!f) return super.zoneSide(t);
-    const k = t - f.t0, sumo = Math.min(f.side0, ARENA.sumoSize);
+    const k = t - f.t0, sumo = ARENA.sumoSize;
     if (k < f.inTime) return f.side0 + (sumo - f.side0) * k / f.inTime;
     if (k < f.inTime + ARENA.final3Time) return sumo;
     return Math.max(0, sumo * (1 - (k - f.inTime - ARENA.final3Time) / ARENA.sumoOut));
