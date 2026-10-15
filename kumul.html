@@ -1134,7 +1134,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610142101';
+const DIL_SURUM = '202610150912';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1622,7 +1622,8 @@ const Progress = {
     const d = new Date(), date = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
     const m = this.data.mission;
     if (!m || m.date !== date) {
-      const def = this.missions[Math.floor(Date.now() / 86400000) % this.missions.length];
+      const localDay = Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000);   // tarih anahtarıyla aynı (yerel) gün: UTC günü gece yarısı-03:00 arası dünkü görevi tekrar ediyordu
+      const def = this.missions[localDay % this.missions.length];
       this.data.mission = { date, id: def.id, progress: 0, done: false };
       this.save();
     }
@@ -2951,7 +2952,9 @@ if (challenge) {
 function shareText() {
   const place = round.placementOf(player), title = GAME.title || document.title || T('game');
   // Gerçek bir adreste çalışıyorsak link; iframe/dosya içindeysek (artifact önizlemesi) yalnızca kod
-  const base = /^https?:/.test(location.href) && location.origin !== 'null' ? location.origin + location.pathname : (GAME.shareBase || '');
+  // Kendi sitemizde (ya da yerelde) bulunduğumuz adres; portal/iframe/artifact içindeysek sabit ana adres (çerçeve adresi arkadaşta açılmaz)
+  const own = /^https?:/.test(location.href) && /(^|.)skarabe.io$|.github.io$|^localhost$|^127.0.0.1$/.test(location.hostname);
+  const base = own ? location.origin + location.pathname : (GAME.shareBase || '');
   const url = base ? `${base}?s=${round.code}&n=${encodeURIComponent(player.name)}&p=${place}${round.mutation ? '&m=' + round.mutation : ''}` : '';
   const line = T('shareLine', title, round.code, player.name, place, player.kills || 0, lastHighlight ? lastHighlight.stamp : '');
   return { text: `${line}\n${T('shareAsk')} ${url || T('roundCodeOnly', round.code)}`, url };
@@ -3372,7 +3375,15 @@ function onRoundOverWhileDead() {
 }
 
 $('playBtn').addEventListener('click', startRound);
-$('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter' || e.keyCode === 13) startRound(); });
+// Enter: ekrandaki ana düğme (çevrimiçi varsa "Oyna", yoksa pratik); sonuç kartında "Yeni tur"
+$('nameInput').addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.keyCode !== 13) return;
+  const ob = $('onlineBtn'); if (ob && !ob.hidden && !ob.disabled && onlineUrl) ob.click(); else startRound();
+});
+window.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return;
+  if (!$('result').hidden && (state === 'dead' || state === 'over')) { $('againBtn').click(); e.preventDefault(); }
+});
 $('againBtn').addEventListener('click', async () => {
   stats.again = (stats.again || 0) + 1; store.set(GAME.key + '-stats', stats); track('again');
   await Ads.interstitial();            // tur arası reklam yeri
