@@ -823,7 +823,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610170840';
+const DIL_SURUM = '202610170918';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -2450,7 +2450,7 @@ class NetClient {
     else if (m.t === 'dead' && this.round) {
       const p = this.round.player; if (!p) return;
       p.alive = false; p.place = m.place; p.deathCause = m.cause; p.killer = this.round.by(m.killer); p.deathMass = p.mass;
-      this.round.reviveOk = !!m.reviveOk;
+      this.round.reviveOk = !!m.reviveOk; if (m.rank) this.round.rank = m.rank;   // liderlikteki sıra ölüm anında gelir
       this.onDead && this.onDead(m);
     }
     else if (m.t === 'over' && this.round) {
