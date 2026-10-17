@@ -1134,7 +1134,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610150927';
+const DIL_SURUM = '202610170818';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -3515,18 +3515,47 @@ function cameraTarget() {
 
 const DT = 1 / 60;
 let last = performance.now(), acc = 0;
+// Ara konum: fizik 60 Hz; 144/240/360 Hz ekranda çizim adımlar arasında kalır. Her adımdan önce konumlar saklanır,
+// çizimde önceki ile şimdiki arasında acc/DT oranında ara değer kullanılır (sonra gerçek değerler geri yazılır).
+// Işınlanmalar (doğuş, diriliş) ara değerlenmez.
+const Interp = {
+  prev: new WeakMap(), saved: [], world: null,
+  snap() {
+    const w = round.world; this.world = w;
+    for (const s of w.snakes) this.prev.set(s, [s.x, s.y, s.angle]);
+    for (const b of w.balls || []) this.prev.set(b, [b.x, b.y, undefined]);
+  },
+  apply(a) {
+    const w = round.world; if (this.world !== w) return false;
+    this.saved.length = 0;
+    const one = o => {
+      const p = this.prev.get(o); if (!p) return;
+      const dx = o.x - p[0], dy = o.y - p[1]; if (dx * dx + dy * dy > 40000) return;
+      this.saved.push(o, o.x, o.y, o.angle);
+      o.x = p[0] + dx * a; o.y = p[1] + dy * a;
+      if (p[2] !== undefined && o.angle !== undefined) { let d = o.angle - p[2]; d = Math.atan2(Math.sin(d), Math.cos(d)); o.angle = p[2] + d * a; }
+    };
+    for (const s of w.snakes) one(s);
+    for (const b of w.balls || []) one(b);
+    return true;
+  },
+  restore() { const s = this.saved; for (let i = 0; i < s.length; i += 4) { s[i].x = s[i + 1]; s[i].y = s[i + 2]; if (s[i + 3] !== undefined) s[i].angle = s[i + 3]; } s.length = 0; },
+};
 function loop(now) {
   Perf.frame(now - last);
   const real = Math.min(0.1, (now - last) / 1000); last = now;
   const slow = slowmo > 0 && state === 'playing';
   if (slowmo > 0) slowmo -= real;
   if (!paused && !adPlaying) acc += real * (slow ? SLOWMO.scale : 1);   // duraklatma ve reklamda simülasyon ilerlemez
-  while (acc >= DT) { tick(DT); acc -= DT; }
+  while (acc >= DT) { if (!onlineMode) Interp.snap(); tick(DT); acc -= DT; }
+  if (onlineMode && net) net.frame(real);                                 // çevrimiçi: örnekleme her karede
+  const lerped = !onlineMode && !paused && Interp.apply(Math.min(1, acc / DT));
   const target = cameraTarget();
   renderer.zoomBoost += ((slow ? SLOWMO.zoom : 1) - renderer.zoomBoost) * Math.min(1, real * 6);
   renderer.updateCamera(target, real);
   renderer.stick = touch.enabled && state === 'playing' ? stickView() : null;
   renderer.draw(round.world, state === 'menu' ? null : player, state === 'menu' ? null : round, state === 'dead' ? target : null);   // menüde HUD çizilmez (lobi temiz)
+  if (lerped) Interp.restore();
   if (Perf.show) Perf.draw(renderer.ctx, renderer.dpr);
   requestAnimationFrame(loop);
 }
