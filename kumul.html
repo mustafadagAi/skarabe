@@ -822,12 +822,13 @@ class RenderBase {
 
   // Kamera: hedefi yumuşakça izle ve istenen yakınlığa yaklaş.
   // İstenen yakınlığı her oyun kendi updateCamera(target, dt) yönteminde hesaplar.
+  // Yumuşatmalar üstel: 30 Hz'de de 600 Hz'de de aynı sürede aynı yere varır (kare hızından bağımsız)
   follow(target, dt, wantZoom) {
-    this.time += dt;
+    this.time += dt; this.lastDt = dt;
     if (!target) return;
-    this.zoom += (wantZoom - this.zoom) * Math.min(1, dt * 3);
-    this.camX += (target.x - this.camX) * Math.min(1, dt * 8);
-    this.camY += (target.y - this.camY) * Math.min(1, dt * 8);
+    this.zoom += (wantZoom - this.zoom) * (1 - Math.exp(-3 * dt));
+    this.camX += (target.x - this.camX) * (1 - Math.exp(-8 * dt));
+    this.camY += (target.y - this.camY) * (1 - Math.exp(-8 * dt));
     this.clampCamera();
   }
 
@@ -1134,7 +1135,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610170818';
+const DIL_SURUM = '202610170840';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1937,10 +1938,12 @@ class ArenaRenderer extends RenderBase {
     ctx.fillStyle = KUMUL.sand;
     ctx.fillRect(0, 0, W, H);
     // Sarsıntı: sert darbede ekran kısa süre titrer (hareket azaltma tercihinde kapalı)
+    // Sönüm zamana bağlı (60 Hz'de kare başı 0,86); kayma saniyede en çok 60 kez yenilenir (600 Hz'de titreme bulanıklığa dönmesin)
     let sx = 0, sy = 0;
     if (this.shake > 0.02 && !this.reduceMotion) {
-      sx = (Math.random() - 0.5) * this.shake * 16 * this.dpr; sy = (Math.random() - 0.5) * this.shake * 16 * this.dpr;
-      this.shake *= 0.86;
+      if (this.shakeT === undefined || this.time - this.shakeT >= 1 / 60 || this.time < this.shakeT) { this.shakeT = this.time; this.shakeX = Math.random() - 0.5; this.shakeY = Math.random() - 0.5; }
+      sx = this.shakeX * this.shake * 16 * this.dpr; sy = this.shakeY * this.shake * 16 * this.dpr;
+      this.shake *= Math.pow(0.86, Math.min(0.1, this.lastDt || 1 / 60) * 60);
     } else this.shake = 0;
     ctx.setTransform(scale, 0, 0, scale, W / 2 - this.camX * scale + sx, H / 2 - this.camY * scale + sy);
 
@@ -3551,7 +3554,7 @@ function loop(now) {
   if (onlineMode && net) net.frame(real);                                 // çevrimiçi: örnekleme her karede
   const lerped = !onlineMode && !paused && Interp.apply(Math.min(1, acc / DT));
   const target = cameraTarget();
-  renderer.zoomBoost += ((slow ? SLOWMO.zoom : 1) - renderer.zoomBoost) * Math.min(1, real * 6);
+  renderer.zoomBoost += ((slow ? SLOWMO.zoom : 1) - renderer.zoomBoost) * (1 - Math.exp(-6 * real));
   renderer.updateCamera(target, real);
   renderer.stick = touch.enabled && state === 'playing' ? stickView() : null;
   renderer.draw(round.world, state === 'menu' ? null : player, state === 'menu' ? null : round, state === 'dead' ? target : null);   // menüde HUD çizilmez (lobi temiz)
