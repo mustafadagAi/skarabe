@@ -823,7 +823,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610170918';
+const DIL_SURUM = '202610281124';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -1166,17 +1166,28 @@ if (typeof document !== 'undefined') Lang.init();
 // =====================================================================
 // kumul-ses.js — Ses efektleri. Dosya yok: bütün sesler tarayıcıda sentezlenir (Web Audio).
 // Tarayıcılar sesi ancak kullanıcı bir yere bastıktan sonra açar; init() "Oyna" tıklamasında çağrılır.
+// AudioContext'i kurmak Windows'ta ses aygıtına göre yüzlerce ms ana iş parçacığını durdurabilir (Cloudflare INP: Oyna
+// tıklaması 696 ms). Bu yüzden prepare() sayfa açılınca boşta kurar (askıda başlar), init() tıklamada yalnız devam ettirir.
+// Açılmadan (live) hiçbir ses çalınmaz: askıdaki bağlama sıraya giren sesler devamda üst üste patlamasın.
 // =====================================================================
 
 const Sfx = {
-  ac: null, master: null, muted: false,
+  ac: null, master: null, muted: false, live: false, ms: null,
 
   init() {
-    if (this.ac) { if (this.ac.state === 'suspended') this.ac.resume(); return; }
+    if (!this.ac) this.prepare();
+    if (!this.ac) return;
+    this.live = true;
+    if (this.ac.state === 'suspended') this.ac.resume();
+  },
+  prepare() {
+    if (this.ac) return;
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     try {
+      const t0 = performance.now();
       this.ac = new AC();
+      this.ms = Math.round(performance.now() - t0);
       this.master = this.ac.createGain();
       this.master.gain.value = this.muted ? 0 : 0.55;
       // Sıkıştırıcı: birkaç ses aynı anda gelince toplam taşmasın (taşma da cızırtı yapar)
@@ -1190,7 +1201,7 @@ const Sfx = {
 
   // Kayan frekanslı tek ses
   tone(f0, f1, dur, type = 'sine', vol = 0.3, delay = 0) {
-    if (!this.ac || this.muted || vol <= 0.003) return;
+    if (!this.live || this.muted || vol <= 0.003) return;
     const t = this.ac.currentTime + delay, o = this.ac.createOscillator(), g = this.ac.createGain();
     o.type = type;
     o.frequency.setValueAtTime(f0, t);
@@ -1203,7 +1214,7 @@ const Sfx = {
 
   // Süzülmüş gürültü (çarpma, hışırtı)
   noise(dur, vol, cutoff) {
-    if (!this.ac || this.muted || vol <= 0.003) return;
+    if (!this.live || this.muted || vol <= 0.003) return;
     const ac = this.ac, n = Math.floor(ac.sampleRate * dur), buf = ac.createBuffer(1, n, ac.sampleRate), d = buf.getChannelData(0);
     for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
     const src = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
@@ -1216,7 +1227,7 @@ const Sfx = {
   // sıkışık anlarda (son daralma) saniyede onlarca çarpma olur.
   last: {},
   ready(key, gap) {
-    if (!this.ac) return false;
+    if (!this.live) return false;
     const t = this.ac.currentTime;
     if (t - (this.last[key] ?? -9) < gap) return false;
     this.last[key] = t;
@@ -1458,10 +1469,13 @@ const Analytics = {
     a.sessions++; store.set(key + '-anon', a);
     this.id = a.id; this.firstDay = a.first; this.sessionStart = performance.now();
     this.enabled = !!this.endpoint && !opts.blocked && typeof navigator !== 'undefined' && !!navigator.sendBeacon;
-    this.track('session', { n: a.sessions, daysSinceFirst: this.day() - a.first, lang: typeof Lang !== 'undefined' ? Lang.code : '', touch: !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), portal: opts.portal || '', w: innerWidth, h: innerHeight });
+    let ref = ''; try { ref = document.referrer ? new URL(document.referrer).hostname : ''; } catch {}
+    if (ref === location.hostname) ref = '';
+    this.track('session', { n: a.sessions, daysSinceFirst: this.day() - a.first, lang: typeof Lang !== 'undefined' ? Lang.code : '', touch: !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), portal: opts.portal || '', ref, w: innerWidth, h: innerHeight });
     if (this.enabled) {
       setInterval(() => this.flush(), this.FLUSH_EVERY * 1000);
       document.addEventListener('visibilitychange', () => { if (document.hidden) this.flush(); });
+      addEventListener('pagehide', () => this.flush());
     }
   },
   track(event, data = {}) {
@@ -1471,7 +1485,7 @@ const Analytics = {
   flush() {
     if (!this.enabled || !this.queue.length) return;
     const body = JSON.stringify({ game: this.key, id: this.id, first: this.firstDay, v: 1, events: this.queue.splice(0) });
-    try { navigator.sendBeacon(this.endpoint, new Blob([body], { type: 'application/json' })); } catch {}
+    try { navigator.sendBeacon(this.endpoint, new Blob([body], { type: 'text/plain' })); } catch {}   // text/plain: başka kökene ön uçuşsuz gider
   },
   // Yerel özet (menüde ya da konsolda bakmak için): oturum, tur, tekrar oyna ve paylaşım oranları
   summary(stats) {
@@ -3746,7 +3760,7 @@ const GAME = {
   season: true,                      // sezon ödül hattı (kumul-ilerleme.js Season)
   tutor: true,                       // kademeli öğretme: FIRLAT 3. turdan, KAZI ve menü derinliği 5. turdan
   reviveTop: 8,                      // diriliş teklifi yalnız bu sıra ve üstünde (portal kuralı: her ölümde teklif yok)
-  analytics: { endpoint: '' },       // olay toplayıcı adresi (boş: ağa çıkılmaz, sayaçlar yerelde kalır) — kumul-analitik.js
+  analytics: { endpoint: 'sunucu' }, // olay toplayıcı: 'sunucu' = çok oyunculu sunucunun /__olay ucu; boş: ağa çıkılmaz — kumul-analitik.js
   online: { url: 'wss://skarabe-eu.onrender.com' }, // çok oyunculu sunucu (Render, Frankfurt); boşsa aynı kökteki sunucu aranır (/__net) — skarabe-ag.js
   // Metinler kumul-dil.js'ten: dil değişince de doğru olsun diye işlev olarak
   get firstLine() { return T('firstLine'); },
@@ -3878,7 +3892,13 @@ Ads.onAdEnd = () => { adPlaying = false; Sfx.setMuted(mutedBeforeAd); last = per
 Ads.init().then(() => { Ads.loadingFinished(); });
 // Analitik (kumul-analitik.js): uç nokta verilmişse olaylar beacon ile gider; Poki'de dış istek kapalı
 const useAnalytics = !!GAME.analytics && typeof Analytics !== 'undefined';
-if (useAnalytics) Analytics.init(GAME.key, { endpoint: GAME.analytics.endpoint, blocked: Ads.detect() === 'poki', portal: Ads.detect() || '' });
+// endpoint 'sunucu': çok oyunculu sunucunun /__olay ucu (?ag= ile yerel sunucuya bağlanınca olaylar da oraya gider)
+const analyticsUrl = () => {
+  const e = GAME.analytics.endpoint; if (e !== 'sunucu') return e;
+  const ws = new URLSearchParams(location.search).get('ag') || (GAME.online && GAME.online.url) || '';
+  return ws ? ws.replace(/^ws/, 'http') + '/__olay' : '';
+};
+if (useAnalytics) Analytics.init(GAME.key, { endpoint: analyticsUrl(), blocked: Ads.detect() === 'poki', portal: Ads.detect() || '' });
 const track = (e, d) => { if (useAnalytics) Analytics.track(e, d); };
 window.addEventListener('keydown', e => {
   if (e.code === 'F2') { Perf.show = !Perf.show; e.preventDefault(); return; }
@@ -4308,7 +4328,7 @@ const Perf = {
     return { fps: +(this.roundFrames / secs).toFixed(1), avg: +(this.roundSum / Math.max(1, this.roundFrames)).toFixed(1), max: Math.round(this.roundMax), slow: this.roundSlow, secs: Math.round(secs),
              dpr: renderer.dpr, cap: renderer.dprCap, w: renderer.canvas.width, h: renderer.canvas.height, gpu: this.gpu, online: onlineMode,
              delay: n ? Math.round(n.delay) : null, jitter: n ? Math.round(n.jitter) : null, gap: n ? Math.round(n.gapMax) : null, interval: n ? Math.round(n.stateInterval) : null,
-             ua: navigator.userAgent.slice(0, 120), touch: touch.enabled };
+             ua: navigator.userAgent.slice(0, 120), touch: touch.enabled, ac: Sfx.ms, inp: this.inp };
   },
   send() {
     const r = this.report(); track('perf', r);
@@ -4327,6 +4347,11 @@ const Perf = {
   },
 };
 try { const gc = document.createElement('canvas'), gl = gc.getContext('webgl') || gc.getContext('experimental-webgl'); const ext = gl && gl.getExtension('WEBGL_debug_renderer_info'); Perf.gpu = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)).slice(0, 80) : gl ? 'webgl (ad gizli)' : 'webgl yok'; } catch { Perf.gpu = '?'; }
+// Tıklama/tuş tepkisi (INP): en yavaş etkileşim hangi öğede, ne kadar (işleme + çizime kadar) → tur sonu raporunda
+Perf.inp = null;
+try { new PerformanceObserver(l => { for (const e of l.getEntries()) if (e.interactionId && (!Perf.inp || e.duration > Perf.inp.ms)) Perf.inp = { ms: Math.round(e.duration), proc: Math.round(e.processingEnd - e.processingStart), on: e.target && e.target.id || e.name }; }).observe({ type: 'event', durationThreshold: 40, buffered: true }); } catch {}
+// Ses bağlamı sayfa açılınca boşta kurulur (askıda); Oyna tıklaması yalnız devam ettirir (kumul-ses.js)
+(window.requestIdleCallback || (f => setTimeout(f, 1500)))(() => Sfx.prepare(), { timeout: 3000 });
 let urlSeed = codeToSeed(params.get('s'));
 const urlMutation = params.get('m') || null;     // meydan okumanın mutasyonu (haftadan bağımsız)
 const challenge = urlSeed !== null
