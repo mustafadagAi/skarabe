@@ -182,6 +182,9 @@
   .lobby { width: 100%; max-width: 1000px; margin: auto; display: flex; flex-direction: column; align-items: center; gap: 18px; }
   .lobbyHead { display: flex; flex-direction: column; align-items: center; gap: 6px; }
   .lobby .logo { font-size: clamp(44px, 8.5vw, 92px); }
+  /* Menü logosu: arena amblemi + yazı (SVG); yatay telefonda ekranın üçte birinden fazla yer kaplamasın */
+  .logo svg { display: block; height: clamp(120px, min(30vh, 46vw), 280px); width: auto; aspect-ratio: 1200 / 650; overflow: visible; }
+  .logo:has(svg) { text-shadow: none; }   /* gölge SVG'nin içinde çizili; başlığın yazı gölgesi harflere ikinci kez binmesin */
   .lobbyGrid { display: grid; grid-template-columns: 268px minmax(300px, 392px) 268px; gap: 16px; align-items: start; justify-content: center; width: 100%; }
   .panel { box-sizing: border-box; background: var(--paper); border: 2px solid var(--ink); border-radius: 16px; padding: 16px 18px;
            box-shadow: 5px 6px 0 rgba(42, 31, 20, 0.18); display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 0; }
@@ -364,7 +367,7 @@
 <div id="menu" class="overlay">
  <div class="lobby">
   <header class="lobbyHead">
-    <h1 class="logo">SKARABE</h1>
+    <h1 class="logo"><!-- marka/skarabe-logo.svg (yazı tipi sayfadan) --><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Skarabe" viewBox="0 40 1200 650"><defs> <pattern id="logoW" width="54" height="27" patternUnits="userSpaceOnUse"> <path d="M0 13.5 q13.5 -9 27 0 t27 0" fill="none" stroke="#d6bf8a" stroke-width="3"/> </pattern> <clipPath id="logoArena"><circle cx="600" cy="300" r="222"/></clipPath> <clipPath id="logoBall"><circle cx="0" cy="0" r="1"/></clipPath> <g id="logoBeetle" stroke="#2a1f14" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"> <path d="M-14 -6 L-27 -14 M14 -6 L27 -14 M-15 6 L-29 8 M15 6 L29 8 M-13 16 L-24 28 M13 16 L24 28" fill="none"/> <path d="M-5 -38 L-11 -47 M5 -38 L11 -47" fill="none" stroke-width="3"/> <ellipse cx="0" cy="6" rx="17" ry="21" fill="#0e7c7b"/> <ellipse cx="0" cy="-20" rx="13" ry="8" fill="#0e7c7b"/> <ellipse cx="0" cy="-32" rx="8" ry="6" fill="#095857"/> <path d="M0 -12 L0 26" fill="none" stroke-width="2.5"/> <ellipse cx="-7" cy="0" rx="3.5" ry="8" fill="#fdfcf7" stroke="none" opacity=".35"/> </g> <g id="logoBallG"> <circle cx=".1" cy=".12" r="1" fill="#b5532e"/> <g clip-path="url(#logoBall)"> <circle r="1" fill="#fdfcf7"/> <g transform="rotate(-32)" fill="#0e7c7b"><rect x="-1.5" y="-.78" width="3" height=".3"/><rect x="-1.5" y="-.16" width="3" height=".3"/><rect x="-1.5" y=".46" width="3" height=".3"/></g> </g> <circle r="1" fill="none" stroke="#2a1f14" stroke-width=".06"/> </g></defs> <circle cx="600" cy="300" r="244" fill="#b5532e" stroke="#2a1f14" stroke-width="8"/> <circle cx="600" cy="300" r="222" fill="#e8d5a9"/> <g clip-path="url(#logoArena)"> <rect x="350" y="50" width="500" height="500" fill="url(#logoW)" opacity=".75"/> <ellipse cx="640" cy="350" rx="96" ry="12" fill="#2a1f14" opacity=".08"/> </g> <circle cx="600" cy="300" r="222" fill="none" stroke="#2a1f14" stroke-width="6"/> <use href="#logoBallG" transform="translate(652 234) scale(104)"/> <use href="#logoBeetle" transform="translate(534 360) rotate(-135) scale(2.6)"/> <text x="600" y="640" text-anchor="middle" font-family="Rammetto One" font-size="176" letter-spacing="4" fill="none" stroke="#fdf9ee" stroke-width="30" stroke-linejoin="round">SKARABE</text> <text x="610" y="651" text-anchor="middle" font-family="Rammetto One" font-size="176" letter-spacing="4" fill="none" stroke="#fdf9ee" stroke-width="30" stroke-linejoin="round">SKARABE</text> <text x="610" y="651" text-anchor="middle" font-family="Rammetto One" font-size="176" letter-spacing="4" fill="#b5532e">SKARABE</text> <text x="600" y="640" text-anchor="middle" font-family="Rammetto One" font-size="176" letter-spacing="4" fill="#2a1f14">SKARABE</text></svg></h1>
     <p class="tagline" data-t="tagline">İt, fırtınaya düşür, ayakta kalan son böcek ol.</p>
   </header>
   <div class="lobbyGrid">
@@ -835,7 +838,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610292034';
+const DIL_SURUM = '202610292100';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
