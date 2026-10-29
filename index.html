@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>Skarabe</title>
+<!-- Simge: ana ekran (iOS), sekme, Android web uygulaması. build.js simge/ klasörünü docs/'a kopyalar, tek dosyalık dist/'ten çıkarır. -->
+<link rel="icon" type="image/png" sizes="32x32" href="simge/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="simge/favicon-16.png">
+<link rel="apple-touch-icon" href="simge/apple-touch-icon.png">
+<link rel="manifest" href="simge/manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Skarabe">
+<meta name="theme-color" content="#e8d5a9">
 <style>
   /* Yazı tipleri yerel (fonts/, fontlar-indir.sh); build.ps1 tek dosyaya gömer. Dış istek yok: portal kuralı ve ilk çizim hızı. */
   @font-face { font-family: 'Rubik'; font-style: normal; font-weight: 400 700; font-display: swap; src: url(fonts/rubik-var-latin-ext.woff2) format('woff2');
@@ -828,7 +835,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610291943';
+const DIL_SURUM = '202610292034';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.

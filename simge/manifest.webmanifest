@@ -1,0 +1,15 @@
+{
+  "name": "Skarabe",
+  "short_name": "Skarabe",
+  "description": "Push, drop them into the storm, be the last beetle standing.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e8d5a9",
+  "theme_color": "#e8d5a9",
+  "icons": [
+    { "src": "simge-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "simge-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "simge-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
