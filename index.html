@@ -110,13 +110,18 @@
   .statRow span { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
   .actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 
-  #boostBtn { position: fixed; right: 18px; bottom: 22px; width: 88px; height: 88px; border-radius: 50%;
-              border: 2px solid var(--ink); background: rgba(253, 249, 238, 0.85); color: var(--ink);
-              font-family: inherit; font-weight: 700; font-size: 14px; touch-action: none; user-select: none; }
+  /* Dokunmatik düğmeler yarı saydam: sahne arkadan görünür, basınca belirginleşir */
+  #boostBtn { position: fixed; right: 20px; bottom: 24px; width: 76px; height: 76px; border-radius: 50%;
+              border: 2px solid rgba(42, 31, 20, 0.35); background: rgba(253, 249, 238, 0.28); color: rgba(42, 31, 20, 0.7);
+              font-family: inherit; font-weight: 700; font-size: 13px; touch-action: none; user-select: none;
+              -webkit-tap-highlight-color: transparent; }
+  #boostBtn:active { background: rgba(253, 249, 238, 0.6); color: var(--ink); }
   #boostBtn[hidden] { display: none; }
-  #digBtn { position: fixed; right: 118px; bottom: 36px; width: 64px; height: 64px; border-radius: 50%;
-            border: 2px solid var(--ink); background: rgba(217, 119, 6, 0.85); color: var(--paper);
-            font-family: inherit; font-weight: 700; font-size: 13px; touch-action: none; user-select: none; }
+  #digBtn { position: fixed; right: 108px; bottom: 34px; width: 58px; height: 58px; border-radius: 50%;
+            border: 2px solid rgba(42, 31, 20, 0.35); background: rgba(217, 119, 6, 0.45); color: var(--paper);
+            font-family: inherit; font-weight: 700; font-size: 12px; touch-action: none; user-select: none;
+            -webkit-tap-highlight-color: transparent; }
+  #digBtn:active { background: rgba(217, 119, 6, 0.85); }
   #digBtn[hidden] { display: none; }
 
   /* İlerleme: seviye çubuğu, günlük görev, kilitli görünüm, tur sonu puanı */
@@ -823,7 +828,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610281124';
+const DIL_SURUM = '202610291943';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -2571,14 +2576,15 @@ class ArenaRenderer extends RenderBase {
     const ctx = this.ctx, W = this.viewW, H = this.viewH, alpha = age < 0.25 ? age / 0.25 : age > tp.life - 0.4 ? (tp.life - age) / 0.4 : 1;
     ctx.save(); ctx.globalAlpha = alpha;
     // Dar ekranda satırlara bölünür (ekrandan taşmasın); en çok 3 satır
-    const fs = W < 480 ? 13 : 15, lh = fs + 5, maxText = Math.min(W - 24, 640) - 44;
+    const fs = W < 480 ? 13 : 15, lh = fs + 5, maxText = Math.min(W - 24, 640, this.touchLayout && W > H ? W - 300 : 640) - 44;   // yatay dokunmatikte köşe düğmelerine değmesin
     ctx.font = `700 ${fs}px ${KUMUL.font}`; ctx.textAlign = 'center';
     const lines = []; let cur = '';
     const spaced = tp.text.includes(' '), sep = spaced ? ' ' : '', toks = spaced ? tp.text.split(' ') : Array.from(tp.text);   // CJK: karakterle böl
     for (const word of toks) { const t = cur ? cur + sep + word : word; if (ctx.measureText(t).width > maxText && cur) { lines.push(cur); cur = word; } else cur = t; }
     if (cur) lines.push(cur); if (lines.length > 3) { lines.length = 3; lines[2] += '…'; }
     const tw = Math.max(...lines.map(l => ctx.measureText(l).width)), w = Math.min(W - 24, tw + 44), h = 18 + lines.length * lh;
-    const y = H - (this.touchLayout ? 215 : 96) - (lines.length - 1) * lh;   // dokunmatikte çubuk ve atılma düğmesinin üstünde
+    // Dokunmatikte çubuk ve atılma düğmesinin üstünde; yatayda düğmeler köşede kaldığı için alta yakın (böceğin üstüne binmesin)
+    const y = H - (this.touchLayout ? (W > H ? 112 : 215) : 96) - (lines.length - 1) * lh;
     ctx.fillStyle = KUMUL.ink;
     ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(W / 2 - w / 2, y, w, h, Math.min(20, h / 2)); else ctx.rect(W / 2 - w / 2, y, w, h); ctx.fill();
     ctx.fillStyle = KUMUL.amber; ctx.beginPath(); ctx.arc(W / 2 - w / 2 + 20, y + h / 2, 6, 0, Math.PI * 2); ctx.fill();
@@ -2899,9 +2905,11 @@ class ArenaRenderer extends RenderBase {
     const ph = round.phase();
 
     // Üst orta: KALAN sayacı + evre etiketi + tur ilerleme çubuğu. Dar ekranda sağa yaslanır (sol paneli örtmesin).
-    const narrow = W < 560;
+    // Kısa ekran (yatay telefon) da dar düzeni kullanır: masaüstü listesi ekranın yarısını kaplıyordu.
+    // Yatayda KALAN ortada kalır, mini harita sağ üste çıkar.
+    const narrow = W < 560 || H < 500, wide = narrow && W >= 560;
     // Dar ekranda sol oyuncu paneli (10..154) ile çakışmasın: panel daralır, evre etiketi ikinci satıra iner
-    const pw = narrow ? Math.max(150, Math.min(204, W - 174)) : 224, ptop = 10, px = narrow ? W - pw - 10 : W / 2 - pw / 2;
+    const pw = narrow ? Math.max(150, Math.min(204, W - 174)) : 224, ptop = 10, px = narrow && !wide ? W - pw - 10 : W / 2 - pw / 2;
     this.panel(px, ptop, pw, 66);
     this.label(T('left'), px + 14, ptop + 21, 'left', KUMUL.muted, narrow ? 50 : 76);   // dar ekranda ilerleme çubuğu px+70'te başlar
     ctx.textAlign = 'left'; ctx.fillStyle = KUMUL.ink; ctx.font = `800 26px ${KUMUL.font}`;
@@ -2959,7 +2967,7 @@ class ArenaRenderer extends RenderBase {
         ctx.fillText(`1 ${this.clipName(lead.name, pw * 0.42)}`, px + pw - 18 - mw, top + 19);
         ctx.fillStyle = lead.color; ctx.beginPath(); ctx.arc(px + pw - 22 - mw - ctx.measureText(`1 ${this.clipName(lead.name, pw * 0.42)}`).width - 6, top + 15, 3.5, 0, Math.PI * 2); ctx.fill();
       }
-      cornerY = top + h + 10;
+      cornerY = wide ? 10 : top + h + 10;
     }
     if (!narrow) {
       const rows = alive.slice(0, 5), lw = 176, rh = 19, x = W - lw - 10, top = 10, h = 30 + rows.length * rh + 8;
@@ -3001,7 +3009,7 @@ class ArenaRenderer extends RenderBase {
 
     this.drawStreamerHud(touch ? cornerY + ms + 10 : cornerY);
 
-    const noteY = narrow ? 196 : this.streamer ? 116 : 86;      // bildirim ve izleme etiketi: dar ekranda panellerin altına iner
+    const noteY = wide ? 122 : narrow ? 196 : this.streamer ? 116 : 86;      // bildirim ve izleme etiketi: dar ekranda panellerin altına iner
     if (!spectating && this.toast && this.time - this.toast.t < 1.8) {
       const age = this.time - this.toast.t, alpha = age > 1.4 ? (1.8 - age) / 0.4 : 1;
       ctx.globalAlpha = alpha;
@@ -3024,14 +3032,15 @@ class ArenaRenderer extends RenderBase {
     this.drawStamp();
   }
 
-  // Sanal joystick: taban halkası ve parmağı izleyen topuz. Konum ve sapma kumul-main.js'ten gelir.
+  // Sanal joystick: soluk taban halkası ve parmağı izleyen yarı saydam topuz; oyunun önüne geçmesin.
+  // Konum ve sapma kumul-main.js'ten gelir; boştaki ipucu halkası daha da soluk.
   drawStick(st) {
     const ctx = this.ctx;
-    ctx.globalAlpha = st.active ? 0.9 : 0.5;
-    ctx.fillStyle = 'rgba(253,249,238,0.7)'; ctx.strokeStyle = KUMUL.ink; ctx.lineWidth = 2;
+    ctx.globalAlpha = st.active ? 1 : 0.45;
+    ctx.fillStyle = 'rgba(253,249,238,0.16)'; ctx.strokeStyle = 'rgba(42,31,20,0.28)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = KUMUL.ink;
-    ctx.beginPath(); ctx.arc(st.x + st.dx, st.y + st.dy, st.r * 0.42, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(42,31,20,0.32)';
+    ctx.beginPath(); ctx.arc(st.x + st.dx, st.y + st.dy, st.r * 0.4, 0, Math.PI * 2); ctx.fill();
     ctx.globalAlpha = 1;
   }
 }
@@ -4128,7 +4137,7 @@ const touch = {
   coarse: !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches),
   enabled: false,
   stick: { active: false, id: null, x: 0, y: 0, dx: 0, dy: 0, r: STICK_R },
-  used: false,                 // joystick en az bir kez kullanıldı mı (kullanılana kadar oyuncu durmaz)
+  used: false,                 // joystick bu turda kullanıldı mı (kullanılana kadar ipucu halkası görünür)
   boostIds: new Set(),         // sağ yarıya basan parmaklar
   btnDown: false,              // ekran düğmesi basılı mı
 };
@@ -4189,10 +4198,12 @@ for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) boostBtn.addEve
 
 setTouchMode(touch.coarse);     // dokunmatik cihazda baştan açık; fare oynatılırsa kapanır, ekrana dokunulursa açılır
 
-// Joystick'in çizileceği yer: basılıyken parmağın altında, boşta sol alt köşede
+// Joystick'in çizileceği yer: basılıyken parmağın altında. Boşta görünmez; turda henüz kullanılmadıysa
+// sol altta soluk bir ipucu halkası kalır (oyun alanını kalabalıklaştırmasın).
 function stickView() {
   const st = touch.stick;
   if (st.active) return st;
+  if (touch.used) return null;
   return { active: false, x: 28 + st.r, y: window.innerHeight - 30 - st.r, dx: 0, dy: 0, r: st.r };
 }
 
@@ -4203,7 +4214,7 @@ function applyInput() {
       player.input.targetAngle = Math.atan2(st.dy, st.dx);
       player.input.throttle = Math.min(1, (mag - STICK_DEAD) / 0.55);
       touch.used = true;
-    } else player.input.throttle = touch.used ? 0 : 1;
+    } else player.input.throttle = 0;   // çubuğa dokunulmadan böcek yürümez (fareyle aynı: boşta fırtınaya gitmesin)
     player.input.boost = input.boost; player.input.dig = input.dig;
     if (digBtn) digBtn.hidden = !player.digEligible;
     return;
