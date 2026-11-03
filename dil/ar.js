@@ -1,5 +1,16 @@
 // Skarabe dil dosyası (ar) — build.js üretir, elle düzenleme: kaynak kumul-dil.js
 DIL.ar = {
+  tabTitle: "اللعبة مفتوحة في علامة تبويب أخرى",
+  tabWait: "أغلق علامة تبويب Skarabe الأخرى لحماية تقدمك. ستفتح هذه تلقائيًا بعدها.",
+  privacyTitle: "الخصوصية والبيانات",
+  privacyBody: "تساعدنا قياسات اللعب والأداء الاختيارية على تحسين اللعبة. يمكنك اللعب بدونها وتغيير اختيارك هنا.",
+  privacyAllow: "السماح",
+  privacyReject: "عدم السماح",
+  privacyOn: "القياسات الاختيارية مفعّلة.",
+  privacyOff: "القياسات الاختيارية متوقفة.",
+  privacyPolicy: "إشعار الخصوصية (TR / EN)",
+  privacyPlayer: "معرّف اللاعب",
+  privacyAnalytics: "معرّف القياس",
   tagline: 'ادفع، أسقطهم في العاصفة، وكن آخر خنفساء صامدة.',
   namePh: 'الاسم المستعار', prevSkin: 'المظهر السابق', nextSkin: 'المظهر التالي', unlockNow: 'افتح الآن', play: 'العب',
   practice: 'تدريب ضد الروبوتات', panelPlayer: 'اللاعب', panelToday: 'اليوم', onlineNow: n => `● ${n} لاعب متصل`,

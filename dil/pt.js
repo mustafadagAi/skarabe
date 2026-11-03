@@ -1,5 +1,16 @@
 // Skarabe dil dosyası (pt) — build.js üretir, elle düzenleme: kaynak kumul-dil.js
 DIL.pt = {
+  tabTitle: "Jogo aberto em outra aba",
+  tabWait: "Feche a outra aba do Skarabe para proteger seu progresso. Esta aba abrirá automaticamente.",
+  privacyTitle: "Privacidade e dados",
+  privacyBody: "Medições opcionais de jogo e desempenho ajudam a melhorar o jogo. Você pode jogar sem elas e mudar sua escolha aqui.",
+  privacyAllow: "Permitir",
+  privacyReject: "Não permitir",
+  privacyOn: "Medições opcionais ativadas.",
+  privacyOff: "Medições opcionais desativadas.",
+  privacyPolicy: "Aviso de privacidade (TR / EN)",
+  privacyPlayer: "ID do jogador",
+  privacyAnalytics: "ID de medição",
   tagline: 'Empurre, jogue-os na tempestade e seja o último besouro de pé.',
   namePh: 'Apelido', prevSkin: 'Visual anterior', nextSkin: 'Próximo visual', unlockNow: 'Desbloquear agora', play: 'Jogar',
   practice: 'Treinar com bots', panelPlayer: 'Jogador', panelToday: 'Hoje', onlineNow: n => `● ${n} jogador${n === 1 ? '' : 'es'} online`,

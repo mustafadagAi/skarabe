@@ -1,5 +1,16 @@
 // Skarabe dil dosyası (ja) — build.js üretir, elle düzenleme: kaynak kumul-dil.js
 DIL.ja = {
+  tabTitle: "別のタブでゲームが開いています",
+  tabWait: "進行状況を守るため、もう一方の Skarabe タブを閉じてください。その後このタブが自動的に開きます。",
+  privacyTitle: "プライバシーとデータ",
+  privacyBody: "任意のプレイ・性能計測はゲームの改善に役立ちます。許可しなくてもプレイでき、ここで選択を変更できます。",
+  privacyAllow: "許可する",
+  privacyReject: "許可しない",
+  privacyOn: "任意の計測はオンです。",
+  privacyOff: "任意の計測はオフです。",
+  privacyPolicy: "プライバシー通知（TR / EN）",
+  privacyPlayer: "プレイヤーID",
+  privacyAnalytics: "計測ID",
   tagline: '押して、嵐に落として、最後まで立っている甲虫になれ。',
   namePh: 'ニックネーム', prevSkin: '前の外見', nextSkin: '次の外見', unlockNow: '今すぐ解放', play: 'プレイ',
   practice: 'ボットと練習', panelPlayer: 'プレイヤー', panelToday: '今日', onlineNow: n => `● ${n} 人がオンライン`,

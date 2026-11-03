@@ -1,5 +1,16 @@
 // Skarabe dil dosyası (es) — build.js üretir, elle düzenleme: kaynak kumul-dil.js
 DIL.es = {
+  tabTitle: "Juego abierto en otra pestaña",
+  tabWait: "Cierra la otra pestaña de Skarabe para proteger tu progreso. Esta se abrirá automáticamente.",
+  privacyTitle: "Privacidad y datos",
+  privacyBody: "Las mediciones opcionales de juego y rendimiento nos ayudan a mejorar. Puedes jugar sin ellas y cambiar tu elección aquí.",
+  privacyAllow: "Permitir",
+  privacyReject: "No permitir",
+  privacyOn: "Mediciones opcionales activadas.",
+  privacyOff: "Mediciones opcionales desactivadas.",
+  privacyPolicy: "Aviso de privacidad (TR / EN)",
+  privacyPlayer: "ID de jugador",
+  privacyAnalytics: "ID de medición",
   tagline: 'Empuja, tíralos a la tormenta y sé el último escarabajo en pie.',
   namePh: 'Apodo', prevSkin: 'Aspecto anterior', nextSkin: 'Aspecto siguiente', unlockNow: 'Desbloquear ya', play: 'Jugar',
   practice: 'Practicar con bots', panelPlayer: 'Jugador', panelToday: 'Hoy', onlineNow: n => `● ${n} jugador${n === 1 ? '' : 'es'} en línea`,

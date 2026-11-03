@@ -1,5 +1,16 @@
 // Skarabe dil dosyası (id) — build.js üretir, elle düzenleme: kaynak kumul-dil.js
 DIL.id = {
+  tabTitle: "Game terbuka di tab lain",
+  tabWait: "Tutup tab Skarabe lain untuk melindungi progresmu. Tab ini akan terbuka otomatis setelahnya.",
+  privacyTitle: "Privasi dan data",
+  privacyBody: "Pengukuran permainan dan performa opsional membantu kami memperbaiki game. Kamu bisa bermain tanpanya dan mengubah pilihan di sini.",
+  privacyAllow: "Izinkan",
+  privacyReject: "Jangan izinkan",
+  privacyOn: "Pengukuran opsional aktif.",
+  privacyOff: "Pengukuran opsional nonaktif.",
+  privacyPolicy: "Pemberitahuan privasi (TR / EN)",
+  privacyPlayer: "ID pemain",
+  privacyAnalytics: "ID pengukuran",
   tagline: 'Dorong, jatuhkan ke badai, jadilah kumbang terakhir yang bertahan.',
   namePh: 'Nama panggilan', prevSkin: 'Tampilan sebelumnya', nextSkin: 'Tampilan berikutnya', unlockNow: 'Buka sekarang', play: 'Main',
   practice: 'Latihan lawan bot', panelPlayer: 'Pemain', panelToday: 'Hari ini', onlineNow: n => `● ${n} pemain online`,

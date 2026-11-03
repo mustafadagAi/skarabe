@@ -1,5 +1,16 @@
 // Skarabe dil dosyası (ru) — build.js üretir, elle düzenleme: kaynak kumul-dil.js
 DIL.ru = {
+  tabTitle: "Игра открыта в другой вкладке",
+  tabWait: "Закрой другую вкладку Skarabe, чтобы сохранить прогресс. Эта вкладка затем откроется автоматически.",
+  privacyTitle: "Конфиденциальность и данные",
+  privacyBody: "Необязательные измерения игры и производительности помогают улучшать игру. Можно играть без них и изменить выбор здесь.",
+  privacyAllow: "Разрешить",
+  privacyReject: "Не разрешать",
+  privacyOn: "Необязательные измерения включены.",
+  privacyOff: "Необязательные измерения выключены.",
+  privacyPolicy: "О данных (TR / EN)",
+  privacyPlayer: "ID игрока",
+  privacyAnalytics: "ID измерений",
   tagline: 'Толкай, сбрасывай в бурю, стань последним жуком на ногах.',
   namePh: 'Ник', prevSkin: 'Предыдущий облик', nextSkin: 'Следующий облик', unlockNow: 'Открыть сейчас', play: 'Играть',
   practice: 'Тренировка с ботами', panelPlayer: 'Игрок', panelToday: 'Сегодня', onlineNow: n => `● ${n} онлайн`,

@@ -1,5 +1,16 @@
 // Skarabe dil dosyası (ko) — build.js üretir, elle düzenleme: kaynak kumul-dil.js
 DIL.ko = {
+  tabTitle: "다른 탭에서 게임이 열려 있어요",
+  tabWait: "진행 상황을 보호하려면 다른 Skarabe 탭을 닫아 주세요. 그러면 이 탭이 자동으로 열려요.",
+  privacyTitle: "개인정보 및 데이터",
+  privacyBody: "선택적 게임 및 성능 측정은 게임 개선에 도움이 돼요. 동의하지 않아도 플레이할 수 있고 여기서 선택을 바꿀 수 있어요.",
+  privacyAllow: "허용",
+  privacyReject: "허용 안 함",
+  privacyOn: "선택적 측정이 켜져 있어요.",
+  privacyOff: "선택적 측정이 꺼져 있어요.",
+  privacyPolicy: "개인정보 안내 (TR / EN)",
+  privacyPlayer: "플레이어 ID",
+  privacyAnalytics: "측정 ID",
   tagline: '밀어내고, 폭풍에 떨어뜨리고, 마지막까지 서 있는 딱정벌레가 되자.',
   namePh: '닉네임', prevSkin: '이전 스킨', nextSkin: '다음 스킨', unlockNow: '지금 해제', play: '플레이',
   practice: '봇과 연습', panelPlayer: '플레이어', panelToday: '오늘', onlineNow: n => `● ${n}명 접속 중`,

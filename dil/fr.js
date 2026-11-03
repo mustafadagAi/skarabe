@@ -1,5 +1,16 @@
 // Skarabe dil dosyası (fr) — build.js üretir, elle düzenleme: kaynak kumul-dil.js
 DIL.fr = {
+  tabTitle: "Jeu ouvert dans un autre onglet",
+  tabWait: "Ferme l’autre onglet Skarabe pour protéger ta progression. Cet onglet s’ouvrira ensuite automatiquement.",
+  privacyTitle: "Confidentialité et données",
+  privacyBody: "Les mesures facultatives de jeu et de performance nous aident à améliorer le jeu. Tu peux jouer sans elles et modifier ton choix ici.",
+  privacyAllow: "Autoriser",
+  privacyReject: "Ne pas autoriser",
+  privacyOn: "Mesures facultatives activées.",
+  privacyOff: "Mesures facultatives désactivées.",
+  privacyPolicy: "Confidentialité (TR / EN)",
+  privacyPlayer: "Identifiant joueur",
+  privacyAnalytics: "Identifiant de mesure",
   tagline: 'Pousse, envoie-les dans la tempête, sois le dernier scarabée debout.',
   namePh: 'Pseudo', prevSkin: 'Apparence précédente', nextSkin: 'Apparence suivante', unlockNow: 'Débloquer maintenant', play: 'Jouer',
   practice: 'S\'entraîner contre des bots', panelPlayer: 'Joueur', panelToday: 'Aujourd\'hui', onlineNow: n => `● ${n} joueur${n === 1 ? '' : 's'} en ligne`,

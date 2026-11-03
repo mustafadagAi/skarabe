@@ -3,7 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<title>Skarabe</title>
+<title>Skarabe — Beetle sumo in your browser</title>
+<meta name="description" content="Roll your ball, dash into rivals and push them into the storm. Skarabe is a browser beetle sumo game with online rounds and practice against bots.">
+<link rel="canonical" href="https://skarabe.io/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Skarabe">
+<meta property="og:title" content="Skarabe — Be the last beetle standing">
+<meta property="og:description" content="Roll your ball. Push rivals into the storm. Play beetle sumo in your browser.">
+<meta property="og:url" content="https://skarabe.io/">
+<meta property="og:image" content="https://skarabe.io/simge/paylasim-1200x630.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Skarabe: a beetle pushing a striped ball, with the words Push. Dash. Be the last beetle standing.">
+<meta name="twitter:card" content="summary_large_image">
 <!-- Simge: ana ekran (iOS), sekme, Android web uygulaması. build.js simge/ klasörünü docs/'a kopyalar, tek dosyalık dist/'ten çıkarır. -->
 <link rel="icon" type="image/png" sizes="32x32" href="simge/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="simge/favicon-16.png">
@@ -35,7 +48,7 @@
   }
   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--sand); color: var(--ink);
                font-family: 'Rubik', system-ui, sans-serif; }
-  canvas#game { display: block; width: 100vw; height: 100vh; touch-action: none; cursor: crosshair; }
+  canvas#game { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
 
   .overlay { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
              gap: 14px; padding: 20px; box-sizing: border-box; overflow-y: auto; }
@@ -353,7 +366,230 @@
   .overlay, #netBanner, #backBtn { user-select: none; -webkit-user-select: none; }
   input, textarea { user-select: text; -webkit-user-select: text; }
   .seasonCard .step i { display: block; font-style: normal; font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  #privacyModal, #sessionWait { z-index: 100; background: rgba(42,31,20,.6); padding: 16px; box-sizing: border-box; }
+  .privacyCard, #sessionWait .panel { width: min(480px, 100%); box-sizing: border-box; max-height: 90dvh; overflow: auto; padding: 24px; }
+  .privacyCard p { line-height: 1.5; }
+  .privacyCard code { overflow-wrap: anywhere; user-select: text; }
+  .privacyChoices { display: flex; gap: 12px; }
+  .privacyChoices button { flex: 1; }
+  .privacyCard a { color: var(--teal-deep); }
+  .privacyChoices button:disabled { opacity: .5; cursor: default; }
+  /* Kısa yatay ekran: başlık yanında doğrudan oyna; diğer paneller kaydırılabilir. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    #menu { padding: 12px 16px 64px; }
+    .lobby { display: grid; grid-template-columns: minmax(140px, 1fr) minmax(280px, 2fr); align-items: start; gap: 12px; margin: 0 auto; }
+    .lobbyHead { position: sticky; top: 0; padding-top: 34px; }
+    .lobby .logo svg { height: auto; width: min(100%, 230px); }
+    .tagline { font-size: 13px; }
+    .lobbyGrid { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+    .lobbyGrid > .panel { width: 100%; flex-shrink: 0; }
+    .panel.center { padding: 12px; gap: 8px; }
+    .center .btn.big { padding: 10px 16px; font-size: 18px; }
+    .center .btn.big.ghost { padding: 9px 16px; }
+    #langBtn { top: 10px; left: 16px; right: auto; bottom: auto; max-width: 150px; }
+    body.inMenu #muteBtn { left: 16px; right: auto; bottom: 12px; }
+    .overlay:not(#menu):not(#waitCard) { justify-content: flex-start; }
+    .overlay > .card, .overlay > .panel { flex-shrink: 0; margin-block: auto; }
+    .resultCard, .pauseCard, .clipCard { box-sizing: border-box; max-width: 100%; padding: 14px; gap: 10px; }
+    .resultHead h2 { font-size: 24px; }
+    .privacyCard { max-height: calc(100dvh - 32px); }
+    #boostBtn { width: 64px; height: 64px; right: 18px; bottom: 16px; }
+    #digBtn { width: 52px; height: 52px; right: 94px; bottom: 22px; }
+  }
+
 </style>
+<!-- Bundled font licenses (SIL OFL 1.1)
+Copyright 2015 The Rubik Project Authors (https://github.com/googlefonts/rubik)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+https://scripts.sil.org/OFL
+
+
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+
+
+Copyright 2011 The Rammetto Project Authors (https://github.com/googlefonts/RammettoFont), with Reserved Font Name Rammetto.
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+https://openfontlicense.org
+
+
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+
+-->
+<meta name="skarabe-cf" content="85514742d3434cc887b027319e8178de">
 </head>
 <body>
 <canvas id="game"></canvas>
@@ -420,6 +656,7 @@
       </div>
       <p id="challengeLine" class="pill"></p>
       <div id="helpText" class="keys"></div>
+      <button id="privacyBtn" class="linkBtn" data-t="privacyTitle">Gizlilik ve veriler</button>
     </section>
     <!-- Sağ: bugün (görev, rakip, sezon, defter) -->
     <aside class="panel daily">
@@ -580,6 +817,24 @@
   </div>
 </div>
 
+
+<div id="privacyModal" class="overlay" role="dialog" aria-modal="true" aria-labelledby="privacyHeading" hidden>
+  <div class="panel privacyCard">
+    <h2 id="privacyHeading" data-t="privacyTitle">Gizlilik ve veriler</h2>
+    <p data-t="privacyBody"></p>
+    <p id="privacyStatus" class="small" role="status"></p>
+    <div class="privacyChoices">
+      <button id="privacyAllow" class="btn ghost" data-t="privacyAllow">İzin ver</button>
+      <button id="privacyReject" class="btn ghost" data-t="privacyReject">İzin verme</button>
+    </div>
+    <p><a id="privacyContact" href="mailto:support@skarabe.io">support@skarabe.io</a></p>
+    <p><a id="privacyPolicy" href="gizlilik.html" target="_blank" rel="noopener" data-t="privacyPolicy">Gizlilik metni (TR / EN)</a></p>
+    <p class="small"><span data-t="privacyPlayer">Oyuncu kimliği</span>: <code id="privacyPid"></code></p>
+    <p class="small"><span data-t="privacyAnalytics">Ölçüm kimliği</span>: <code id="privacyAid"></code></p>
+    <button id="privacyClose" class="btn ghost" data-t="close">Kapat</button>
+  </div>
+</div>
+
 <script>
 // =====================================================================
 // render-temel.js — Bütün oyunların paylaştığı çizim çekirdeği:
@@ -726,7 +981,8 @@ const Ads = {
     return null;
   },
   load(src) { return new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); }); },
-  async init() {
+  async init(opts = {}) {
+    if (opts.disabled) { this.portal = null; this.ready = false; return false; }
     this.portal = this.detect();
     try {
       if (this.portal === 'crazygames') { await this.load('https://sdk.crazygames.com/crazygames-sdk-v3.js'); await window.CrazyGames.SDK.init(); this.ready = true; }
@@ -838,7 +1094,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202610292100';
+const DIL_SURUM = '202611031930';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -848,6 +1104,17 @@ const DIL_SURUM = '202610292100';
 
 const DIL = {
 tr: {
+  tabTitle: "Oyun başka sekmede açık",
+  tabWait: "İlerlemeni korumak için diğer Skarabe sekmesini kapat. Bu sekme ardından kendiliğinden açılacak.",
+  privacyTitle: "Gizlilik ve veriler",
+  privacyBody: "İsteğe bağlı oyun ve akıcılık ölçümleri, oyunu geliştirmemize yardımcı olur. İzin vermezsen oyun çalışmaya devam eder. Tercihini buradan değiştirebilirsin.",
+  privacyAllow: "İzin ver",
+  privacyReject: "İzin verme",
+  privacyOn: "İsteğe bağlı ölçüm açık.",
+  privacyOff: "İsteğe bağlı ölçüm kapalı.",
+  privacyPolicy: "Gizlilik metni (TR / EN)",
+  privacyPlayer: "Oyuncu kimliği",
+  privacyAnalytics: "Ölçüm kimliği",
   // --- menü ---
   tagline: 'İt, fırtınaya düşür, ayakta kalan son böcek ol.',
   namePh: 'Takma ad', prevSkin: 'Önceki görünüm', nextSkin: 'Sonraki görünüm', unlockNow: 'Beklemeden aç', play: 'Oyna',
@@ -975,6 +1242,17 @@ tr: {
   'tw:error': 'bağlantı hatası (portalda dış bağlantı kapalı olabilir)', 'tw:closed': 'bağlantı kapandı',
 },
 en: {
+  tabTitle: "Game open in another tab",
+  tabWait: "Close the other Skarabe tab to protect your progress. This tab will then open automatically.",
+  privacyTitle: "Privacy and data",
+  privacyBody: "Optional gameplay and performance measurements help us improve the game. You can play without them and change your choice here.",
+  privacyAllow: "Allow",
+  privacyReject: "Do not allow",
+  privacyOn: "Optional measurements are on.",
+  privacyOff: "Optional measurements are off.",
+  privacyPolicy: "Privacy notice (TR / EN)",
+  privacyPlayer: "Player ID",
+  privacyAnalytics: "Measurement ID",
   tagline: 'Push, drop them into the storm, be the last beetle standing.',
   namePh: 'Nickname', prevSkin: 'Previous skin', nextSkin: 'Next skin', unlockNow: 'Unlock now', play: 'Play',
   practice: 'Practice vs bots', panelPlayer: 'Player', panelToday: 'Today', onlineNow: n => `● ${n} player${n === 1 ? '' : 's'} online`,
@@ -982,7 +1260,7 @@ en: {
   kMouse: 'Mouse', kClick: 'Click / Space', kStick: 'Left stick', kBtn: 'Right button', kHold: 'Hold', kX: 'X / Right click', kDigBtn: 'DIG',
   aSteer: 'steer', aDash: 'dash', aLaunch: 'launch ball', aDig: 'dig',
   statRounds: 'rounds', statWins: 'wins', statBest: 'best', nemesisLabel: 'Rival', nemesisShort: k => `Took you out ${k}× · crowned on the field · payback 2×`,
-  streakShort: (d, l) => `Streak ${d} days · ${l} more for the sand trail`, streakShortTrail: (d, h) => `Streak ${d} days · sand trail ${h} h left`,
+  streakShort: (d, l) => `Streak ${d} day${d === 1 ? '' : 's'} · ${l} more for the sand trail`, streakShortTrail: (d, h) => `Streak ${d} day${d === 1 ? '' : 's'} · sand trail ${h} h left`,
   seasonShort: (i, tier, ready) => `Season ${i} · ${tier}${ready ? ` · ${ready} box${ready > 1 ? 'es' : ''} ready!` : ''}`, bookShort: (a, b, c, d) => `Species ${a}/${b} · Achievements ${c}/${d}`,
   more: 'Season & Book', season: 'Season', book: 'Beetle Book', streamTools: 'Streamer tools', channelPh: 'Twitch channel',
   connect: 'Connect', disconnect: 'Disconnect', streamerMode: 'Streamer mode',
@@ -993,9 +1271,9 @@ en: {
   level: l => `Level ${l}`, levelNext: (a, b) => `${a} / ${b} points`,
   missionDone: t => `Daily mission done: ${t}.`, mission: (t, p, n, r) => `Daily mission: ${t} (${p}/${n}) · ${r} points`,
   nemesisLine: (n, k) => `${n} took you out ${k} time${k > 1 ? 's' : ''}${k >= 3 ? ' — your arch-enemy' : ''}. On the field this round: find the crowned one, payback doubles your points.`,
-  streakTrail: (d, h) => `Hourglass: ${d} days in a row · sand cloud trail for ${h} more hours`,
+  streakTrail: (d, h) => `Hourglass: ${d} day${d === 1 ? '' : 's'} in a row · sand cloud trail for ${h} more hours`,
   streakLeft: (d, l) => `Hourglass: ${d} day${d > 1 ? 's' : ''} in a row · play ${l} more day${l > 1 ? 's' : ''} to unlock the sand cloud trail`,
-  streak: d => `Hourglass: ${d} days in a row`,
+  streak: d => `Hourglass: ${d} day${d === 1 ? '' : 's'} in a row`,
   mutationLine: (n, t) => `This week's mutation: ${n} — ${t}.`,
   seasonLine: (i, tier, xp, days, title, ready) => `Season ${i} · ${tier} · ${xp} pts · ${days} days${title ? ' · ' + title : ''}${ready ? ` · ${ready} Sand Box${ready > 1 ? 'es' : ''} ready!` : ''}`,
   helpMouse: 'Mouse steers, click or space dashes. Collect pellets, push rivals into the storm.',
@@ -1297,7 +1575,10 @@ const store = {
     return typeof v === typeof d && !(typeof v === 'number' && !Number.isFinite(v)) ? v : d;
   },
   del(k) { try { localStorage.removeItem(k); } catch {} },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  set(k, v) {
+    if (typeof SingleSession !== "undefined" && (!SingleSession.writable || (SingleSession.canWrite && !SingleSession.canWrite()))) return;
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch {}
+  },
 };
 
 const Progress = {
@@ -1465,9 +1746,81 @@ const Streak = {
 
 </script>
 <script>
+// İlerleme yazılmadan önce aynı kökendeki diğer oyun sekmelerini beklet.
+// Web Locks kapanan sekmenin kilidini kendiliğinden bırakır. Eski tarayıcılarda
+// kısa kira + her yazmada sahiplik kontrolü kullanılır; depolama yoksa kalıcılık da yoktur.
+const SingleSession = {
+  writable: true,
+  start(key, boot) {
+    const name = key + '-active-game';
+    const waiting = () => {
+      let box = document.getElementById('sessionWait');
+      if (!box) {
+        box = document.createElement('div'); box.id = 'sessionWait'; box.className = 'overlay';
+        box.setAttribute('role', 'status');
+        const card = document.createElement('div'); card.className = 'panel';
+        const title = document.createElement('h2'); title.textContent = T('tabTitle');
+        const text = document.createElement('p'); text.textContent = T('tabWait');
+        card.append(title, text); box.append(card); document.body.append(box);
+      }
+      for (const node of document.body.children) if (node !== box && node.tagName !== 'SCRIPT') node.inert = true;
+      box.hidden = false;
+    };
+    const ready = () => { const box = document.getElementById('sessionWait'); if (box) box.remove(); for (const node of document.body.children) node.inert = false; this.writable = true; boot(); };
+    this.writable = false;
+    if (navigator.locks && navigator.locks.request) {
+      waiting();
+      let entered = false;
+      const controller = new AbortController();
+      addEventListener('pagehide', () => controller.abort(), { once: true });
+      navigator.locks.request(name, { signal: controller.signal }, async () => {
+        entered = true; ready();
+        await new Promise(resolve => addEventListener('pagehide', resolve, { once: true }));
+        this.writable = false;
+      }).catch(error => {
+        if (error.name === 'AbortError') return;
+        if (!entered) this.startLease(name, waiting, ready);
+        else { this.writable = false; waiting(); console.error('oyun açılamadı:', error); }
+      });
+      addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
+      return;
+    }
+    this.startLease(name, waiting, ready);
+  },
+  startLease(name, waiting, ready) {
+    const token = Math.random().toString(36).slice(2), leaseKey = name + '-lease';
+    let started = false;
+    const owns = () => { try { return JSON.parse(localStorage.getItem(leaseKey) || 'null')?.token === token; } catch { return false; } };
+    this.canWrite = () => { const ok = owns(); if (!ok && started) { this.writable = false; waiting(); } return ok; };
+    const claim = () => {
+      try {
+        const lease = JSON.parse(localStorage.getItem(leaseKey) || 'null');
+        if (lease && lease.token !== token && lease.until > Date.now()) { waiting(); return; }
+        localStorage.setItem(leaseKey, JSON.stringify({ token, until: Date.now() + 15000 }));
+        setTimeout(() => {
+          if (!owns()) return;
+          if (started) return location.reload(); // bellekteki eski ilerlemeyle devam etme
+          started = true; ready();
+        }, 200);
+      } catch { this.canWrite = () => true; ready(); clearInterval(poll); }
+    };
+    const poll = setInterval(() => {
+      try {
+        if (owns()) localStorage.setItem(leaseKey, JSON.stringify({ token, until: Date.now() + 15000 }));
+        else { if (started) { this.writable = false; waiting(); } claim(); }
+      } catch { this.writable = false; waiting(); }
+    }, 2000);
+    addEventListener('pagehide', () => { clearInterval(poll); this.writable = false; if (owns()) localStorage.removeItem(leaseKey); }, { once: true });
+    addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
+    claim();
+  },
+};
+
+</script>
+<script>
 // =====================================================================
 // kumul-analitik.js — Basit analitik: D1/D7, "tekrar oyna", paylaşım ve klip oranları için olay kaydı.
-// Kimlik yok: tarayıcıda rastgele anonim bir id ve ilk görülme günü tutulur; her oturum başında
+// Yalnız rızayla: tarayıcıda rastgele takma kimlikli bir id ve ilk görülme günü tutulur; her oturum başında
 // "ilk görülmeden bu yana kaç gün" gönderilir, böylece sunucu tarafı D1 = daysSinceFirst==1 olan
 // oturumların ilk gün gelenlere oranı diye sayabilir. Olaylar kuyruğa alınır, 20 saniyede bir ve sekme
 // gizlenince sendBeacon ile tek JSON olarak gider. Uç nokta (GAME.analytics.endpoint) boşsa ağa hiç
@@ -1480,26 +1833,35 @@ const Analytics = {
   day() { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000); },
   init(key, opts = {}) {
     this.key = key; this.endpoint = opts.endpoint || '';
-    const a = store.get(key + '-anon', null) || { id: Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6), first: this.day(), sessions: 0 };
-    a.sessions++; store.set(key + '-anon', a);
-    this.id = a.id; this.firstDay = a.first; this.sessionStart = performance.now();
-    this.enabled = !!this.endpoint && !opts.blocked && typeof navigator !== 'undefined' && !!navigator.sendBeacon;
-    let ref = ''; try { ref = document.referrer ? new URL(document.referrer).hostname : ''; } catch {}
-    if (ref === location.hostname) ref = '';
-    this.track('session', { n: a.sessions, daysSinceFirst: this.day() - a.first, lang: typeof Lang !== 'undefined' ? Lang.code : '', touch: !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), portal: opts.portal || '', ref, w: innerWidth, h: innerHeight });
-    if (this.enabled) {
-      setInterval(() => this.flush(), this.FLUSH_EVERY * 1000);
+    this.opts = opts; this.sessionStart = performance.now();
+    if (!this.bound) {
+      this.bound = true;
       document.addEventListener('visibilitychange', () => { if (document.hidden) this.flush(); });
       addEventListener('pagehide', () => this.flush());
     }
+    this.setConsent(opts.consent === true);
+  },
+  setConsent(granted) {
+    clearInterval(this.timer); this.timer = null; this.queue = []; this.enabled = false;
+    if (!granted || !this.endpoint || this.opts.blocked || typeof navigator.sendBeacon !== 'function') {
+      this.id = ''; this.firstDay = 0; store.del(this.key + '-anon'); return;
+    }
+    const a = store.get(this.key + '-anon', null) || { id: Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6), first: this.day(), sessions: 0 };
+    a.sessions++; store.set(this.key + '-anon', a);
+    this.id = a.id; this.firstDay = a.first; this.sessionStart = performance.now(); this.enabled = true;
+    let ref = ''; try { ref = document.referrer ? new URL(document.referrer).hostname : ''; } catch {}
+    if (ref === location.hostname) ref = '';
+    this.track('session', { n: a.sessions, daysSinceFirst: this.day() - a.first, lang: typeof Lang !== 'undefined' ? Lang.code : '', touch: !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), portal: this.opts.portal || '', ref, w: innerWidth, h: innerHeight });
+    this.timer = setInterval(() => this.flush(), this.FLUSH_EVERY * 1000);
   },
   track(event, data = {}) {
+    if (!this.enabled) return;
     this.queue.push({ e: event, t: Date.now(), s: Math.round((performance.now() - this.sessionStart) / 1000), ...data });
     if (this.queue.length >= 50) this.flush();
   },
   flush() {
     if (!this.enabled || !this.queue.length) return;
-    const body = JSON.stringify({ game: this.key, id: this.id, first: this.firstDay, v: 1, events: this.queue.splice(0) });
+    const body = JSON.stringify({ consent: 1, game: this.key, id: this.id, first: this.firstDay, v: 1, events: this.queue.splice(0) });
     try { navigator.sendBeacon(this.endpoint, new Blob([body], { type: 'text/plain' })); } catch {}   // text/plain: başka kökene ön uçuşsuz gider
   },
   // Yerel özet (menüde ya da konsolda bakmak için): oturum, tur, tekrar oyna ve paylaşım oranları
@@ -1508,6 +1870,72 @@ const Analytics = {
     const r = stats.results || 0;
     return { sessions: a.sessions || 0, daysSinceFirst: this.day() - (a.first || this.day()), rounds: stats.rounds || 0,
              again: r ? ((stats.again || 0) / r) : null, share: r ? ((stats.shares || 0) / r) : null, clip: r ? ((stats.clips || 0) / r) : null };
+  },
+};
+
+</script>
+<script>
+// İsteğe bağlı ölçüm kapalı başlar; eski analitik kimliği rıza sayılmaz.
+const Privacy = {
+  key: '', config: null, choice: null, returnFocus: null,
+  init(key, config, options) {
+    this.key = key; this.config = config || {}; this.options = options;
+    this.choice = store.get(key + '-privacy-v1', null);
+    Analytics.init(key, { ...options, consent: this.allowed() });
+    const button = document.getElementById('privacyBtn');
+    if (button) button.addEventListener('click', () => this.open());
+    document.getElementById('privacyAllow').addEventListener('click', () => this.choose(true));
+    document.getElementById('privacyReject').addEventListener('click', () => this.choose(false));
+    document.getElementById('privacyClose').addEventListener('click', () => this.close());
+    document.getElementById('privacyModal').addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); this.close(); }
+      if (e.key === 'Tab') {
+        const nodes = [...document.getElementById('privacyModal').querySelectorAll('button:not(:disabled), a[href]')];
+        const first = nodes[0], last = nodes[nodes.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+    this.render();
+    if (this.config.ready && this.config.contact && this.choice === null) setTimeout(() => this.open(), 0);
+  },
+  allowed() { return !!(this.config && this.config.ready && this.config.contact && this.choice === true); },
+  choose(allow) {
+    if (allow && !(this.config.ready && this.config.contact)) return;
+    this.choice = allow;
+    store.set(this.key + '-privacy-v1', allow);
+    Analytics.setConsent(this.allowed());
+    if (!allow && document.getElementById('skarabeCfBeacon')) { location.reload(); return; }
+    this.render(); this.close();
+  },
+  render() {
+    const el = id => document.getElementById(id);
+    if (!el('privacyModal')) return;
+    el('privacyAllow').disabled = !(this.config.ready && this.config.contact);
+    el('privacyStatus').textContent = T(this.allowed() ? 'privacyOn' : 'privacyOff');
+    el('privacyPid').textContent = store.get(this.key + '-pid', '') || '—';
+    el('privacyAid').textContent = Analytics.id || '—';
+    el('privacyContact').hidden = !this.config.contact;
+    el('privacyContact').textContent = this.config.contact || '';
+    el('privacyContact').href = 'mailto:' + (this.config.contact || '');
+    el('privacyPolicy').href = Lang.code === 'tr' ? 'gizlilik.html' : 'privacy.html';
+    if (this.allowed()) this.loadVisits();
+  },
+  open() {
+    this.returnFocus = document.activeElement;
+    this.render(); document.getElementById('privacyModal').hidden = false;
+    document.getElementById('privacyClose').focus();
+  },
+  close() {
+    document.getElementById('privacyModal').hidden = true;
+    if (this.returnFocus && this.returnFocus.isConnected) this.returnFocus.focus();
+  },
+  loadVisits() {
+    const config = document.querySelector('meta[name="skarabe-cf"]');
+    if (!this.allowed() || !config || document.getElementById('skarabeCfBeacon') || this.options.blocked || this.options.portal) return;
+    const s = document.createElement('script'); s.id = 'skarabeCfBeacon'; s.defer = true;
+    s.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+    s.setAttribute('data-cf-beacon', JSON.stringify({ token: config.content })); document.head.append(s);
   },
 };
 
@@ -2443,14 +2871,58 @@ class NetClient {
   }
   connect() {
     return new Promise((ok, fail) => {
-      try { this.ws = new WebSocket(this.url); } catch (e) { return fail(e); }
-      this.ws.onopen = () => { this.connected = true; ok(); };
-      this.ws.onerror = () => { if (!this.connected) fail(new Error('bağlanamadı')); this.onError && this.onError(); };
-      this.ws.onclose = e => { this.connected = false; this.onClose && this.onClose(e && e.code); };   // 1012: sunucu yeniden başlıyor (güncelleme)
-      this.ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch { return; } this.handle(m); };
+      let ws;
+      try { ws = new WebSocket(this.url); } catch (e) { fail(e); return; }
+      this.ws = ws;
+      let opened = false, finished = false, handshake, watch, lastPing = 0;
+      const doc = typeof document !== 'undefined' ? document : null;
+      const resume = () => { if (!doc.hidden) { this.lastReceivedAt = performance.now(); lastPing = 0; } };
+      const finish = (code, error) => {
+        if (finished) return; finished = true;
+        clearTimeout(handshake); clearInterval(watch);
+        if (doc) doc.removeEventListener('visibilitychange', resume);
+        if (this.ws === ws) { this.connected = false; this._finishClose = null; this.onClose && this.onClose(code); }
+        if (!opened) fail(error || new Error('bağlantı açılmadan kapandı'));
+      };
+      this._finishClose = finish;
+      handshake = setTimeout(() => {
+        finish(4000, new Error('bağlantı zaman aşımı'));
+        try { ws.close(); } catch {}
+      }, 8000);
+      ws.onopen = () => {
+        if (finished) return;
+        opened = true; clearTimeout(handshake); this.connected = true; this.lastReceivedAt = performance.now();
+        if (doc) doc.addEventListener('visibilitychange', resume);
+        watch = setInterval(() => {
+          if (finished) return;
+          const now = performance.now();
+          if (doc && doc.hidden) return;
+          if (now - this.lastReceivedAt > 12000) {
+            // TCP sessizce kaybolduğunda close olayı dakikalarca gelmeyebilir.
+            // Arayüze hemen bildir; daha sonra gelen close aynı bildirimi tekrarlamaz.
+            finish(4000); try { ws.close(4000, 'network-timeout'); } catch {} return;
+          }
+          if (now - lastPing >= 3000 && ws.readyState === 1) { lastPing = now; ws.send(JSON.stringify({ t: 'ping' })); }
+        }, 1000);
+        ok();
+      };
+      ws.onerror = () => { if (!opened) finish(1006, new Error('bağlanamadı')); this.onError && this.onError(); };
+      ws.onclose = e => finish(e && e.code);
+      ws.onmessage = e => {
+        if (finished || this.ws !== ws) return;
+        let m; try { m = JSON.parse(e.data); } catch { return; }
+        this.lastReceivedAt = performance.now();
+        if (m && m.t === 'pong') return;
+        this.handle(m);
+      };
     });
   }
-  close() { if (this.ws) { try { this.ws.close(); } catch {} } this.ws = null; this.connected = false; }
+  close() {
+    const ws = this.ws;
+    if (this._finishClose) this._finishClose(1000);
+    if (ws) { try { ws.close(); } catch {} }
+    this.ws = null; this.connected = false;
+  }
   send(o) { if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify(o)); }
   join(opts) { this.send({ t: 'join', ...opts }); }
   handle(m) {
@@ -2604,9 +3076,9 @@ class ArenaRenderer extends RenderBase {
   pushFeed(text) { this.feed.push({ text, t: this.time }); if (this.feed.length > 5) this.feed.shift(); }
 
   // Yayıncı kipi: sağda elenme akışı (son 5), üstte sohbet-yayıncı skoru. Sol alt webcam için boş bırakılır.
-  drawStreamerHud(cornerY) {
+  drawStreamerHud(cornerY, viewWidth = this.viewW) {
     if (!this.streamer) return;
-    const ctx = this.ctx, W = this.viewW;
+    const ctx = this.ctx, W = viewWidth;
     if (this.scoreLine) {
       ctx.font = `700 13px ${KUMUL.font}`; ctx.textAlign = 'center';
       const w = ctx.measureText(this.scoreLine).width + 28;
@@ -2910,14 +3382,20 @@ class ArenaRenderer extends RenderBase {
   }
 
   drawArenaHud(world, player, round, spectating) {
-    const ctx = this.ctx, W = window.innerWidth, H = window.innerHeight;
+    const ctx = this.ctx;
+    // Safari yatayda adres/sekme çubuklarıyla çok kısa bir oyun alanı bırakabilir.
+    // HUD ayrı ölçeklenir; dünya ve parmağın ekran koordinatları değişmez.
+    const compact = this.viewW > this.viewH && this.viewH < 500;
+    const hudScale = compact ? Math.max(0.7, Math.min(0.85, this.viewH / 420)) : 1;
+    const W = this.viewW / hudScale, H = this.viewH / hudScale;
+    ctx.save(); ctx.scale(hudScale, hudScale);
     const alive = world.snakes.filter(s => s.alive).sort((a, b) => b.mass - a.mass);
     const ph = round.phase();
 
     // Üst orta: KALAN sayacı + evre etiketi + tur ilerleme çubuğu. Dar ekranda sağa yaslanır (sol paneli örtmesin).
     // Kısa ekran (yatay telefon) da dar düzeni kullanır: masaüstü listesi ekranın yarısını kaplıyordu.
     // Yatayda KALAN ortada kalır, mini harita sağ üste çıkar.
-    const narrow = W < 560 || H < 500, wide = narrow && W >= 560;
+    const narrow = W < 560 || compact || H < 500, wide = narrow && W >= 560;
     // Dar ekranda sol oyuncu paneli (10..154) ile çakışmasın: panel daralır, evre etiketi ikinci satıra iner
     const pw = narrow ? Math.max(150, Math.min(204, W - 174)) : 224, ptop = 10, px = narrow && !wide ? W - pw - 10 : W / 2 - pw / 2;
     this.panel(px, ptop, pw, 66);
@@ -3017,7 +3495,7 @@ class ArenaRenderer extends RenderBase {
     ctx.restore();
     ctx.strokeStyle = KUMUL.ink; ctx.lineWidth = 1.5; this.rrect(mx, my, ms, ms, 8); ctx.stroke();
 
-    this.drawStreamerHud(touch ? cornerY + ms + 10 : cornerY);
+    this.drawStreamerHud(touch ? cornerY + ms + 10 : cornerY, W);
 
     const noteY = wide ? 122 : narrow ? 196 : this.streamer ? 116 : 86;      // bildirim ve izleme etiketi: dar ekranda panellerin altına iner
     if (!spectating && this.toast && this.time - this.toast.t < 1.8) {
@@ -3037,6 +3515,7 @@ class ArenaRenderer extends RenderBase {
       ctx.textAlign = 'center'; ctx.fillStyle = KUMUL.ink; ctx.fillText(text, W / 2, noteY + 17);
     }
 
+    ctx.restore();
     if (this.stick) this.drawStick(this.stick);
     if (!spectating) this.drawTip();
     this.drawStamp();
@@ -3094,7 +3573,11 @@ class BeetleRenderer extends ArenaRenderer {
     // Yakınlık ekrana göre: uzun kenara yaklaşık 1000 birim sığar, top büyüdükçe açı genişler.
     // Sabit yakınlıkta büyük ekranda tüm arena görünür ve karakterler küçücük kalırdı.
     const view = 1000 + ((target ? target.radius : 25) - 25) * 9;
-    this.follow(target, dt, Math.max(0.6, Math.max(this.viewW, this.viewH) / view) * this.zoomBoost);
+    // Yatay telefonda da en az 500 dünya birimi dikey görüş kalsın.
+    const screenZoom = Math.max(this.viewW, this.viewH) / view;
+    const shortLandscape = this.viewW > this.viewH && this.viewH < 500;
+    const zoom = shortLandscape ? Math.max(0.3, Math.min(screenZoom, this.viewH / 500)) : Math.max(0.6, screenZoom);
+    this.follow(target, dt, zoom * this.zoomBoost);
   }
 
   playerChips(p) {
@@ -3779,6 +4262,7 @@ const GAME = {
   season: true,                      // sezon ödül hattı (kumul-ilerleme.js Season)
   tutor: true,                       // kademeli öğretme: FIRLAT 3. turdan, KAZI ve menü derinliği 5. turdan
   reviveTop: 8,                      // diriliş teklifi yalnız bu sıra ve üstünde (portal kuralı: her ölümde teklif yok)
+  privacy: { ready: false, contact: 'support@skarabe.io' }, // hukuk incelemesi tamamlanınca açılır
   analytics: { endpoint: 'sunucu' }, // olay toplayıcı: 'sunucu' = çok oyunculu sunucunun /__olay ucu; boş: ağa çıkılmaz — kumul-analitik.js
   online: { url: 'wss://skarabe-eu.onrender.com' }, // çok oyunculu sunucu (Render, Frankfurt); boşsa aynı kökteki sunucu aranır (/__net) — skarabe-ag.js
   // Metinler kumul-dil.js'ten: dil değişince de doğru olsun diye işlev olarak
@@ -3804,6 +4288,8 @@ const GAME = {
 };
 </script>
 <script>
+// Kalıcı kayıtlar ancak bu sekme oyun kilidini aldıktan sonra okunur.
+function bootGame() {
 // =====================================================================
 // kumul-main.js — Kumul ailesinin ortak oyun akışı: menü, tur, elenme/diriliş, sonuç, yeni tur
 // Oyuna özgü her şey sayfanın tanımladığı GAME nesnesinden gelir:
@@ -3900,6 +4386,7 @@ function syncTutorMenu() {
 // Duraklatma: Esc / P, sekme gizlenince kendiliğinden; devam düğmesiyle ya da Esc ile sürer.
 // ---------------------------------------------------------------------
 let paused = false, adPlaying = false, mutedBeforeAd = false;
+let mobileInactive = false;
 function setPaused(on) {
   if ((state !== 'playing' && on) || !$('pauseModal')) return;   // duraklatma ekranı olmayan sayfada (Kumul) kapalı
   if (on && onlineMode) { renderer.showToast(T('noPauseOnline')); return; }   // çevrimiçi tur sunucuda akar: yerel duraklatma yanıltır
@@ -3908,7 +4395,7 @@ function setPaused(on) {
 }
 Ads.onAdStart = () => { adPlaying = true; mutedBeforeAd = Sfx.muted; Sfx.setMuted(true); };
 Ads.onAdEnd = () => { adPlaying = false; Sfx.setMuted(mutedBeforeAd); last = performance.now(); acc = 0; };
-Ads.init().then(() => { Ads.loadingFinished(); });
+Ads.init({ disabled: !!GAME.beta || !!GAME.mobile }).then(() => { Ads.loadingFinished(); });
 // Analitik (kumul-analitik.js): uç nokta verilmişse olaylar beacon ile gider; Poki'de dış istek kapalı
 const useAnalytics = !!GAME.analytics && typeof Analytics !== 'undefined';
 // endpoint 'sunucu': çok oyunculu sunucunun /__olay ucu (?ag= ile yerel sunucuya bağlanınca olaylar da oraya gider)
@@ -3917,7 +4404,11 @@ const analyticsUrl = () => {
   const ws = new URLSearchParams(location.search).get('ag') || (GAME.online && GAME.online.url) || '';
   return ws ? ws.replace(/^ws/, 'http') + '/__olay' : '';
 };
-if (useAnalytics) Analytics.init(GAME.key, { endpoint: analyticsUrl(), blocked: Ads.detect() === 'poki', portal: Ads.detect() || '' });
+if (useAnalytics) {
+  const options = { endpoint: analyticsUrl(), blocked: Ads.detect() === 'poki', portal: Ads.detect() || '' };
+  if (GAME.privacy && typeof Privacy !== 'undefined') Privacy.init(GAME.key, GAME.privacy, options);
+  else Analytics.init(GAME.key, { ...options, consent: false });
+}
 const track = (e, d) => { if (useAnalytics) Analytics.track(e, d); };
 window.addEventListener('keydown', e => {
   if (e.code === 'F2') { Perf.show = !Perf.show; e.preventDefault(); return; }
@@ -3942,6 +4433,33 @@ function toMenu() {
 if ($('menuBtn')) $('menuBtn').addEventListener('click', toMenu);
 if ($('menu')) $('menu').addEventListener('scroll', () => document.body.classList.toggle('menuScrolled', $('menu').scrollTop > 30), { passive: true });
 document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'playing' && !onlineMode) setPaused(true); });
+// Native yaşam döngüsü: dönüşte tur kendiliğinden devam etmez.
+if (GAME.mobile) {
+  window.addEventListener('skarabe:background', () => {
+    mobileInactive = true;
+    if (state === 'playing' && !onlineMode) setPaused(true);
+    touch.stick.active = false; touch.stick.id = null; touch.stick.dx = touch.stick.dy = 0;
+    touch.boostIds.clear(); touch.btnDown = false;
+    input.boost = false; input.dig = false;
+    if (Sfx.ac) Sfx.ac.suspend().catch(() => {});
+  });
+  window.addEventListener('skarabe:foreground', () => {
+    if (mobileInactive && state === 'playing' && !onlineMode) setPaused(true);
+    mobileInactive = false; renderer.resize();
+  });
+  window.addEventListener('skarabe:back', () => {
+    if ($('privacyModal') && !$('privacyModal').hidden) { Privacy.close(); return; }
+    for (const id of ['clipModal', 'seasonModal', 'defterModal']) {
+      if ($(id) && !$(id).hidden) { $(id).hidden = true; return; }
+    }
+    if (state === 'playing') { setPaused(true); return; }
+    if (state !== 'menu') { toMenu(); return; }
+    window.dispatchEvent(new Event('skarabe:exit'));
+  });
+  document.addEventListener('pointerdown', () => {
+    if (Sfx.live && Sfx.ac && Sfx.ac.state === 'suspended') Sfx.ac.resume().catch(() => {});
+  }, { passive: true });
+}
 if ($('resumeBtn')) $('resumeBtn').addEventListener('click', () => setPaused(false));
 
 // Yayıncı araçları (kumul-yayin.js) menüden kaldırıldı (11 Ekim, kullanıcı kararı); GAME.streamer verilirse ve betik yüklüyse
@@ -3950,7 +4468,7 @@ const useStream = !!GAME.streamer && typeof Twitch !== 'undefined' && Twitch.sup
 function streamScore() { renderer.scoreLine = ''; }
 // Dil düğmesi: metinleri yeniden yaz, menüyü tazele
 // Dil değişince (seçim ya da sonradan yüklenen dil dosyası) menüyü tazele
-Lang.onChange = () => { showMute(); refreshMenu(); Tutor.renderHelp(); drawSkinPreview(); if (typeof pollOnlineCount === 'function') pollOnlineCount(); if (typeof renderLider === 'function') renderLider(); };
+Lang.onChange = () => { if (GAME.privacy) Privacy.render(); showMute(); refreshMenu(); Tutor.renderHelp(); drawSkinPreview(); if (typeof pollOnlineCount === 'function') pollOnlineCount(); if (typeof renderLider === 'function') renderLider(); };
 if ($('langBtn')) $('langBtn').addEventListener('change', e => { Lang.set(e.target.value); });
 const skinLocked = i => useProgress && Progress.skinLocked(i);
 
@@ -4206,6 +4724,14 @@ canvas.addEventListener('touchcancel', touchEnd);
 boostBtn.addEventListener('pointerdown', e => { touch.btnDown = true; syncBoost(); e.preventDefault(); });
 for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) boostBtn.addEventListener(ev, () => { touch.btnDown = false; syncBoost(); });
 
+// Döndürmede eski parmak koordinatları ve basılı atılma yeni ekrana taşınmasın.
+window.addEventListener('resize', () => {
+  const st = touch.stick;
+  st.active = false; st.id = null; st.dx = st.dy = 0;
+  touch.boostIds.clear(); touch.btnDown = false;
+  input.boost = false; input.dig = false;
+});
+
 setTouchMode(touch.coarse);     // dokunmatik cihazda baştan açık; fare oynatılırsa kapanır, ekrana dokunulursa açılır
 
 // Joystick'in çizileceği yer: basılıyken parmağın altında. Boşta görünmez; turda henüz kullanılmadıysa
@@ -4352,8 +4878,9 @@ const Perf = {
              ua: navigator.userAgent.slice(0, 120), touch: touch.enabled, ac: Sfx.ms, inp: this.inp };
   },
   send() {
-    const r = this.report(); track('perf', r);
-    if (onlineUrl) { try { fetch(onlineUrl.replace(/^ws/, 'http') + '/__perf', { method: 'POST', body: JSON.stringify({ pid, name: playerName(), ...r }), keepalive: true, headers: { 'Content-Type': 'text/plain' } }).catch(() => {}); } catch {} }
+    if (!useAnalytics || !Analytics.enabled) return;
+    const { gpu, ua, inp, ...r } = this.report(); track('perf', r);
+    if (onlineUrl) { try { fetch(onlineUrl.replace(/^ws/, 'http') + '/__perf', { method: 'POST', body: JSON.stringify({ consent: 1, aid: Analytics.id, ...r }), keepalive: true, headers: { 'Content-Type': 'text/plain' } }).catch(() => {}); } catch {} }
   },
   draw(ctx, dpr) {
     const n = net && onlineMode ? net : null;
@@ -4389,7 +4916,7 @@ function shareText() {
   const place = round.placementOf(player), title = GAME.title || document.title || T('game');
   // Gerçek bir adreste çalışıyorsak link; iframe/dosya içindeysek (artifact önizlemesi) yalnızca kod
   // Kendi sitemizde (ya da yerelde) bulunduğumuz adres; portal/iframe/artifact içindeysek sabit ana adres (çerçeve adresi arkadaşta açılmaz)
-  const own = /^https?:/.test(location.href) && /(^|.)skarabe.io$|.github.io$|^localhost$|^127.0.0.1$/.test(location.hostname);
+  const own = /^https?:/.test(location.href) && (!!GAME.beta || /(^|\.)skarabe\.io$|\.github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname));
   const base = own ? location.origin + location.pathname : (GAME.shareBase || '');
   const url = base ? `${base}?s=${round.code}&n=${encodeURIComponent(player.name)}&p=${place}${round.mutation ? '&m=' + round.mutation : ''}` : '';
   const line = T('shareLine', title, round.code, player.name, place, player.kills || 0, lastHighlight ? lastHighlight.stamp : '');
@@ -4479,6 +5006,8 @@ function enterRound() {
   $('menu').hidden = true; $('result').hidden = true;
   touch.used = false; pointerMoved = false; syncTouchUi();
   Ads.gameplayStart();
+  // OS arka plan olayı, sıradaki Oyna tıklamasından önce ulaşabilir.
+  if (GAME.mobile && (mobileInactive || document.hidden)) setPaused(true);
 }
 
 // ---------------------------------------------------------------------
@@ -4590,7 +5119,7 @@ function wireNet(n) {
     net = null;   // sonraki Oyna yeni bağlantı kurar
   };
 }
-// Bağlantı yoksa kur; sunucu uyuyorsa birkaç kez dene (toplam ~45 sn)
+// Bağlantı yoksa kur; sunucu uyuyorsa birkaç kez dene (her bağlantı en çok 8 sn, beklemelerle toplam ~65 sn)
 async function ensureNet() {
   if (net && net.connected) return true;
   const btn = $('onlineBtn'); if (btn) btn.disabled = true;
@@ -4853,7 +5382,7 @@ $('reviveBtn').addEventListener('click', async () => {
 // ---------------------------------------------------------------------
 const SLOWMO = { time: 1.5, scale: 0.35, zoom: 1.45 };
 let slowmo = 0, lastHighlight = null, roundHighlights = new Set();
-const useClips = typeof Clip !== 'undefined' && Clip.supported();   // kumul-klip.js yüklüyse ve tarayıcı kaydedebiliyorsa
+const useClips = GAME.clips !== false && typeof Clip !== 'undefined' && Clip.supported();   // mobil paylaşım köprüsü doğrulanana kadar kapatılabilir
 function showHighlight(h) {
   if (!h) return;
   lastHighlight = h; roundHighlights.add(h.key);
@@ -4997,7 +5526,13 @@ function loop(now) {
 }
 requestAnimationFrame(loop);
 
+}
+// Native paket tek pencereyi OS düzeyinde sınırlar. WKWebView kapanışında
+// pagehide gelmeyebilir; tarayıcı sekme kilidi native yeniden açılışı bekletmesin.
+const nativeSingleWindow = !!GAME.mobile && !!window.Capacitor?.isNativePlatform();
+if (!nativeSingleWindow && typeof SingleSession !== "undefined") SingleSession.start(GAME.key, bootGame);
+else bootGame();
+
 </script>
-<!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "85514742d3434cc887b027319e8178de"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

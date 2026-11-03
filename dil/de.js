@@ -1,5 +1,16 @@
 // Skarabe dil dosyası (de) — build.js üretir, elle düzenleme: kaynak kumul-dil.js
 DIL.de = {
+  tabTitle: "Spiel in anderem Tab geöffnet",
+  tabWait: "Schließe den anderen Skarabe-Tab, um deinen Fortschritt zu schützen. Dieser Tab öffnet sich danach automatisch.",
+  privacyTitle: "Datenschutz und Daten",
+  privacyBody: "Optionale Spiel- und Leistungsmessungen helfen uns, das Spiel zu verbessern. Du kannst ohne sie spielen und deine Wahl hier ändern.",
+  privacyAllow: "Erlauben",
+  privacyReject: "Nicht erlauben",
+  privacyOn: "Optionale Messungen sind an.",
+  privacyOff: "Optionale Messungen sind aus.",
+  privacyPolicy: "Datenschutzhinweis (TR / EN)",
+  privacyPlayer: "Spieler-ID",
+  privacyAnalytics: "Messungs-ID",
   tagline: 'Schubs sie in den Sturm und bleib als letzter Käfer stehen.',
   namePh: 'Spitzname', prevSkin: 'Vorheriges Aussehen', nextSkin: 'Nächstes Aussehen', unlockNow: 'Jetzt freischalten', play: 'Spielen',
   practice: 'Gegen Bots üben', panelPlayer: 'Spieler', panelToday: 'Heute', onlineNow: n => `● ${n} online`,

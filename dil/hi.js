@@ -1,5 +1,16 @@
 // Skarabe dil dosyası (hi) — build.js üretir, elle düzenleme: kaynak kumul-dil.js
 DIL.hi = {
+  tabTitle: "खेल दूसरे टैब में खुला है",
+  tabWait: "अपनी प्रगति सुरक्षित रखने के लिए दूसरा Skarabe टैब बंद करें। यह टैब फिर अपने आप खुल जाएगा।",
+  privacyTitle: "गोपनीयता और डेटा",
+  privacyBody: "वैकल्पिक खेल और प्रदर्शन माप हमें खेल सुधारने में मदद करते हैं। इनके बिना भी खेल सकते हैं और यहाँ अपना विकल्प बदल सकते हैं।",
+  privacyAllow: "अनुमति दें",
+  privacyReject: "अनुमति न दें",
+  privacyOn: "वैकल्पिक माप चालू हैं।",
+  privacyOff: "वैकल्पिक माप बंद हैं।",
+  privacyPolicy: "गोपनीयता सूचना (TR / EN)",
+  privacyPlayer: "खिलाड़ी आईडी",
+  privacyAnalytics: "मापन आईडी",
   tagline: 'धक्का दो, उन्हें तूफ़ान में गिराओ, आख़िरी खड़ा भृंग बनो।',
   namePh: 'उपनाम', prevSkin: 'पिछला रूप', nextSkin: 'अगला रूप', unlockNow: 'अभी खोलें', play: 'खेलें',
   practice: 'बॉट के साथ अभ्यास', panelPlayer: 'खिलाड़ी', panelToday: 'आज', onlineNow: n => `● ${n} खिलाड़ी ऑनलाइन`,

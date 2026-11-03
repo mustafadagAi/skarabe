@@ -1,5 +1,16 @@
 // Skarabe dil dosyası (zh) — build.js üretir, elle düzenleme: kaynak kumul-dil.js
 DIL.zh = {
+  tabTitle: "游戏已在其他标签页打开",
+  tabWait: "请关闭其他 Skarabe 标签页以保护进度。此标签页随后会自动开启。",
+  privacyTitle: "隐私和数据",
+  privacyBody: "可选的游戏和性能测量帮助我们改进游戏。你可以不启用它们，并随时在此更改选择。",
+  privacyAllow: "允许",
+  privacyReject: "不允许",
+  privacyOn: "可选测量已开启。",
+  privacyOff: "可选测量已关闭。",
+  privacyPolicy: "隐私说明（TR / EN）",
+  privacyPlayer: "玩家编号",
+  privacyAnalytics: "测量编号",
   tagline: '推开对手，把他们撞进风暴，成为最后站着的甲虫。',
   namePh: '昵称', prevSkin: '上一个外观', nextSkin: '下一个外观', unlockNow: '立即解锁', play: '开始',
   practice: '和机器人练习', panelPlayer: '玩家', panelToday: '今日', onlineNow: n => `● ${n} 人在线`,
