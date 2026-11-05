@@ -1206,8 +1206,9 @@ function pickBotNames(n) {
 // ---------------------------------------------------------------------
 const Ads = {
   MIN_GAP: 180,                                        // sn: iki ara reklam arasında en az
-  portal: null, ready: false, lastInterstitial: -1e9, onAdStart: null, onAdEnd: null,
+  portal: null, ready: false, adsOff: false, forced: false, lastInterstitial: -1e9, onAdStart: null, onAdEnd: null,
   detect() {
+    if (typeof GAME !== 'undefined' && GAME.portal) return GAME.portal;   // portal paketi (crazygames-paket.js) adı sabitler
     const q = new URLSearchParams(location.search).get('portal'), h = location.hostname;
     if (q === 'crazygames' || /crazygames|1001juegos|1001games|jeux\.fr|speelspelletjes/.test(h)) return 'crazygames';
     if (q === 'poki' || /poki\./.test(h)) return 'poki';
@@ -1216,7 +1217,8 @@ const Ads = {
   load(src) { return new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); }); },
   async init(opts = {}) {
     if (opts.disabled) { this.portal = null; this.ready = false; return false; }
-    this.portal = this.detect();
+    this.portal = this.detect(); this.adsOff = !!opts.noAds;   // CrazyGames Basic Launch: SDK var, reklam yok
+    this.forced = !!opts.forced;   // K-024: zorunlu (tur arası) reklam yalnız platform şart koşarsa, ilk oturumda hiç
     try {
       if (this.portal === 'crazygames') { await this.load('https://sdk.crazygames.com/crazygames-sdk-v3.js'); await window.CrazyGames.SDK.init(); this.ready = true; }
       else if (this.portal === 'poki') { await this.load('https://game-cdn.poki.com/scripts/v2/poki-sdk.js'); await window.PokiSDK.init(); this.ready = true; }
@@ -1226,11 +1228,13 @@ const Ads = {
   loadingFinished() { if (this.ready && this.portal === 'poki') window.PokiSDK.gameLoadingFinished(); },
   gameplayStart() { if (!this.ready) return; if (this.portal === 'poki') window.PokiSDK.gameplayStart(); else window.CrazyGames.SDK.game.gameplayStart(); },
   gameplayStop()  { if (!this.ready) return; if (this.portal === 'poki') window.PokiSDK.gameplayStop(); else window.CrazyGames.SDK.game.gameplayStop(); },
+  // CrazyGames davet linki: paylaşım portal dışındaki oynanabilir sürüme (skarabe.io) gitmesin. Olmazsa boş.
+  inviteLink(params) { try { return this.ready && this.portal === 'crazygames' ? window.CrazyGames.SDK.game.inviteLink(params) || '' : ''; } catch { return ''; } },
   happy() { if (this.ready && this.portal === 'crazygames') window.CrazyGames.SDK.game.happytime(); },   // galibiyet gibi iyi anlar
   // Tur arası reklam: sıklık sınırı; portal yoksa anında döner
   async interstitial() {
     const now = performance.now() / 1000;
-    if (!this.ready || now - this.lastInterstitial < this.MIN_GAP) return;
+    if (!this.ready || this.adsOff || !this.forced || now - this.lastInterstitial < this.MIN_GAP) return;
     this.lastInterstitial = now;
     if (this.onAdStart) this.onAdStart();
     try {
@@ -1241,7 +1245,7 @@ const Ads = {
   },
   // Ödüllü reklam: izlenirse true
   async rewarded() {
-    if (!this.ready) return true;
+    if (!this.ready || this.adsOff) return true;
     if (this.onAdStart) this.onAdStart();
     let ok = false;
     try {
@@ -1327,7 +1331,7 @@ class RoundBase {
 
 </script>
 <script>
-const DIL_SURUM = '202611031930';
+const DIL_SURUM = '202611051759';
 // =====================================================================
 // kumul-dil.js — Dil: ekrana çıkan her metin buradan gelir. T(anahtar, ...değer).
 // Varsayılan dil tarayıcıdan (tr → Türkçe, gerisi İngilizce); menüdeki düğmeyle değişir, seçim kalıcı.
@@ -2730,7 +2734,8 @@ function setPaused(on) {
 }
 Ads.onAdStart = () => { adPlaying = true; mutedBeforeAd = Sfx.muted; Sfx.setMuted(true); };
 Ads.onAdEnd = () => { adPlaying = false; Sfx.setMuted(mutedBeforeAd); last = performance.now(); acc = 0; };
-Ads.init({ disabled: !!GAME.beta || !!GAME.mobile }).then(() => { Ads.loadingFinished(); });
+const firstSession = !store.get(GAME.key + '-seen', false); store.set(GAME.key + '-seen', true);
+Ads.init({ disabled: !!GAME.beta || !!GAME.mobile, noAds: GAME.portalAds === false, forced: GAME.forcedAds === true && !firstSession }).then(() => { Ads.loadingFinished(); if (Ads.ready && Ads.whenReady) Ads.whenReady(); });
 // Analitik (kumul-analitik.js): uç nokta verilmişse olaylar beacon ile gider; Poki'de dış istek kapalı
 const useAnalytics = !!GAME.analytics && typeof Analytics !== 'undefined';
 // endpoint 'sunucu': çok oyunculu sunucunun /__olay ucu (?ag= ile yerel sunucuya bağlanınca olaylar da oraya gider)
@@ -2791,10 +2796,11 @@ if (GAME.mobile) {
     if (state !== 'menu') { toMenu(); return; }
     window.dispatchEvent(new Event('skarabe:exit'));
   });
-  document.addEventListener('pointerdown', () => {
-    if (Sfx.live && Sfx.ac && Sfx.ac.state === 'suspended') Sfx.ac.resume().catch(() => {});
-  }, { passive: true });
 }
+// iOS sesi arka plana geçişte/aramada keser; dönüşte ancak bir dokunuşla açılabilir (CrazyGames teknik şartı da bu)
+for (const ev of ['pointerdown', 'touchend']) document.addEventListener(ev, () => {
+  if (Sfx.live && Sfx.ac && Sfx.ac.state !== 'running' && Sfx.ac.state !== 'closed') Sfx.ac.resume().catch(() => {});
+}, { passive: true });
 if ($('resumeBtn')) $('resumeBtn').addEventListener('click', () => setPaused(false));
 
 // Yayıncı araçları (kumul-yayin.js) menüden kaldırıldı (11 Ekim, kullanıcı kararı); GAME.streamer verilirse ve betik yüklüyse
@@ -3235,17 +3241,23 @@ Perf.inp = null;
 try { new PerformanceObserver(l => { for (const e of l.getEntries()) if (e.interactionId && (!Perf.inp || e.duration > Perf.inp.ms)) Perf.inp = { ms: Math.round(e.duration), proc: Math.round(e.processingEnd - e.processingStart), on: e.target && e.target.id || e.name }; }).observe({ type: 'event', durationThreshold: 40, buffered: true }); } catch {}
 // Ses bağlamı sayfa açılınca boşta kurulur (askıda); Oyna tıklaması yalnız devam ettirir (kumul-ses.js)
 (window.requestIdleCallback || (f => setTimeout(f, 1500)))(() => Sfx.prepare(), { timeout: 3000 });
-let urlSeed = codeToSeed(params.get('s'));
-const urlMutation = params.get('m') || null;     // meydan okumanın mutasyonu (haftadan bağımsız)
-const challenge = urlSeed !== null
-  ? { code: seedToCode(urlSeed), name: (params.get('n') || '').replace(/[<>]/g, '').trim().slice(0, 12), place: parseInt(params.get('p'), 10) || 0 }
-  : null;
+let urlSeed = null, urlMutation = null, challenge = null;   // urlMutation: meydan okumanın mutasyonu (haftadan bağımsız)
 let challengeRound = false;          // oynanan tur bir meydan okuma mı
-if (challenge) {
+function applyChallenge(get) {
+  const seed = codeToSeed(get('s'));
+  if (seed === null) return;
+  urlSeed = seed; urlMutation = get('m') || null;
+  challenge = { code: seedToCode(seed), name: (get('n') || '').replace(/[<>]/g, '').trim().slice(0, 12), place: parseInt(get('p'), 10) || 0 };
   const who = challenge.name || T('someone');
   setText('challengeLine', challenge.place ? T('challengeLine', who, challenge.code, challenge.place) : T('challengeLineNoPlace', who, challenge.code));
   stats.challengesOpened = (stats.challengesOpened || 0) + 1; store.set(GAME.key + '-stats', stats);
 }
+applyChallenge(k => params.get(k));
+// CrazyGames davet linkiyle gelen meydan okuma adreste değil SDK'da durur (SDK yüklenince, oyuncu henüz menüdeyse)
+Ads.whenReady = () => {
+  if (Ads.portal !== 'crazygames' || urlSeed !== null || state !== 'menu') return;
+  try { const g = window.CrazyGames.SDK.game; applyChallenge(k => g.getInviteParam(k)); } catch {}
+};
 
 function shareText() {
   const place = round.placementOf(player), title = GAME.title || document.title || T('game');
@@ -3253,7 +3265,9 @@ function shareText() {
   // Kendi sitemizde (ya da yerelde) bulunduğumuz adres; portal/iframe/artifact içindeysek sabit ana adres (çerçeve adresi arkadaşta açılmaz)
   const own = /^https?:/.test(location.href) && (!!GAME.beta || /(^|\.)skarabe\.io$|\.github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname));
   const base = own ? location.origin + location.pathname : (GAME.shareBase || '');
-  const url = base ? `${base}?s=${round.code}&n=${encodeURIComponent(player.name)}&p=${place}${round.mutation ? '&m=' + round.mutation : ''}` : '';
+  const q = { s: round.code, n: player.name, p: String(place), ...(round.mutation ? { m: round.mutation } : {}) };
+  // Portalda (CrazyGames) link portalın davet linkidir: oyun dışına (skarabe.io) yönlendirme portal kuralına aykırı
+  const url = Ads.portal ? Ads.inviteLink(q) : base ? `${base}?${new URLSearchParams(q)}` : '';
   const line = T('shareLine', title, round.code, player.name, place, player.kills || 0, lastHighlight ? lastHighlight.stamp : '');
   return { text: `${line}\n${T('shareAsk')} ${url || T('roundCodeOnly', round.code)}`, url };
 }
